@@ -11,6 +11,7 @@ import InfoTable from "./InfoTable";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import { findMax } from "../utils/numberUtils"
 import useExcelData from "../hook/formData";
+import ToggleOptionsMenu from "./toggleMenu";
 const DimensionBoxes = () => {
 
 
@@ -38,10 +39,8 @@ const DimensionBoxes = () => {
           Dimensions
         </h2> */}
 
-        <div className="flex flex-row flex-wrap  gap-4 justify-center">
-          {/* Niche Dimensions */}
-
-       
+        <div className="flex flex-row flex-wrap  gap-2 justify-center">
+          
 
           {/* Screen Dimensions */}
           <DimensionGroup title="Screen Dimensions">
@@ -61,6 +60,7 @@ const DimensionBoxes = () => {
               className="flex flex-row items-center justify-between border-b border-black h-8"
             />
           </DimensionGroup>
+          {/* Niche Dimensions */}
           <DimensionGroup title="Niche Dimensions">
             <DimensionItem
               label="Height"
@@ -94,7 +94,13 @@ const DimensionBoxes = () => {
               className="flex flex-row items-center justify-between border-b border-black h-8"
             />
           </DimensionGroup>
+          
         </div>
+       <div>
+       <ToggleOptionsMenu />
+       </div>
+          
+      
       </div>
 
       <div>

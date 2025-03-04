@@ -1,6 +1,7 @@
 import React from "react";
-import Demension from "./Dimension";
+import useDraggableReceptacleBoxes from "./DraggableReceptacleBoxes";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
+
 const DiagramLED = () => {
   // Add constants for better maintainability
   const COLORS = {
@@ -9,6 +10,7 @@ const DiagramLED = () => {
     accent: "#FFA500",
     background: "#FFFFFF",
   };
+  
   //niche lines should be hidden
   const {
     isHorizontal,
@@ -21,18 +23,54 @@ const DiagramLED = () => {
     selectedScreen,
     variantDepth,
   } = useSheetDataStore((state) => state);
+  
   const width = selectedScreen?.["Width"] || 0;
   const height = selectedScreen?.["Height"] || 0;
 
+  // Use the draggable receptacle boxes hook
+  const {
+    svgRef,
+    receptacleBoxes,
+    addReceptacleBox,
+    removeReceptacleBox,
+    startDrag,
+    MAX_BOXES
+  } = useDraggableReceptacleBoxes();
+
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0ß">
+      {/* Controls for receptacle boxes */}
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <button 
+            onClick={addReceptacleBox}
+            disabled={receptacleBoxes.length >= MAX_BOXES}
+            className={`px-4 py-2 rounded ${
+              receptacleBoxes.length >= MAX_BOXES 
+                ? 'bg-gray-300 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
+          >
+            Add Receptacle Box ({receptacleBoxes.length}/{MAX_BOXES})
+          </button>
+        </div>
+        
+        {receptacleBoxes.length > 0 && (
+          <div className="text-sm text-gray-600">
+            Tip: Drag to move boxes. Right-click to remove.
+          </div>
+        )}
+      </div>
+      
       <div className="mb-0">
         <svg
+          ref={svgRef}
           width="100%"
           height="700"
           viewBox="0 0 800 800"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
+          style={{ touchAction: "none" }}
         >
           {/* Add a title and description for accessibility */}
           <title>LED Display Installation Diagram</title>
@@ -191,33 +229,45 @@ const DiagramLED = () => {
             strokeDasharray="4"
           />
 
-          {/* Receptacle Box (Dashed) */}
-          {/* Receptacle Box - Render only if a valid option is selected */}
-          {selectedReceptacleBox?.Brand && (
-            <>
+          {/* Draggable Receptacle Boxes */}
+          {receptacleBoxes.map((box, index) => (
+            <g 
+              key={box.id} 
+              onMouseDown={(e) => startDrag(e, box.id)}
+              onContextMenu={(e) => {
+                e.preventDefault();
+                removeReceptacleBox(box.id);
+              }}
+              style={{ cursor: 'move' }}
+            >
+              {/* Single border box with solid border */}
               <rect
-                x="385"
-                y="370"
-                width="30"
-                height="30"
+                x={box.x}
+                y={box.y}
+                width={box.width}
+                height={box.height}
                 fill={COLORS.background}
                 stroke={COLORS.highlight}
-                strokeDasharray="3,3"
                 strokeWidth="1.5"
               />
-              <rect
-                x="380"
-                y="365"
-                width="40"
-                height="40"
-                fill="none"
-                stroke={COLORS.highlight}
-                strokeDasharray="3,3"
-                strokeWidth="1.5"
-              />
+              <text 
+                x={box.x + (box.width / 2)} 
+                y={box.y - 5} 
+                textAnchor="middle" 
+                fontSize="10"
+                fill={COLORS.highlight}
+              >
+                Box {index + 1}
+              </text>
+            </g>
+          ))}
+
+          {/* Only draw leader line if there's at least one box */}
+          {receptacleBoxes.length > 0 && (
+            <>
               <line
-                x1="410"
-                y1="380"
+                x1={receptacleBoxes[0].x + 15}
+                y1={receptacleBoxes[0].y + 15}
                 x2="455"
                 y2="80"
                 stroke="black"
@@ -238,11 +288,11 @@ const DiagramLED = () => {
               </text>
             </>
           )}
-          {/* side view*/}
 
+          {/* side view*/}
           <text x="795" y="648" textAnchor="start" fontSize="12">
-                Side View
-              </text>
+            Side View
+          </text>
           
           <line
             x1="810"
@@ -302,9 +352,9 @@ const DiagramLED = () => {
             stroke="black"
          
           />
-{/*Masurment lines*/}
+          {/*Measurement lines*/}
 
-<line
+          <line
             x1="800"
             y1="158"
             x2="800"
@@ -314,7 +364,7 @@ const DiagramLED = () => {
             markerStart="url(#arrowReversed)"
             markerEnd="url(#arrow)"
           />
-<line
+          <line
             x1="810"
             y1="460"
             x2="835"
@@ -325,7 +375,7 @@ const DiagramLED = () => {
             markerEnd="url(#arrow)"
           />
 
-<line
+          <line
             x1="810"
             y1="156"
             x2="800"
@@ -361,7 +411,7 @@ const DiagramLED = () => {
             strokeWidth="1"
            strokeDasharray="2"
           />
-{/* Start from here */}
+
           {/* Diagonal Lines */}
           <line
             x1="400"
