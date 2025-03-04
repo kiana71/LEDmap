@@ -18,19 +18,25 @@ const useDraggableReceptacleBoxes = () => {
     }
   ]);
   
+  const [boxCount, setBoxCount] = useState(1);
   const [activeBoxId, setActiveBoxId] = useState(null);
   const [startPoint, setStartPoint] = useState({ x: 0, y: 0 });
   const [startBoxPosition, setStartBoxPosition] = useState({ x: 0, y: 0 });
   
   const svgRef = useRef(null);
+  const dragRef = useRef(false);
+  const MIN_BOXES = 1;
   const MAX_BOXES = 10;
 
-  // Add a new receptacle box
-  const addReceptacleBox = useCallback(() => {
-    if (receptacleBoxes.length < MAX_BOXES) {
-      const newBoxIndex = receptacleBoxes.length;
-      const rowCount = Math.floor(newBoxIndex / 10);
-      const colCount = newBoxIndex % 10;
+  // Increment box count
+  const incrementBoxCount = useCallback(() => {
+    if (boxCount < MAX_BOXES) {
+      const newCount = boxCount + 1;
+      setBoxCount(newCount);
+      
+      // Calculate position for the new box
+      const rowCount = Math.floor((newCount - 1) / 10);
+      const colCount = (newCount - 1) % 10;
       
       const newBox = {
         id: Date.now(),
@@ -42,15 +48,18 @@ const useDraggableReceptacleBoxes = () => {
       
       setReceptacleBoxes(prevBoxes => [...prevBoxes, newBox]);
     }
-  }, [receptacleBoxes.length]);
+  }, [boxCount]);
 
-  // Remove a receptacle box
-  const removeReceptacleBox = useCallback((id) => {
-    // Don't remove if it's the last box
-    if (receptacleBoxes.length <= 1) return;
-    
-    setReceptacleBoxes(prevBoxes => prevBoxes.filter(box => box.id !== id));
-  }, [receptacleBoxes.length]);
+  // Decrement box count
+  const decrementBoxCount = useCallback(() => {
+    if (boxCount > MIN_BOXES) {
+      const newCount = boxCount - 1;
+      setBoxCount(newCount);
+      
+      // Remove the last box
+      setReceptacleBoxes(prevBoxes => prevBoxes.slice(0, newCount));
+    }
+  }, [boxCount]);
 
   // Convert client coordinates to SVG coordinates
   const clientToSVGCoordinates = useCallback((clientX, clientY) => {
@@ -81,6 +90,7 @@ const useDraggableReceptacleBoxes = () => {
     setActiveBoxId(id);
     setStartPoint({ x: point.x, y: point.y });
     setStartBoxPosition({ x: box.x, y: box.y });
+    dragRef.current = true;
     
     document.addEventListener('mousemove', handleDrag);
     document.addEventListener('mouseup', endDrag);
@@ -88,7 +98,7 @@ const useDraggableReceptacleBoxes = () => {
 
   // Handle drag
   const handleDrag = useCallback((event) => {
-    if (!activeBoxId) return;
+    if (!dragRef.current || !activeBoxId) return;
     
     const currentPoint = clientToSVGCoordinates(event.clientX, event.clientY);
     const deltaX = currentPoint.x - startPoint.x;
@@ -111,6 +121,7 @@ const useDraggableReceptacleBoxes = () => {
   // End dragging
   const endDrag = useCallback(() => {
     setActiveBoxId(null);
+    dragRef.current = false;
     document.removeEventListener('mousemove', handleDrag);
     document.removeEventListener('mouseup', endDrag);
   }, [handleDrag]);
@@ -118,9 +129,11 @@ const useDraggableReceptacleBoxes = () => {
   return {
     svgRef,
     receptacleBoxes,
-    addReceptacleBox,
-    removeReceptacleBox,
+    boxCount,
+    incrementBoxCount,
+    decrementBoxCount,
     startDrag,
+    MIN_BOXES,
     MAX_BOXES
   };
 };

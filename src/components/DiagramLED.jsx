@@ -31,35 +31,42 @@ const DiagramLED = () => {
   const {
     svgRef,
     receptacleBoxes,
-    addReceptacleBox,
-    removeReceptacleBox,
+    boxCount,
+    incrementBoxCount,
+    decrementBoxCount,
     startDrag,
+    MIN_BOXES,
     MAX_BOXES
   } = useDraggableReceptacleBoxes();
 
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0ß">
-      {/* Controls for receptacle boxes */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
+      {/* Counter control exactly matching the image */}
+      <div className="flex justify-center items-center mb-6">
+        <div className="flex items-center border border-gray-300  overflow-hidden" style={{ height: '40px', width: '200px' }}>
+        <div className="h-full flex-grow flex items-center justify-center">
+            {boxCount}
+          </div>
           <button 
-            onClick={addReceptacleBox}
-            disabled={receptacleBoxes.length >= MAX_BOXES}
-            className={`px-4 py-2 rounded ${
-              receptacleBoxes.length >= MAX_BOXES 
-                ? 'bg-gray-300 cursor-not-allowed' 
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            }`}
+            onClick={decrementBoxCount}
+            disabled={boxCount <= MIN_BOXES}
+            className="h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+            style={{ borderRight: '1px solid #e5e7eb' }}
           >
-            Add Receptacle Box ({receptacleBoxes.length}/{MAX_BOXES})
+            <span className="text-xl font-bold">−</span>
+          </button>
+          
+          
+          
+          <button 
+            onClick={incrementBoxCount}
+            disabled={boxCount >= MAX_BOXES}
+            className="h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+            style={{ borderLeft: '1px solid #e5e7eb' }}
+          >
+            <span className="text-xl font-bold">+</span>
           </button>
         </div>
-        
-        {receptacleBoxes.length > 0 && (
-          <div className="text-sm text-gray-600">
-            Tip: Drag to move boxes. Right-click to remove.
-          </div>
-        )}
       </div>
       
       <div className="mb-0">
@@ -234,10 +241,6 @@ const DiagramLED = () => {
             <g 
               key={box.id} 
               onMouseDown={(e) => startDrag(e, box.id)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                removeReceptacleBox(box.id);
-              }}
               style={{ cursor: 'move' }}
             >
               {/* Single border box with solid border */}
