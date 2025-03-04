@@ -3,12 +3,12 @@ import React from 'react';
 const SelectInput = ({ label, options, className, ...rest }) => {
   return (
     <div className="mb-1 w-full px-4">
-      <label className="block text-sm font-medium text-gray-700 ">
+      <label className="block text-sm font-medium text-gray-700 pb-1">
         {label}
       </label>
       <div className="relative">
         <select
-          className={`w-full border border-gray-300  rounded-sm px-8 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none hover:border-blue-400 transition-all duration-200 ease-in-out ${className}`}
+          className={`w-full border border-gray-300 mb-2 rounded-sm px-8 py-1 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none hover:border-blue-400 transition-all duration-200 ease-in-out ${className}`}
           {...rest}
         >
           {options.map((option, index) => (

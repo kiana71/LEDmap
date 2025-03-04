@@ -9,9 +9,10 @@ import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import Hamburger from "./Hamburger";
+import DownloadIcon from '@mui/icons-material/Download';
 
 const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar}) => {
-
+  const [selectedUnit, setSelectedUnit] = useState("cm");
   //hamburger menu
 
   console.log(isOpen)
@@ -61,10 +62,10 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar}) => {
   if (!selectedScreen) return null;
 
   return (
-    <div className={`overflow-y-auto  h-full fixed w-72 lg:right-0 transition-all bg-white  top-0 pt-14 shadow-xl lg:shadow-none  ${isOpen ? "right-0" : "-right-72"}`}>
-      <div className="w-full p-2">
+    <div className={`overflow-y-auto h-full fixed w-72 lg:right-0 transition-all bg-white  top-0 pt-14 shadow-xl lg:shadow-none  ${isOpen ? "right-0" : "-right-72"}`}>
+      <div className="w-full p-2 gap-96">
         <div className="w-full lg:border">
-          <p className="pl-5 pt-4 text-start font-bold text-sm mb-1">
+          <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
             Configuration
           </p>
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
@@ -133,20 +134,42 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar}) => {
                 }
               }}
             />
-            <div className="grid mt-2 grid-cols-1 px-5">
+ <div className="grid mt-2 grid-cols-1 px-4 ">
+<DimensionItem
+                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
+                label=" Distance"
+                value="3'"
+                hasBorder = "true"
+              />
+              </div>
+
+              <SelectInput
+  label="Unit"
+  options={[
+    { value: "cm", label: "Centimeter" },
+    { value: "in", label: "Inches" }
+  ]}
+  value={selectedUnit}
+  onChange={(e) => setSelectedUnit(e.target.value)}
+  className="text-center"
+/>
+              
+            <div className="grid mt-2 grid-cols-1 px-4">
               <DimensionItem
-                className="flex flex-row items-center justify-between border border-gray-300 h-8"
+                className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
                 label="Floor Distance"
                 value="50"
+                hasBorder = "true"
               />
               <DimensionItem
-                className="flex flex-row items-center justify-between border border-gray-300 h-8"
+                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
                 label="Niche Depth var"
                 value={variantDepth}
+                hasBorder = "true"
                 onChange={(e) => setVarientDepth(e.target.value)}
               />
             </div>
-            <div className="grid w-full grid-cols-2 px-5">
+            <div className="grid w-full grid-cols-2 px-4 ">
               <ChoosableOptions
                 label="Vertical"
                 isSelected={!isHorizontal}
@@ -171,8 +194,13 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar}) => {
           </form>
         </div>
       </div>
-      <div className="w-full px-2">
-        <div className="w-full lg:border">
+      <div
+        onClick={(e) => {
+          e.preventDefault();
+          toPDF();
+        }}
+      className=" h-16 fixed bottom-0 justify-center items-center flex flex-row no-wrap">
+        {/* <div className="w-full lg:border">
           <form className="grid grid-col grid-cols-1 text-start">
             <TextInputGroup title="Description">
               <TextInput
@@ -208,18 +236,20 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar}) => {
             </TextInputGroup>
             
            
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                toPDF();
-              }}
-              className="mb-3 mt-1 m-auto rounded-lg px-1 text-white w-4/5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
+            
+
+          </form>
+        </div> */}
+     
+        <button 
+            
+              className="w-60 h-8 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
             >
               Download
             </button>
-
-          </form>
-        </div>
+            <div className=" bg-blue-700 text-white h-8 w-10">
+            <DownloadIcon/>
+            </div>
       </div>
       
     </div>

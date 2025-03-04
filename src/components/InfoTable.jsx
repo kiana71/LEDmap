@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import Logo from "../img/logo.png";
+import Logo from "../img/Logo_signcast_big-1080x322.png";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 
 const InfoTable = () => {
@@ -14,7 +14,7 @@ const InfoTable = () => {
     <div className="border rounded-md shadow-md px-4 pb-4 mb-5 bg-white w-full max-w-4xl mx-auto">
       {/* Logo and Address */}
       <div className="flex items-center justify-between ">
-        <div className="bg-gray-800 relative ">
+        <div className="relative ">
           <img className="w-14" src={Logo} alt="Signcast Media" />
         </div>
       </div>
