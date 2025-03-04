@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const useDraggableReceptacleBoxes = () => {
   const BOX_WIDTH = 30;
@@ -6,6 +6,14 @@ const useDraggableReceptacleBoxes = () => {
   const BOX_SPACING = 10;
   const INITIAL_X = 205;
   const INITIAL_Y = 370;
+  
+  // Rectangle boundary constraints
+  const BOUNDARY = {
+    x: 150,
+    y: 150,
+    width: 500,
+    height: 300
+  };
   
   // Initialize with one default box
   const [receptacleBoxes, setReceptacleBoxes] = useState([
@@ -24,12 +32,11 @@ const useDraggableReceptacleBoxes = () => {
   const [startBoxPosition, setStartBoxPosition] = useState({ x: 0, y: 0 });
   
   const svgRef = useRef(null);
-  const dragRef = useRef(false);
   const MIN_BOXES = 1;
   const MAX_BOXES = 10;
 
   // Increment box count
-  const incrementBoxCount = useCallback(() => {
+  const incrementBoxCount = () => {
     if (boxCount < MAX_BOXES) {
       const newCount = boxCount + 1;
       setBoxCount(newCount);
@@ -38,20 +45,28 @@ const useDraggableReceptacleBoxes = () => {
       const rowCount = Math.floor((newCount - 1) / 10);
       const colCount = (newCount - 1) % 10;
       
+      // Calculate initial position (ensure it's within boundaries)
+      let x = INITIAL_X + (colCount * (BOX_WIDTH + BOX_SPACING));
+      let y = INITIAL_Y + (rowCount * (BOX_HEIGHT + BOX_SPACING));
+      
+      // Constrain to boundary if needed
+      x = Math.max(BOUNDARY.x, Math.min(BOUNDARY.x + BOUNDARY.width - BOX_WIDTH, x));
+      y = Math.max(BOUNDARY.y, Math.min(BOUNDARY.y + BOUNDARY.height - BOX_HEIGHT, y));
+      
       const newBox = {
         id: Date.now(),
-        x: INITIAL_X + (colCount * (BOX_WIDTH + BOX_SPACING)),
-        y: INITIAL_Y + (rowCount * (BOX_HEIGHT + BOX_SPACING)),
+        x: x,
+        y: y,
         width: BOX_WIDTH,
         height: BOX_HEIGHT
       };
       
       setReceptacleBoxes(prevBoxes => [...prevBoxes, newBox]);
     }
-  }, [boxCount]);
+  };
 
   // Decrement box count
-  const decrementBoxCount = useCallback(() => {
+  const decrementBoxCount = () => {
     if (boxCount > MIN_BOXES) {
       const newCount = boxCount - 1;
       setBoxCount(newCount);
@@ -59,10 +74,10 @@ const useDraggableReceptacleBoxes = () => {
       // Remove the last box
       setReceptacleBoxes(prevBoxes => prevBoxes.slice(0, newCount));
     }
-  }, [boxCount]);
+  };
 
   // Convert client coordinates to SVG coordinates
-  const clientToSVGCoordinates = useCallback((clientX, clientY) => {
+  const clientToSVGCoordinates = (clientX, clientY) => {
     if (!svgRef.current) return { x: 0, y: 0 };
     
     const ctm = svgRef.current.getScreenCTM();
@@ -74,10 +89,18 @@ const useDraggableReceptacleBoxes = () => {
     
     const point = svgPoint.matrixTransform(ctm.inverse());
     return { x: point.x, y: point.y };
-  }, []);
+  };
+
+  // Constrain position to stay within boundaries
+  const constrainToBoundary = (x, y) => {
+    return {
+      x: Math.max(BOUNDARY.x, Math.min(BOUNDARY.x + BOUNDARY.width - BOX_WIDTH, x)),
+      y: Math.max(BOUNDARY.y, Math.min(BOUNDARY.y + BOUNDARY.height - BOX_HEIGHT, y))
+    };
+  };
 
   // Start dragging
-  const startDrag = useCallback((event, id) => {
+  const startDrag = (event, id) => {
     event.preventDefault();
     
     if (!svgRef.current) return;
@@ -90,41 +113,52 @@ const useDraggableReceptacleBoxes = () => {
     setActiveBoxId(id);
     setStartPoint({ x: point.x, y: point.y });
     setStartBoxPosition({ x: box.x, y: box.y });
-    dragRef.current = true;
+  };
+
+  // Use useEffect to manage drag events
+  useEffect(() => {
+    if (activeBoxId === null) return;
     
+    const handleDrag = (event) => {
+      const currentPoint = clientToSVGCoordinates(event.clientX, event.clientY);
+      const deltaX = currentPoint.x - startPoint.x;
+      const deltaY = currentPoint.y - startPoint.y;
+      
+      setReceptacleBoxes(prevBoxes => 
+        prevBoxes.map(box => {
+          if (box.id === activeBoxId) {
+            // Calculate new position
+            const newX = startBoxPosition.x + deltaX;
+            const newY = startBoxPosition.y + deltaY;
+            
+            // Constrain to boundary
+            const constrained = constrainToBoundary(newX, newY);
+            
+            return {
+              ...box,
+              x: constrained.x,
+              y: constrained.y
+            };
+          }
+          return box;
+        })
+      );
+    };
+    
+    const endDrag = () => {
+      setActiveBoxId(null);
+    };
+    
+    // Add event listeners
     document.addEventListener('mousemove', handleDrag);
     document.addEventListener('mouseup', endDrag);
-  }, [receptacleBoxes, clientToSVGCoordinates]);
-
-  // Handle drag
-  const handleDrag = useCallback((event) => {
-    if (!dragRef.current || !activeBoxId) return;
     
-    const currentPoint = clientToSVGCoordinates(event.clientX, event.clientY);
-    const deltaX = currentPoint.x - startPoint.x;
-    const deltaY = currentPoint.y - startPoint.y;
-    
-    setReceptacleBoxes(prevBoxes => 
-      prevBoxes.map(box => {
-        if (box.id === activeBoxId) {
-          return {
-            ...box,
-            x: startBoxPosition.x + deltaX,
-            y: startBoxPosition.y + deltaY
-          };
-        }
-        return box;
-      })
-    );
-  }, [activeBoxId, startPoint, startBoxPosition, clientToSVGCoordinates]);
-
-  // End dragging
-  const endDrag = useCallback(() => {
-    setActiveBoxId(null);
-    dragRef.current = false;
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', endDrag);
-  }, [handleDrag]);
+    // Clean up
+    return () => {
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', endDrag);
+    };
+  }, [activeBoxId, startPoint, startBoxPosition]);
 
   return {
     svgRef,

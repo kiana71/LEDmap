@@ -1,74 +1,96 @@
-import React from "react";
-import useDraggableReceptacleBoxes from "./DraggableReceptacleBoxes";
+import React, { useRef, useEffect } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 
 const DiagramLED = () => {
   // Add constants for better maintainability
   const COLORS = {
     primary: "#000000",
-    highlight: "#FF0000",
+    highlight: "#6eafb3",
     accent: "#FFA500",
-    background: "#FFFFFF",
+    background: "#6eafb3",
   };
   
-  //niche lines should be hidden
+  // SVG ref for coordinate conversion
+  const svgRef = useRef(null);
+  
+  // Get all state and methods from the store
   const {
     isHorizontal,
     isNiche,
-    toggleIsHorizontal,
-    toggleIsNiche,
     selectedReceptacleBox,
     selectedMediaPlayer,
     selectedMount,
     selectedScreen,
     variantDepth,
-  } = useSheetDataStore((state) => state);
+    
+    // Receptacle boxes state and methods
+    receptacleBoxes,
+    boxCount,
+    activeBoxId,
+    setStartDragInfo,
+    updateBoxPosition,
+    endDrag,
+    BOX_WIDTH,
+    BOX_HEIGHT
+  } = useSheetDataStore();
   
   const width = selectedScreen?.["Width"] || 0;
   const height = selectedScreen?.["Height"] || 0;
 
-  // Use the draggable receptacle boxes hook
-  const {
-    svgRef,
-    receptacleBoxes,
-    boxCount,
-    incrementBoxCount,
-    decrementBoxCount,
-    startDrag,
-    MIN_BOXES,
-    MAX_BOXES
-  } = useDraggableReceptacleBoxes();
+  // Convert client coordinates to SVG coordinates
+  const clientToSVGCoordinates = (clientX, clientY) => {
+    if (!svgRef.current) return { x: 0, y: 0 };
+    
+    const ctm = svgRef.current.getScreenCTM();
+    if (!ctm) return { x: 0, y: 0 };
+    
+    const svgPoint = svgRef.current.createSVGPoint();
+    svgPoint.x = clientX;
+    svgPoint.y = clientY;
+    
+    const point = svgPoint.matrixTransform(ctm.inverse());
+    return { x: point.x, y: point.y };
+  };
+
+  // Start dragging
+  const startDrag = (event, id) => {
+    event.preventDefault();
+    
+    if (!svgRef.current) return;
+    
+    const box = receptacleBoxes.find(box => box.id === id);
+    if (!box) return;
+    
+    const point = clientToSVGCoordinates(event.clientX, event.clientY);
+    setStartDragInfo(id, point, { x: box.x, y: box.y });
+    
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  // Handle drag
+  const handleDrag = (event) => {
+    const point = clientToSVGCoordinates(event.clientX, event.clientY);
+    updateBoxPosition(point);
+  };
+
+  // End dragging
+  const handleMouseUp = () => {
+    endDrag();
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  // Clean up event listeners on unmount
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
 
   return (
-    <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0ß">
-      {/* Counter control exactly matching the image */}
-      <div className="flex justify-center items-center mb-6">
-        <div className="flex items-center border border-gray-300  overflow-hidden" style={{ height: '40px', width: '200px' }}>
-        <div className="h-full flex-grow flex items-center justify-center">
-            {boxCount}
-          </div>
-          <button 
-            onClick={decrementBoxCount}
-            disabled={boxCount <= MIN_BOXES}
-            className="h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
-            style={{ borderRight: '1px solid #e5e7eb' }}
-          >
-            <span className="text-xl font-bold">−</span>
-          </button>
-          
-          
-          
-          <button 
-            onClick={incrementBoxCount}
-            disabled={boxCount >= MAX_BOXES}
-            className="h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
-            style={{ borderLeft: '1px solid #e5e7eb' }}
-          >
-            <span className="text-xl font-bold">+</span>
-          </button>
-        </div>
-      </div>
-      
+    <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
       <div className="mb-0">
         <svg
           ref={svgRef}
@@ -107,6 +129,20 @@ const DiagramLED = () => {
           {/* Outer Rectangle */}
           {isNiche && (
             <>
+              {/*niche width text*/}    
+              <rect
+                x="50"
+                y="268"
+                width="40"
+                height="20"
+                fill="none"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <text x="70" y="280" textAnchor="middle" fontSize="12">
+                {parseFloat(width) + (width < 55 ? 1.5 : 2)}
+              </text>
+
               <rect
                 x="140"
                 y="140"
@@ -190,8 +226,132 @@ const DiagramLED = () => {
                 strokeWidth=".5"
                 strokeDasharray="2"
               />
+            
+              <text x="795" y="648" textAnchor="start" fontSize="12">
+                Side View
+              </text>
+              
+              <line
+                x1="810"
+                y1="156"
+                x2="810"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <line
+                x1="830"
+                y1="156"
+                x2="830"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <line
+                x1="836"
+                y1="156"
+                x2="836"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+              />
+              {/*top and bottom lines*/}
+              <line
+                x1="810"
+                y1="156"
+                x2="830"
+                y2="156"
+                stroke="black"
+                strokeWidth="1"
+              />
+
+              <line
+                x1="810"
+                y1="445"
+                x2="830"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <line
+                x1="830"
+                y1="445"
+                x2="835"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <line
+                x1="830"
+                y1="156"
+                x2="835"
+                y2="156"
+                stroke="black"
+                strokeWidth="1"
+              />
+              {/*Measurement lines*/}
+
+              <line
+                x1="800"
+                y1="158"
+                x2="800"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+                markerStart="url(#arrowReversed)"
+                markerEnd="url(#arrow)"
+              />
+              <line
+                x1="810"
+                y1="460"
+                x2="835"
+                y2="460"
+                stroke="black"
+                strokeWidth="1"
+                markerStart="url(#arrowReversed)"
+                markerEnd="url(#arrow)"
+              />
+
+              <line
+                x1="810"
+                y1="156"
+                x2="800"
+                y2="156"
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="2"
+              />
+              <line
+                x1="810"
+                y1="445"
+                x2="800"
+                y2="445"
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="2"
+              />
+              <line
+                x1="810"
+                y1="447"
+                x2="810"
+                y2="457"
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="2"
+              />
+              <line
+                x1="835"
+                y1="447"
+                x2="835"
+                y2="457"
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="2"
+              />
             </>
           )}
+          
+          {/* Main Rectangle - Draggable Boundary */}
           <rect
             x="150"
             y="150"
@@ -200,6 +360,7 @@ const DiagramLED = () => {
             fill="none"
             stroke="black"
             strokeWidth="2"
+            opacity="1"
           />
 
           {/* Inner Rectangle (Dashed) - Thicker border */}
@@ -292,129 +453,6 @@ const DiagramLED = () => {
             </>
           )}
 
-          {/* side view*/}
-          <text x="795" y="648" textAnchor="start" fontSize="12">
-            Side View
-          </text>
-          
-          <line
-            x1="810"
-            y1="156"
-            x2="810"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <line
-            x1="830"
-            y1="156"
-            x2="830"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <line
-            x1="836"
-            y1="156"
-            x2="836"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-          />
-          {/*top and bottom lines*/}
-          <line
-            x1="810"
-            y1="156"
-            x2="830"
-            y2="156"
-            stroke="black"
-            strokeWidth="1"
-          />
-
-          <line
-            x1="810"
-            y1="445"
-            x2="830"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <line
-            x1="830"
-            y1="445"
-            x2="835"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <line
-            x1="830"
-            y1="156"
-            x2="835"
-            y2="156"
-            stroke="black"
-         
-          />
-          {/*Measurement lines*/}
-
-          <line
-            x1="800"
-            y1="158"
-            x2="800"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-            markerStart="url(#arrowReversed)"
-            markerEnd="url(#arrow)"
-          />
-          <line
-            x1="810"
-            y1="460"
-            x2="835"
-            y2="460"
-            stroke="black"
-            strokeWidth="1"
-             markerStart="url(#arrowReversed)"
-            markerEnd="url(#arrow)"
-          />
-
-          <line
-            x1="810"
-            y1="156"
-            x2="800"
-            y2="156"
-            stroke="black"
-            strokeWidth="1"
-           strokeDasharray="2"
-          />
-          <line
-            x1="810"
-            y1="445"
-            x2="800"
-            y2="445"
-            stroke="black"
-            strokeWidth="1"
-           strokeDasharray="2"
-          />
-           <line
-            x1="810"
-            y1="447"
-            x2="810"
-            y2="457"
-            stroke="black"
-            strokeWidth="1"
-           strokeDasharray="2"
-          />
-           <line
-            x1="835"
-            y1="447"
-            x2="835"
-            y2="457"
-            stroke="black"
-            strokeWidth="1"
-           strokeDasharray="2"
-          />
-
           {/* Diagonal Lines */}
           <line
             x1="400"
@@ -501,19 +539,6 @@ const DiagramLED = () => {
           </text>
 
           <rect
-            x="50"
-            y="268"
-            width="40"
-            height="20"
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <text x="70" y="280" textAnchor="middle" fontSize="12">
-            {parseFloat(width) + (width < 55 ? 1.5 : 2)}
-          </text>
-
-          <rect
             x="31"
             y="315"
             width="40"
@@ -533,6 +558,7 @@ const DiagramLED = () => {
               display
             </tspan>
           </text>
+          
           {/* 28" on right */}
           <line
             x1="700"
