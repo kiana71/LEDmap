@@ -1,14 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 
+// Create a context with default values for visibility
+export const VisibilityContext = createContext({
+  visibleElements: {
+    floorLine: true,
+    centreLine: true,
+    woodBacking: true,
+    receptacleBox: true
+  },
+  toggleVisibility: () => {}
+});
+
+// Hook to use the visibility context
+export const useVisibility = () => useContext(VisibilityContext);
+
+// Separate visibility provider that can wrap the entire app
+export const VisibilityProvider = ({ children }) => {
+  // Start with all options active
+  const [options, setOptions] = useState([
+    { id: 'floorLine', label: 'Floor Line', isActive: true },
+    { id: 'centreLine', label: 'Centre Line', isActive: true },
+    { id: 'woodBacking', label: 'wood Backing', isActive: true },
+    { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
+  ]);
+
+  // Initialize visibleElements with default values
+  const [visibleElements, setVisibleElements] = useState({
+    floorLine: true,
+    centreLine: true,
+    woodBacking: true,
+    receptacleBox: true
+  });
+
+  // Update visibility object whenever options change
+  useEffect(() => {
+    const visibilityObj = options.reduce((acc, option) => {
+      acc[option.id] = option.isActive;
+      return acc;
+    }, {});
+    setVisibleElements(visibilityObj);
+  }, [options]);
+
+  // Toggle option handler
+  const toggleOption = (id) => {
+    setOptions(options.map(option => {
+      if (option.id === id) {
+        return { ...option, isActive: !option.isActive };
+      }
+      return option;
+    }));
+  };
+
+  return (
+    <VisibilityContext.Provider value={{ visibleElements, toggleVisibility: toggleOption }}>
+      {children}
+    </VisibilityContext.Provider>
+  );
+};
+
+// Toggle Option component
 const ToggleOption = ({ label, isActive, onToggle }) => {
   return (
     <div className="py-3 px-4 my-2 flex items-center justify-between bg-white">
       <span className="text-lg font-medium">{label}</span>
-      <div 
+      <div
         className={`relative w-14 h-7 rounded-full transition-colors duration-200 cursor-pointer ${isActive ? 'bg-blue-500' : 'bg-gray-200'}`}
         onClick={onToggle}
       >
-        <div 
+        <div
           className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ${
             isActive ? 'transform translate-x-7' : 'transform translate-x-1'
           }`}
@@ -18,25 +77,23 @@ const ToggleOption = ({ label, isActive, onToggle }) => {
   );
 };
 
+// The ToggleOptionsMenu component - just the UI part
 const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [options, setOptions] = useState([
-    { id: 'floorLine', label: 'Floor Line', isActive: true },
-    { id: 'centreLine', label: 'Centre Line', isActive: true },
-    { id: 'wallHanging', label: 'Wall Hanging', isActive: true },
-    { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
-  ]);
-
-  const toggleOption = (id) => {
-    setOptions(options.map(option => 
-      option.id === id ? { ...option, isActive: !option.isActive } : option
-    ));
-  };
+  const { visibleElements, toggleVisibility } = useVisibility();
+  
+  // Get current options with their active states from the context
+  const options = [
+    { id: 'floorLine', label: 'Floor Line', isActive: visibleElements.floorLine },
+    { id: 'centreLine', label: 'Centre Line', isActive: visibleElements.centreLine },
+    { id: 'woodBacking', label: 'wood Backing', isActive: visibleElements.woodBacking },
+    { id: 'receptacleBox', label: 'Receptacle Box', isActive: visibleElements.receptacleBox },
+  ];
 
   return (
-    <div className="w-full md:w-2/3 mx-auto mt-6 mb-4">
-      <div 
-        className="bg-white border border-gray-300 rounded-sm shadow-sm p-4 mb-2 flex justify-between items-center cursor-pointer"
+    <div className="w-full max-w-md mx-auto">
+      <div
+        className="bg-white shadow-md p-4 mb-2 flex justify-between items-center cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center">
@@ -48,10 +105,10 @@ const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
           </svg>
           <h2 className="text-lg font-semibold ml-2">{title}</h2>
         </div>
-        <svg 
-          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''}`} 
-          fill="none" 
-          viewBox="0 0 24 24" 
+        <svg
+          className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'transform rotate-180' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
           stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -59,13 +116,13 @@ const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
       </div>
       
       {isOpen && (
-        <div className="bg-gray-100 border border-gray-300 rounded-sm shadow-sm p-4 transition-all duration-200">
+        <div className="bg-gray-100 shadow-md p-4 transition-all duration-200">
           {options.map(option => (
-            <ToggleOption 
+            <ToggleOption
               key={option.id}
               label={option.label}
               isActive={option.isActive}
-              onToggle={() => toggleOption(option.id)}
+              onToggle={() => toggleVisibility(option.id)}
             />
           ))}
         </div>

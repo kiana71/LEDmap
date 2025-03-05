@@ -3,10 +3,10 @@ import React from "react";
 const DimensionItem = ({ label, className, hasBorder= false, ...rest }) => {
   const borderStyle = hasBorder 
   ? "border  border-300" 
-  : "ß";
+  : "";
 
   return (
-    <div className={`flex items-center mb-2 text-center  ${className}`}>
+    <div className={`flex items-center text-center  ${className}`}>
       <div className="flex justify-center  text-center w-1/2 items-center h-full ">
         <span className=" text-black  text-sm ">{label}</span>
       </div>

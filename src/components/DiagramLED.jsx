@@ -1,13 +1,26 @@
 import React, { useRef, useEffect } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
+import { useVisibility } from './toggleMenu';
 
 const DiagramLED = () => {
+  // Get visibility state from context with fallback values
+  const { visibleElements = {} } = useVisibility();
+  
+  // Ensure we have default values if visibleElements is undefined
+  const safeVisibility = {
+    floorLine: true,
+    centreLine: true,
+    woodBacking: true,
+    receptacleBox: true,
+    ...visibleElements
+  };
+
   // Add constants for better maintainability
   const COLORS = {
     primary: "#000000",
-    highlight: "#6eafb3",
+    highlight: "#000000",
     accent: "#FFA500",
-    background: "#6eafb3",
+    background: "#ffffff",
   };
   
   // SVG ref for coordinate conversion
@@ -91,11 +104,11 @@ const DiagramLED = () => {
 
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
-      <div className="mb-0">
+      <div className="mb-0 flex justify-start text-start">
         <svg
           ref={svgRef}
           width="100%"
-          height="700"
+          height="1100"
           viewBox="0 0 800 800"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
@@ -363,42 +376,48 @@ const DiagramLED = () => {
             opacity="1"
           />
 
-          {/* Inner Rectangle (Dashed) - Thicker border */}
-          <rect
-            x="200"
-            y="180"
-            width="400"
-            height="240"
-            fill="none"
-            stroke="black"
-            strokeDasharray="8,8"
-            strokeWidth="1"
-          />
+          {/* Inner Rectangle (Dashed) - Thicker border - wood Backing */}
+          {safeVisibility.woodBacking && (
+            <rect
+              x="200"
+              y="180"
+              width="400"
+              height="240"
+              fill="none"
+              stroke="black"
+              strokeDasharray="8,8"
+              strokeWidth="1"
+            />
+          )}
 
           {/* Centerline (Vertical) */}
-          <line
-            x1="400"
-            y1="50"
-            x2="400"
-            y2="590"
-            stroke="black"
-            strokeWidth="1"
-            strokeDasharray="5,5"
-          />
+          {safeVisibility.centreLine && (
+            <line
+              x1="400"
+              y1="50"
+              x2="400"
+              y2="590"
+              stroke="black"
+              strokeWidth="1"
+              strokeDasharray="5,5"
+            />
+          )}
 
           {/* Centerline (Horizontal) */}
-          <line
-            x1="50"
-            y1="300"
-            x2="760"
-            y2="300"
-            stroke="black"
-            strokeWidth="1"
-            strokeDasharray="4"
-          />
+          {safeVisibility.centreLine && (
+            <line
+              x1="50"
+              y1="300"
+              x2="760"
+              y2="300"
+              stroke="black"
+              strokeWidth="1"
+              strokeDasharray="4"
+            />
+          )}
 
           {/* Draggable Receptacle Boxes */}
-          {receptacleBoxes.map((box, index) => (
+          {safeVisibility.receptacleBox && receptacleBoxes.map((box, index) => (
             <g 
               key={box.id} 
               onMouseDown={(e) => startDrag(e, box.id)}
@@ -427,7 +446,7 @@ const DiagramLED = () => {
           ))}
 
           {/* Only draw leader line if there's at least one box */}
-          {receptacleBoxes.length > 0 && (
+          {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
             <>
               <line
                 x1={receptacleBoxes[0].x + 15}
@@ -454,26 +473,30 @@ const DiagramLED = () => {
           )}
 
           {/* Diagonal Lines */}
-          <line
-            x1="400"
-            y1="300"
-            x2="435"
-            y2="53"
-            stroke="black"
-            strokeWidth="1"
-          />
-          <line
-            x1="435"
-            y1="53"
-            x2="453"
-            y2="53"
-            stroke="black"
-            strokeWidth="1"
-          />
+          {safeVisibility.woodBacking && (
+            <>
+              <line
+                x1="400"
+                y1="300"
+                x2="435"
+                y2="53"
+                stroke="black"
+                strokeWidth="1"
+              />
+              <line
+                x1="435"
+                y1="53"
+                x2="453"
+                y2="53"
+                stroke="black"
+                strokeWidth="1"
+              />
 
-          <text x="595" y="50" textAnchor="end" fontSize="12">
-            Intended Screen Position
-          </text>
+              <text x="595" y="50" textAnchor="end" fontSize="12">
+                Intended Screen Position
+              </text>
+            </>
+          )}
 
           {/* Circle Marker Definition */}
           <defs>
@@ -611,20 +634,25 @@ const DiagramLED = () => {
             stroke="black"
             strokeWidth="1"
           />
-
-          <line
-            x1="90"
-            y1="307"
-            x2="90"
-            y2="640"
-            stroke="black"
-            strokeWidth="1"
-            markerStart="url(#arrowReversed)"
-            markerEnd="url(#arrow)"
-          />
-          <text x="30" y="620" textAnchor="middle" fontSize="12">
-            Floor Line
-          </text>
+          
+          {/* Floor Line Measurement - Only visible when floorLine is active */}
+          {safeVisibility.floorLine && (
+            <>
+              <line
+                x1="90"
+                y1="307"
+                x2="90"
+                y2="640"
+                stroke="black"
+                strokeWidth="1"
+                markerStart="url(#arrowReversed)"
+                markerEnd="url(#arrow)"
+              />
+              <text x="30" y="620" textAnchor="middle" fontSize="12">
+                Floor Line
+              </text>
+            </>
+          )}
 
           {/* Arrow Definitions */}
           <defs>
@@ -655,12 +683,16 @@ const DiagramLED = () => {
           </defs>
 
           {/* Circle at Intersection of Centerlines */}
-          <circle cx="400" cy="300" r="5" fill="" stroke="black" />
-          <circle cx="400" cy="300" r="3" fill="yellow" stroke="black" />
+          {safeVisibility.centreLine && (
+            <>
+              <circle cx="400" cy="300" r="5" fill="none" stroke="black" />
+              <circle cx="400" cy="300" r="3" fill="yellow" stroke="black" />
+            </>
+          )}
         </svg>
       </div>
 
-      <div className="flex text-left flex-col mt-0 h-48 border-gray-400 border-2 p-4 justify-center">
+      <div className="w-full flex text-left flex-col mt-0 h-80 border-gray-400 border-2 p-4 justify-center">
         <p className="mb-1 text-xl font-bold">Notes:</p>
         <textarea className="border-0 w-full h-full resize-none focus:outline-none"></textarea>
       </div>

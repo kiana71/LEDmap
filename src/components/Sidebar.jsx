@@ -36,14 +36,14 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     incrementBoxCount,
     decrementBoxCount,
     BOX_WIDTH, // To check it exists
-    BOUNDARY // To check it exists
+    BOUNDARY //To check it exists
   } = useSheetDataStore();
 
   // description form states
   const { formData, setFormData } = useDescriptionDataStore((state) => state);
 
   // sheetData state
-  const { sheetData, loading, error } = useExcelData("/Db.xlsx");
+  const { sheetData, loading, error } = useExcelData("https://docs.google.com/spreadsheets/d/e/2PACX-1vQH7Uju3LbhqpO7joSwpTvCmAQMK79pspbH_Qnc1pNgMUUk-jFzvE1DSOBedsYc5l21It8bsE7yX3X6/pub?output=xlsx");
 
   // Getting data right when rendered
   useEffect(() => {
@@ -59,9 +59,9 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
   if (!selectedScreen) return null;
 
   return (
-    <div className={`overflow-y-auto h-full fixed w-72 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none ${isOpen ? "right-0" : "-right-72"}`}>
+    <div className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none  ${isOpen ? "right-0" : "-right-80"}`}>
       <div className="w-full p-2 gap-96">
-        <div className="w-full lg:border">
+        <div className="w-full lg:border ">
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
             Configuration
           </p>
@@ -134,7 +134,7 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
             
             {/* Receptacle Box Count Control */}
             <div className="flex justify-center items-center mb-1">
-              <div className="flex items-center border border-gray-300 overflow-hidden" style={{ height: '40px', width: '239px' }}>
+              <div className="flex items-center border border-gray-300 overflow-hidden" style={{ height: '40px', width: '269px' }}>
                 <div className="h-full flex-grow flex items-center justify-center">
                   {boxCount}
                 </div>
@@ -196,6 +196,7 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
                 label="Floor Distance"
                 value="50"
                 hasBorder="true"
+                ß
               />
               <DimensionItem
                 className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
