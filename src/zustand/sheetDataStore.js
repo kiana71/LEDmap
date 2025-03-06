@@ -23,17 +23,21 @@ export const useSheetDataStore = create((set, get) => ({
   toggleIsNiche: () => 
     set(old => ({ ...old, isNiche: !old.isNiche })),
 
-  variantDepth: 0,
+  variantDepth: '',
   setVarientDepth: (val) => 
     set(old => ({ ...old, variantDepth: val })),
+floorDistance: '',
+setFloorDistance: (val) => 
+  set(old => ({ ...old, floorDistance: val })),
+
 
   // Receptacle boxes state
   receptacleBoxes: [{
     id: Date.now(),
     x: 205,
     y: 370,
-    width: 30,
-    height: 30
+    width: 60,
+    height: 60,
   }],
   boxCount: 1,
   activeBoxId: null,
@@ -41,8 +45,8 @@ export const useSheetDataStore = create((set, get) => ({
   startBoxPosition: { x: 0, y: 0 },
   
   // Boundary constants
-  BOX_WIDTH: 30,
-  BOX_HEIGHT: 30,
+  BOX_WIDTH: 60,
+  BOX_HEIGHT: 60,
   BOX_SPACING: 10,
   INITIAL_X: 205,
   INITIAL_Y: 370,

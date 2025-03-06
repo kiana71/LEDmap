@@ -12,7 +12,7 @@ import Hamburger from "./Hamburger";
 import DownloadIcon from '@mui/icons-material/Download';
 
 const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
-  const [selectedUnit, setSelectedUnit] = useState("cm");
+
 
   // Get all state and methods from the store
   const {
@@ -30,6 +30,8 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     toggleIsNiche,
     variantDepth,
     setVarientDepth,
+    setFloorDistance,
+    floorDistance,
     
     // Receptacle box state
     boxCount,
@@ -58,8 +60,20 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
   // Function to set default values for all fields
   if (!selectedScreen) return null;
 
+  // Handle floor distance change - parse as number
+  const handleFloorDistanceChange = (e) => {
+    const numValue = parseFloat(e.target.value) || 0;
+    setFloorDistance(numValue);
+  };
+
+  // Handle niche depth variant change - parse as number
+  const handleDepthVariantChange = (e) => {
+    const numValue = parseFloat(e.target.value) || 0;
+    setVarientDepth(numValue);
+  };
+
   return (
-    <div className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none  ${isOpen ? "right-0" : "-right-80"}`}>
+    <div className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none ${isOpen ? "right-0" : "-right-80"}`}>
       <div className="w-full p-2 gap-96">
         <div className="w-full lg:border ">
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
@@ -165,45 +179,25 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
                 </button>
               </div>
             </div>
-            
+
             <div className="text-sm text-gray-600 ">
               Tip: Drag boxes inside the main<br/> rectangle
             </div>
-            
-            <div className="grid mt-2 grid-cols-1 px-4 ">
-              <DimensionItem
-                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
-                label="Distance"
-                value="3'"
-                hasBorder="true"
-              />
-            </div>
-
-            <SelectInput
-              label="Unit"
-              options={[
-                { value: "cm", label: "Centimeter" },
-                { value: "in", label: "Inches" }
-              ]}
-              value={selectedUnit}
-              onChange={(e) => setSelectedUnit(e.target.value)}
-              className="text-center"
-            />
               
             <div className="grid mt-2 grid-cols-1 px-4">
               <DimensionItem
                 className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
                 label="Floor Distance"
-                value="50"
+                value={floorDistance}
                 hasBorder="true"
-                ß
+                onChange={handleFloorDistanceChange}
               />
               <DimensionItem
                 className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
                 label="Niche Depth var"
                 value={variantDepth}
                 hasBorder="true"
-                onChange={(e) => setVarientDepth(e.target.value)}
+                onChange={handleDepthVariantChange}
               />
             </div>
             

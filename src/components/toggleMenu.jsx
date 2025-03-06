@@ -17,10 +17,11 @@ export const useVisibility = () => useContext(VisibilityContext);
 // Separate visibility provider that can wrap the entire app
 export const VisibilityProvider = ({ children }) => {
   // Start with all options active
+ 
   const [options, setOptions] = useState([
     { id: 'floorLine', label: 'Floor Line', isActive: true },
     { id: 'centreLine', label: 'Centre Line', isActive: true },
-    { id: 'woodBacking', label: 'wood Backing', isActive: true },
+    { id: 'woodBacking', label: 'Wood Backing', isActive: true },
     { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
   ]);
 
@@ -34,12 +35,13 @@ export const VisibilityProvider = ({ children }) => {
 
   // Update visibility object whenever options change
   useEffect(() => {
-    const visibilityObj = options.reduce((acc, option) => {
+    const visibilityObj = options.reduce((acc, option) =>{
       acc[option.id] = option.isActive;
       return acc;
     }, {});
     setVisibleElements(visibilityObj);
   }, [options]);
+
 
   // Toggle option handler
   const toggleOption = (id) => {
@@ -77,7 +79,7 @@ const ToggleOption = ({ label, isActive, onToggle }) => {
   );
 };
 
-// The ToggleOptionsMenu component - just the UI part
+// The ToggleOptionsMenu component-just the UI part
 const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { visibleElements, toggleVisibility } = useVisibility();
@@ -86,7 +88,7 @@ const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
   const options = [
     { id: 'floorLine', label: 'Floor Line', isActive: visibleElements.floorLine },
     { id: 'centreLine', label: 'Centre Line', isActive: visibleElements.centreLine },
-    { id: 'woodBacking', label: 'wood Backing', isActive: visibleElements.woodBacking },
+    { id: 'woodBacking', label: 'Wood Backing', isActive: visibleElements.woodBacking },
     { id: 'receptacleBox', label: 'Receptacle Box', isActive: visibleElements.receptacleBox },
   ];
 
