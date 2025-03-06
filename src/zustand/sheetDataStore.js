@@ -6,31 +6,31 @@ export const useSheetDataStore = create((set, get) => ({
   selectedMount: {},
   selectedReceptacleBox: {},
   
-  setSelectedScreen: (value) => 
+  setSelectedScreen: (value) =>
     set((old) => ({ ...old, selectedScreen: value })),
   setSelectedMediaPlayer: (value) =>
     set((old) => ({ ...old, selectedMediaPlayer: value })),
-  setSelectedMount: (value) => 
+  setSelectedMount: (value) =>
     set((old) => ({ ...old, selectedMount: value })),
   setSelectedReceptacleBox: (value) =>
     set((old) => ({ ...old, selectedReceptacleBox: value })),
-
+  
   isHorizontal: true,
   isNiche: true,
-
-  toggleIsHorizontal: () => 
+  
+  toggleIsHorizontal: () =>
     set(old => ({ ...old, isHorizontal: !old.isHorizontal })),
-  toggleIsNiche: () => 
+  toggleIsNiche: () =>
     set(old => ({ ...old, isNiche: !old.isNiche })),
-
-  variantDepth: '',
-  setVarientDepth: (val) => 
-    set(old => ({ ...old, variantDepth: val })),
-floorDistance: '',
-setFloorDistance: (val) => 
-  set(old => ({ ...old, floorDistance: val })),
-
-
+  
+  variantDepth: 0,  // Changed to number instead of empty string
+  setVarientDepth: (val) =>
+    set(old => ({ ...old, variantDepth: parseFloat(val) || 0 })),  // Parse as number
+  
+  floorDistance: 50,  // Default value as number
+  setFloorDistance: (val) =>
+    set(old => ({ ...old, floorDistance: parseFloat(val) || 0 })),  // Parse as number
+  
   // Receptacle boxes state
   receptacleBoxes: [{
     id: Date.now(),
@@ -56,6 +56,49 @@ setFloorDistance: (val) =>
     width: 500,
     height: 300
   },
+  
+  // New method to update the boundary
+  updateBoundary: (newBoundary) => set(state => ({
+    ...state,
+    BOUNDARY: newBoundary
+  })),
+  
+  // New method to reposition boxes that are outside boundary
+  repositionBoxes: () => set(state => {
+    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT } = state;
+    
+    const updatedBoxes = state.receptacleBoxes.map(box => {
+      // Check if box is outside boundary
+      if (
+        box.x < BOUNDARY.x || 
+        box.y < BOUNDARY.y || 
+        box.x + BOX_WIDTH > BOUNDARY.x + BOUNDARY.width || 
+        box.y + BOX_HEIGHT > BOUNDARY.y + BOUNDARY.height
+      ) {
+        // Calculate safe position within boundary
+        const safeX = Math.max(
+          BOUNDARY.x, 
+          Math.min(BOUNDARY.x + BOUNDARY.width - BOX_WIDTH, box.x)
+        );
+        const safeY = Math.max(
+          BOUNDARY.y, 
+          Math.min(BOUNDARY.y + BOUNDARY.height - BOX_HEIGHT, box.y)
+        );
+        
+        return {
+          ...box,
+          x: safeX,
+          y: safeY
+        };
+      }
+      return box;
+    });
+    
+    return {
+      ...state,
+      receptacleBoxes: updatedBoxes
+    };
+  }),
   
   // Methods for receptacle boxes using proper get() access
   incrementBoxCount: () => set(state => {

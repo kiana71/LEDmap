@@ -12,8 +12,7 @@ import Hamburger from "./Hamburger";
 import DownloadIcon from '@mui/icons-material/Download';
 
 const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
-
-
+  
   // Get all state and methods from the store
   const {
     selectedScreen,

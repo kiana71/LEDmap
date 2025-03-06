@@ -45,7 +45,11 @@ const DiagramLED = () => {
     endDrag,
     BOX_WIDTH,
     BOX_HEIGHT,
-    floorDistance
+    floorDistance,
+    
+    // New methods
+    updateBoundary,
+    repositionBoxes
   } = useSheetDataStore();
   
   // Get dimensions from selected screen and parse as numbers
@@ -99,6 +103,25 @@ const DiagramLED = () => {
   const sideViewHeight = nicheHeightPx;
   const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
+  // Update dragging boundary based on screen dimensions
+  const draggableBoundary = useMemo(() => {
+    return {
+      x: screenX,
+      y: screenY,
+      width: screenWidthPx,
+      height: screenHeightPx
+    };
+  }, [screenX, screenY, screenWidthPx, screenHeightPx]);
+
+  // Effect to update the boundary in the store when screen dimensions change
+  useEffect(() => {
+    // Update the boundary in the store
+    updateBoundary(draggableBoundary);
+    
+    // Reposition any boxes that are now outside the boundary
+    repositionBoxes();
+  }, [draggableBoundary, updateBoundary, repositionBoxes]);
+
   // Convert client coordinates to SVG coordinates
   const clientToSVGCoordinates = (clientX, clientY) => {
     if (!svgRef.current) return { x: 0, y: 0 };
@@ -113,17 +136,6 @@ const DiagramLED = () => {
     const point = svgPoint.matrixTransform(ctm.inverse());
     return { x: point.x, y: point.y };
   };
-
-  // Update dragging boundary based on screen dimensions
-  // Define a boundary for the receptacle boxes based on the screen
-  const draggableBoundary = useMemo(() => {
-    return {
-      x: screenX - 10,
-      y: screenY - 10,
-      width: screenWidthPx + 20,
-      height: screenHeightPx + 20
-    };
-  }, [screenX, screenY, screenWidthPx, screenHeightPx]);
 
   // Start dragging
   const startDrag = (event, id) => {
@@ -162,6 +174,9 @@ const DiagramLED = () => {
     };
   }, []);
 
+  // Draw the boundary box for debugging (comment out in production)
+  const showBoundaryBox = false; // Set to true to see the boundary
+
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
       <div className="mb-0 flex justify-start text-start">
@@ -197,6 +212,20 @@ const DiagramLED = () => {
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" opacity="0.1" />
+
+          {/* Draggable boundary visualization (for debugging) */}
+          {showBoundaryBox && (
+            <rect
+              x={draggableBoundary.x}
+              y={draggableBoundary.y}
+              width={draggableBoundary.width}
+              height={draggableBoundary.height}
+              fill="none"
+              stroke="red"
+              strokeWidth="1"
+              strokeDasharray="5,5"
+            />
+          )}
 
           {/* Niche (outer box) - only visible if isNiche is true */}
           {isNiche && (
@@ -419,7 +448,16 @@ const DiagramLED = () => {
           {/* Centerline (Vertical) */}
           {safeVisibility.centreLine && (
             <>
-                   <line
+              <line
+                x1={centerX}
+                y1="50"
+                x2={centerX}
+                y2="590"
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="5,5"
+              />
+              <line
                 x1={centerX}
                 y1={centerY}
                 x2="435"
@@ -438,35 +476,7 @@ const DiagramLED = () => {
               <text x="595" y="50" textAnchor="end" fontSize="12">
                 Intended Screen Position
               </text>
-            <line
-              x1={centerX}
-              y1="50"
-              x2={centerX}
-              y2="590"
-              stroke="black"
-              strokeWidth="1"
-              strokeDasharray="5,5"
-            />
-                   <line
-                x1={centerX}
-                y1={centerY}
-                x2="435"
-                y2="53"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1="435"
-                y1="53"
-                x2="453"
-                y2="53"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <text x="595" y="50" textAnchor="end" fontSize="12">
-                Intended Screen Position
-              </text>
-              </>
+            </>
           )}
 
           {/* Centerline (Horizontal) */}
@@ -535,8 +545,6 @@ const DiagramLED = () => {
               </text>
             </>
           )}
-
-         
 
           {/* Circle Marker Definition */}
           <defs>

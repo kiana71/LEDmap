@@ -24,7 +24,7 @@ export const VisibilityProvider = ({ children }) => {
     { id: 'woodBacking', label: 'Wood Backing', isActive: true },
     { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
   ]);
-
+  
   // Initialize visibleElements with default values
   const [visibleElements, setVisibleElements] = useState({
     floorLine: true,
