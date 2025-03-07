@@ -31,6 +31,10 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     setVarientDepth,
     setFloorDistance,
     floorDistance,
+    wallWidth,
+    wallHeight,
+    setWallwidth,
+    setWallheight,
     
     // Receptacle box state
     boxCount,
@@ -65,10 +69,20 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     setFloorDistance(numValue);
   };
 
+
   // Handle niche depth variant change - parse as number
   const handleDepthVariantChange = (e) => {
     const numValue = parseFloat(e.target.value) || 0;
     setVarientDepth(numValue);
+  };
+  const handleWallWidth = (e) => {
+    const numValue = parseFloat(e.target.value) || 0;
+    setWallwidth(numValue);
+  };
+
+  const handlewallHeight = (e) => {
+    const numValue = parseFloat(e.target.value) || 0;
+    setWallheight(numValue);
   };
 
   return (
@@ -78,25 +92,24 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
             Configuration
           </p>
-
-
-
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
           <div className="grid mt-2 grid-cols-1 px-4">
+            
             <p>Wall setting</p>
+           
               <DimensionItem
                 className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
-                label="Floor Distance"
-                // value={floorDistance}
+                label="Wall Width"
+                value={wallWidth}
                 hasBorder="true"
-                // onChange={handleFloorDistanceChange}
+                onChange={handleWallWidth}
               />
               <DimensionItem
                 className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
-                label="Niche Depth var"
-                // value={variantDepth}
+                label="Wall Height"
+                value={wallHeight}
                 hasBorder="true"
-                // onChange={handleDepthVariantChange}
+                onChange={handlewallHeight}
               />
             </div>
             <SelectInput

@@ -88,6 +88,7 @@ const nicheDepth = roundToNearest8th(rawNicheDepth);
 
             {/* Niche Dimensions */}
             <DimensionGroup title="Niche Dimensions" className="w-full">
+             
               <DimensionItem
                 label="Height"
                 value={
