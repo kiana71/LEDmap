@@ -78,7 +78,27 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
             Configuration
           </p>
+
+
+
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
+          <div className="grid mt-2 grid-cols-1 px-4">
+            <p>Wall setting</p>
+              <DimensionItem
+                className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
+                label="Floor Distance"
+                // value={floorDistance}
+                hasBorder="true"
+                // onChange={handleFloorDistanceChange}
+              />
+              <DimensionItem
+                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
+                label="Niche Depth var"
+                // value={variantDepth}
+                hasBorder="true"
+                // onChange={handleDepthVariantChange}
+              />
+            </div>
             <SelectInput
               label="Screen"
               value={selectedScreen["Screen MFR"]}
@@ -223,10 +243,7 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
               />
             </div>
           </form>
-        </div>
-      </div>
-      
-      <div
+           <div
         onClick={(e) => {
           e.preventDefault();
           toPDF();
@@ -242,6 +259,10 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
           <DownloadIcon/>
         </div>
       </div>
+        </div>
+      </div>
+      
+     
     </div>
   );
 };

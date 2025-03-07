@@ -1,18 +1,19 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useRef, useEffect, useMemo, useState } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
-import { useVisibility } from './toggleMenu';
+import { useVisibility } from "./toggleMenu";
+import humanLogo from "../img/outline-human-body-mens-figure-in-linear-style-the-outline-of-a-young-man-black-and-white-silho.png";
 
 const DiagramLED = () => {
   // Get visibility state from context with fallback values
   const { visibleElements = {} } = useVisibility();
-  
+
   // Ensure we have default values if visibleElements is undefined
   const safeVisibility = {
     floorLine: true,
     centreLine: true,
     woodBacking: true,
     receptacleBox: true,
-    ...visibleElements
+    ...visibleElements,
   };
 
   // Add constants for better maintainability
@@ -22,10 +23,10 @@ const DiagramLED = () => {
     accent: "#FFA500",
     background: "#ffffff",
   };
-  
-  // SVG ref for coordinate conversion
+
+  //SVG ref for coordinate conversion
   const svgRef = useRef(null);
-  
+
   // Get all state and methods from the store
   const {
     isHorizontal,
@@ -35,7 +36,7 @@ const DiagramLED = () => {
     selectedMount,
     selectedScreen,
     variantDepth,
-    
+
     // Receptacle boxes state and methods
     receptacleBoxes,
     boxCount,
@@ -46,56 +47,63 @@ const DiagramLED = () => {
     BOX_WIDTH,
     BOX_HEIGHT,
     floorDistance,
-    
-    // New methods
+
+    //Methods
     updateBoundary,
-    repositionBoxes
+    repositionBoxes,
   } = useSheetDataStore();
-  
-  // Get dimensions from selected screen and parse as numbers
-  const width = parseFloat(selectedScreen?.["Width"] || 0);
-  const height = parseFloat(selectedScreen?.["Height"] || 0);
+
+  //Get dimensions from selected screen and parse as numbers
+  const rawWidth = parseFloat(selectedScreen?.["Width"] || 0);
+  const rawHeight = parseFloat(selectedScreen?.["Height"] || 0);
   const depth = parseFloat(selectedScreen?.["Depth"] || 0);
 
-  // Calculate niche dimensions with proper margins
-  const nicheWidthExtra = width < 55 ? 3 : 4; // Add 1.5 or 2 inches on each side
-  const nicheHeightExtra = height < 55 ? 3 : 4; // Add 1.5 or 2 inches on each side
-  const nicheWidth = width + nicheWidthExtra;
-  const nicheHeight = height + nicheHeightExtra;
+  // Determine width and height based on orientation
+  // If vertical (isHorizontal = false), swap width and height
+  const width = isHorizontal ? rawWidth : rawHeight;
+  const height = isHorizontal ? rawHeight : rawWidth;
 
+  // Calculate niche dimensions with proper margins
+  const nicheWidthExtra = width < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
+  const nicheHeightExtra = height < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
+  const nicheWidth = rawWidth + nicheWidthExtra;
+  const nicheHeight = rawHeight + nicheHeightExtra;
+
+  const DirnicheWidth = isHorizontal ? nicheWidth : nicheHeight;
+  const DirnicheHeight = isHorizontal ? nicheHeight : nicheWidth;
   // Define conversion factor from inches to pixels
   const SCALE_FACTOR = 10; // 10 pixels per inch
 
   // Base dimensions for the diagram area
   const BASE_WIDTH = 800;
   const BASE_HEIGHT = 800;
-  
+
   // Calculate screen dimensions in pixels
   const screenWidthPx = Math.max(100, Math.min(500, width * SCALE_FACTOR));
-  const screenHeightPx = Math.max(100, Math.min(300, height * SCALE_FACTOR));
-  
+  const screenHeightPx = Math.max(100, Math.min(800, height * SCALE_FACTOR));
+
   // Calculate niche dimensions in pixels
-  const nicheWidthPx = screenWidthPx + (nicheWidthExtra * SCALE_FACTOR);
-  const nicheHeightPx = screenHeightPx + (nicheHeightExtra * SCALE_FACTOR);
-  
+  const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
+  const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
+
   // Calculate center positions
   const centerX = 400; // Center of the diagram
   const centerY = 300; // Center position for the screen
-  
+
   // Calculate screen position (centered)
-  const screenX = centerX - (screenWidthPx / 2);
-  const screenY = centerY - (screenHeightPx / 2);
-  
+  const screenX = centerX - screenWidthPx / 2;
+  const screenY = centerY - screenHeightPx / 2;
+
   // Calculate niche position (centered around screen)
-  const nicheX = centerX - (nicheWidthPx / 2);
-  const nicheY = centerY - (nicheHeightPx / 2);
-  
+  const nicheX = centerX - nicheWidthPx / 2;
+  const nicheY = centerY - nicheHeightPx / 2;
+
   // Wood backing dimensions (slightly smaller than screen)
   const woodBackingMargin = 30;
   const woodBackingX = screenX + woodBackingMargin;
   const woodBackingY = screenY + woodBackingMargin;
-  const woodBackingWidth = screenWidthPx - (woodBackingMargin * 2);
-  const woodBackingHeight = screenHeightPx - (woodBackingMargin * 2);
+  const woodBackingWidth = screenWidthPx - woodBackingMargin * 2;
+  const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
   // Side view dimensions - scaled with the screen depth
   const sideViewX = 810;
@@ -109,7 +117,7 @@ const DiagramLED = () => {
       x: screenX,
       y: screenY,
       width: screenWidthPx,
-      height: screenHeightPx
+      height: screenHeightPx,
     };
   }, [screenX, screenY, screenWidthPx, screenHeightPx]);
 
@@ -117,7 +125,7 @@ const DiagramLED = () => {
   useEffect(() => {
     // Update the boundary in the store
     updateBoundary(draggableBoundary);
-    
+
     // Reposition any boxes that are now outside the boundary
     repositionBoxes();
   }, [draggableBoundary, updateBoundary, repositionBoxes]);
@@ -125,14 +133,14 @@ const DiagramLED = () => {
   // Convert client coordinates to SVG coordinates
   const clientToSVGCoordinates = (clientX, clientY) => {
     if (!svgRef.current) return { x: 0, y: 0 };
-    
+
     const ctm = svgRef.current.getScreenCTM();
     if (!ctm) return { x: 0, y: 0 };
-    
+
     const svgPoint = svgRef.current.createSVGPoint();
     svgPoint.x = clientX;
     svgPoint.y = clientY;
-    
+
     const point = svgPoint.matrixTransform(ctm.inverse());
     return { x: point.x, y: point.y };
   };
@@ -140,17 +148,17 @@ const DiagramLED = () => {
   // Start dragging
   const startDrag = (event, id) => {
     event.preventDefault();
-    
+
     if (!svgRef.current) return;
-    
-    const box = receptacleBoxes.find(box => box.id === id);
+
+    const box = receptacleBoxes.find((box) => box.id === id);
     if (!box) return;
-    
+
     const point = clientToSVGCoordinates(event.clientX, event.clientY);
     setStartDragInfo(id, point, { x: box.x, y: box.y });
-    
-    document.addEventListener('mousemove', handleDrag);
-    document.addEventListener('mouseup', handleMouseUp);
+
+    document.addEventListener("mousemove", handleDrag);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
   // Handle drag
@@ -162,20 +170,28 @@ const DiagramLED = () => {
   // End dragging
   const handleMouseUp = () => {
     endDrag();
-    document.removeEventListener('mousemove', handleDrag);
-    document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener("mousemove", handleDrag);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   // Clean up event listeners on unmount
   useEffect(() => {
     return () => {
-      document.removeEventListener('mousemove', handleDrag);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener("mousemove", handleDrag);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
 
   // Draw the boundary box for debugging (comment out in production)
   const showBoundaryBox = false; // Set to true to see the boundary
+
+  // Determine what text to display for dimensions
+  const widthLabel = isHorizontal ? "Width" : "Height";
+  const heightLabel = isHorizontal ? "Height" : "Width";
+
+  // Get raw dimension values for labels
+  const rawWidthValue = rawWidth.toFixed(1);
+  const rawHeightValue = rawHeight.toFixed(1);
 
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
@@ -183,11 +199,11 @@ const DiagramLED = () => {
         <svg
           ref={svgRef}
           width="100%"
-          height="1100"
+          height="100%"
           viewBox="0 0 800 800"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ touchAction: "none" }}
+          style={{ touchAction: "none", backgroundColor: "F0F0F9" }}
         >
           <title>LED Display Installation Diagram</title>
           <desc>
@@ -226,7 +242,14 @@ const DiagramLED = () => {
               strokeDasharray="5,5"
             />
           )}
-
+          <image 
+  href={humanLogo} 
+  x=""  // Adjust these values to position the image where you want
+  y="450" 
+  height="340"  // Adjust these values for the size you want
+  width="800"
+  preserveAspectRatio="xMidYMid meet"
+/>
           {/* Niche (outer box) - only visible if isNiche is true */}
           {isNiche && (
             <>
@@ -242,7 +265,7 @@ const DiagramLED = () => {
               />
 
               {/* Niche width label */}
-              <rect
+              {/* <rect
                 x="50"
                 y="268"
                 width="40"
@@ -250,9 +273,9 @@ const DiagramLED = () => {
                 fill="none"
                 stroke="black"
                 strokeWidth="1"
-              />
+              /> */}
               <text x="70" y="280" textAnchor="middle" fontSize="12">
-                {nicheWidth.toFixed(1)}
+                {DirnicheHeight.toFixed(1)}
               </text>
 
               {/* Bottom measurement for niche */}
@@ -285,8 +308,8 @@ const DiagramLED = () => {
                 strokeWidth=".5"
                 strokeDasharray="2"
               />
-              
-              <rect
+
+              {/* <rect
                 x="350"
                 y={nicheY + nicheHeightPx + 58}
                 width="40"
@@ -294,9 +317,15 @@ const DiagramLED = () => {
                 fill="none"
                 stroke="black"
                 strokeWidth="1"
-              />
-              <text x="370" y={nicheY + nicheHeightPx + 70} textAnchor="middle" fontSize="12">
-                {nicheHeight.toFixed(1)}
+              /> */}
+
+              <text
+                x="370"
+                y={nicheY + nicheHeightPx + 70}
+                textAnchor="middle"
+                fontSize="12"
+              >
+                {DirnicheWidth.toFixed(1)}
               </text>
 
               {/* Left measurement for niche */}
@@ -329,12 +358,12 @@ const DiagramLED = () => {
                 strokeWidth=".5"
                 strokeDasharray="2"
               />
-              
+
               {/* Side view - scaled with depth */}
               <text x="795" y="648" textAnchor="start" fontSize="12">
                 Side View
               </text>
-              
+
               <line
                 x1={sideViewX}
                 y1={sideViewY}
@@ -359,7 +388,7 @@ const DiagramLED = () => {
                 stroke="black"
                 strokeWidth="1"
               />
-              
+
               {/* Top and bottom lines of side view */}
               <line
                 x1={sideViewX}
@@ -393,7 +422,7 @@ const DiagramLED = () => {
                 stroke="black"
                 strokeWidth="1"
               />
-              
+
               {/* Side view measurement */}
               <line
                 x1={sideViewX - 10}
@@ -405,7 +434,7 @@ const DiagramLED = () => {
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
               />
-              
+
               <line
                 x1={sideViewX + sideViewDepth + 15}
                 y1={sideViewY + 2}
@@ -418,7 +447,7 @@ const DiagramLED = () => {
               />
             </>
           )}
-          
+
           {/* Main Rectangle - Screen (dynamically sized) */}
           <rect
             x={screenX}
@@ -493,32 +522,33 @@ const DiagramLED = () => {
           )}
 
           {/* Draggable Receptacle Boxes */}
-          {safeVisibility.receptacleBox && receptacleBoxes.map((box, index) => (
-            <g 
-              key={box.id} 
-              onMouseDown={(e) => startDrag(e, box.id)}
-              style={{ cursor: 'move' }}
-            >
-              <rect
-                x={box.x}
-                y={box.y}
-                width={box.width}
-                height={box.height}
-                fill={COLORS.background}
-                stroke={COLORS.highlight}
-                strokeWidth="1.5"
-              />
-              <text 
-                x={box.x + (box.width / 2)} 
-                y={box.y - 5} 
-                textAnchor="middle" 
-                fontSize="10"
-                fill={COLORS.highlight}
+          {safeVisibility.receptacleBox &&
+            receptacleBoxes.map((box, index) => (
+              <g
+                key={box.id}
+                onMouseDown={(e) => startDrag(e, box.id)}
+                style={{ cursor: "move" }}
               >
-                Box {index + 1}
-              </text>
-            </g>
-          ))}
+                <rect
+                  x={box.x}
+                  y={box.y}
+                  width={box.width}
+                  height={box.height}
+                  fill={COLORS.background}
+                  stroke={COLORS.highlight}
+                  strokeWidth="1.5"
+                />
+                <text
+                  x={box.x + box.width / 2}
+                  y={box.y - 5}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill={COLORS.highlight}
+                >
+                  Box {index + 1}
+                </text>
+              </g>
+            ))}
 
           {/* Leader line for receptacle box - only if boxes exist */}
           {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
@@ -589,27 +619,27 @@ const DiagramLED = () => {
             strokeWidth=".5"
             strokeDasharray="2"
           />
-          
-          <rect
-            x={centerX - 20}
+          {/*Width textarea*/}
+          {/* <rect
+            x={centerX - 70}
             y={screenY - 72}
-            width="40"
+            width="0"
             height="20"
             fill="none"
             stroke="black"
             strokeWidth="1"
-          />
+          /> */}
           <text
-            x={centerX}
+            x={centerX - 50}
             y={screenY - 60}
             textAnchor="middle"
             fontSize="12"
           >
-            {width.toFixed(1)}
+            {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
           </text>
 
           {/* Floor Distance label */}
-          <rect
+          {/* <rect
             x="31"
             y="315"
             width="40"
@@ -617,19 +647,19 @@ const DiagramLED = () => {
             fill="none"
             stroke="black"
             strokeWidth="1"
-          />
+          /> */}
           <text x="50" y="330" textAnchor="middle" fontSize="12">
             {floorDistance || "50"}
           </text>
           <text x="50" y="340" textAnchor="middle" fontSize="12">
-            <tspan x="50" y="355">
+            <tspan x="50" y="345">
               Centerline of
             </tspan>
             <tspan x="50" dy="12">
               display
             </tspan>
           </text>
-          
+
           {/* Right side measurement for screen height */}
           <line
             x1={screenX + screenWidthPx + 40}
@@ -660,7 +690,7 @@ const DiagramLED = () => {
             strokeDasharray="2"
           />
 
-          <rect
+          {/* <rect
             x={screenX + screenWidthPx + 50}
             y={centerY - 10}
             width="40"
@@ -668,14 +698,15 @@ const DiagramLED = () => {
             fill="none"
             stroke="black"
             strokeWidth="1"
-          />
-          <text 
-            x={screenX + screenWidthPx + 70} 
-            y={centerY} 
-            textAnchor="middle" 
+          /> */}
+
+          <text
+            x={screenX + screenWidthPx + 90}
+            y={centerY - 10}
+            textAnchor="middle"
             fontSize="12"
           >
-            {height.toFixed(1)}
+            {isHorizontal ? rawHeightValue : rawWidthValue} (Height)
           </text>
 
           {/* Floor Line */}
@@ -687,7 +718,7 @@ const DiagramLED = () => {
             stroke="black"
             strokeWidth="1"
           />
-          
+
           {/* Floor Line Measurement */}
           {safeVisibility.floorLine && (
             <>
@@ -736,8 +767,20 @@ const DiagramLED = () => {
           {/* Center point circle at intersection of centerlines */}
           {safeVisibility.centreLine && (
             <>
-              <circle cx={centerX} cy={centerY} r="5" fill="none" stroke="black" />
-              <circle cx={centerX} cy={centerY} r="3" fill="yellow" stroke="black" />
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r="5"
+                fill="none"
+                stroke="black"
+              />
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r="3"
+                fill="yellow"
+                stroke="black"
+              />
             </>
           )}
         </svg>
