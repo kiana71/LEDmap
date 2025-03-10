@@ -28,13 +28,13 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     toggleIsHorizontal,
     toggleIsNiche,
     variantDepth,
-    setVarientDepth,
+    setVariantDepth, // FIXED: Corrected from setVarientDepth
     setFloorDistance,
     floorDistance,
     wallWidth,
     wallHeight,
-    setWallwidth,
-    setWallheight,
+    setWallWidth, // FIXED: Corrected from setWallwidth
+    setWallHeight, // FIXED: Corrected from setWallheight
     
     // Receptacle box state
     boxCount,
@@ -69,20 +69,26 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     setFloorDistance(numValue);
   };
 
-
   // Handle niche depth variant change - parse as number
   const handleDepthVariantChange = (e) => {
     const numValue = parseFloat(e.target.value) || 0;
-    setVarientDepth(numValue);
-  };
-  const handleWallWidth = (e) => {
-    const numValue = parseFloat(e.target.value) || 0;
-    setWallwidth(numValue);
+    setVariantDepth(numValue); // FIXED: Corrected spelling
   };
 
-  const handlewallHeight = (e) => {
+  // Handle wall width change - parse as number with range limits
+  const handleWallWidth = (e) => {
     const numValue = parseFloat(e.target.value) || 0;
-    setWallheight(numValue);
+    // Limit values between 1 and 60 meters
+    const boundedValue = Math.min(60, Math.max(1, numValue));
+    setWallWidth(boundedValue); // FIXED: Corrected function name
+  };
+
+  // Handle wall height change - parse as number with range limits
+  const handleWallHeight = (e) => { // FIXED: Corrected function name
+    const numValue = parseFloat(e.target.value) || 0;
+    // Limit values between 1 and 60 meters
+    const boundedValue = Math.min(60, Math.max(1, numValue));
+    setWallHeight(boundedValue); // FIXED: Corrected function name
   };
 
   return (
@@ -95,7 +101,7 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
           <div className="grid mt-2 grid-cols-1 px-4">
             
-            <p>Wall setting</p>
+            <p className="font-medium mb-1">Wall Setting (meters)</p>
            
               <DimensionItem
                 className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
@@ -103,13 +109,17 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
                 value={wallWidth}
                 hasBorder="true"
                 onChange={handleWallWidth}
+                min="1"
+                max="60"
               />
               <DimensionItem
                 className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
                 label="Wall Height"
                 value={wallHeight}
                 hasBorder="true"
-                onChange={handlewallHeight}
+                onChange={handleWallHeight} // FIXED: Corrected function name
+                min="1"
+                max="60"
               />
             </div>
             <SelectInput
@@ -274,8 +284,6 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
       </div>
         </div>
       </div>
-      
-     
     </div>
   );
 };

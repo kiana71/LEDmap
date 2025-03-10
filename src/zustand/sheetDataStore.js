@@ -27,14 +27,15 @@ export const useSheetDataStore = create((set, get) => ({
   variantDepth: 0,  // Changed to number instead of empty string
   setVarientDepth: (val) =>
     set(old => ({ ...old, variantDepth: parseFloat(val) || 0 })),  // Parse as number
-  //wall width and height
-  wallWidth: 0, 
-  wallHeight: 0, 
-  setWallwidth: (val) =>
-    set(old => ({ ...old, wallHidth: parseFloat(val) || 0 })),  // Parse as number
-  setWallheight: (val) =>
-    set(old => ({ ...old, wallHeight: parseFloat(val) || 0 })),  // Parse as number
+  //wall width
+  wallWidth: 5, 
+  wallHeight: 3, 
+  setWallWidth: (val) =>
+    set(old => ({ ...old, wallWidth: Math.min(60, Math.max(1, parseFloat(val) || 0)) })),  // Parse as number with limits
   
+  setWallHeight: (val) =>
+    set(old => ({ ...old, wallHeight: Math.min(60, Math.max(1, parseFloat(val) || 0)) })),  // Parse as number with limits
+
 
   floorDistance: 50,  // Default value as number
   setFloorDistance: (val) =>

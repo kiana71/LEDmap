@@ -71,23 +71,33 @@ const DiagramLED = () => {
 
   const DirnicheWidth = isHorizontal ? nicheWidth : nicheHeight;
   const DirnicheHeight = isHorizontal ? nicheHeight : nicheWidth;
-  // Define conversion factor from inches to pixels
-  const SCALE_FACTOR = 10; // 10 pixels per inch
-
+  
   // Base dimensions for the diagram area
   const BASE_WIDTH = 800;
   const BASE_HEIGHT = 800;
+  
+  // Maximum dimensions for the screen in the SVG
+  const MAX_SCREEN_WIDTH = 500;
+  const MAX_SCREEN_HEIGHT = 400; // Reduced from 800 to ensure it fits better
 
-  // Calculate screen dimensions in pixels
-  const screenWidthPx = Math.max(100, Math.min(500, width * SCALE_FACTOR));
-  const screenHeightPx = Math.max(100, Math.min(800, height * SCALE_FACTOR));
+  // Dynamic scaling factor based on screen size
+  // This will automatically scale down larger screens to fit
+  const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
+  const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
+  
+  // Use the smaller of the two scale factors to maintain aspect ratio
+  const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
+
+  // Calculate screen dimensions in pixels with adaptive scaling
+  const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
+  const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
 
   // Calculate niche dimensions in pixels
   const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
   const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
 
-  // Calculate center positions
-  const centerX = 400; // Center of the diagram
+  // Calculate center positions - ensure we have enough margin on all sides
+  const centerX = BASE_WIDTH / 2;
   const centerY = 300; // Center position for the screen
 
   // Calculate screen position (centered)
@@ -105,13 +115,13 @@ const DiagramLED = () => {
   const woodBackingWidth = screenWidthPx - woodBackingMargin * 2;
   const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
-  // Side view dimensions - scaled with the screen depth
-  const sideViewX = 810;
+  // Side view dimensions - scaled with the screen depth but with minimum and maximum
+  const sideViewX = BASE_WIDTH + 10; // Place it just outside the main view
   const sideViewY = screenY - 14;
   const sideViewHeight = nicheHeightPx;
   const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
-  // Update dragging boundary based on screen dimensions
+  // Update draggable boundary based on screen dimensions
   const draggableBoundary = useMemo(() => {
     return {
       x: screenX,
@@ -120,6 +130,11 @@ const DiagramLED = () => {
       height: screenHeightPx,
     };
   }, [screenX, screenY, screenWidthPx, screenHeightPx]);
+
+  // Adjust viewport dimensions to accommodate the diagram
+  // This is crucial to ensure everything is visible
+  const viewBoxWidth = BASE_WIDTH + sideViewDepth + 60; // Add extra space for side view
+  const viewBoxHeight = Math.max(700, screenY + screenHeightPx + 200); // Ensure enough vertical space
 
   // Effect to update the boundary in the store when screen dimensions change
   useEffect(() => {
@@ -193,6 +208,15 @@ const DiagramLED = () => {
   const rawWidthValue = rawWidth.toFixed(1);
   const rawHeightValue = rawHeight.toFixed(1);
 
+  // Calculate floor line position
+  const floorLineY = 643;
+  
+  // Calculate the position for the human figure
+  const humanX = centerX - 50; // Center the human figure horizontally
+  const humanY = floorLineY - 340; // Position relative to floor line
+  const humanWidth = 800;
+  const humanHeight = 320;
+
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
       <div className="mb-0 flex justify-start text-start">
@@ -200,7 +224,7 @@ const DiagramLED = () => {
           ref={svgRef}
           width="100%"
           height="100%"
-          viewBox="0 0 800 800"
+          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
           style={{ touchAction: "none", backgroundColor: "F0F0F9" }}
@@ -242,14 +266,17 @@ const DiagramLED = () => {
               strokeDasharray="5,5"
             />
           )}
+          
+          {/* Human figure for scale reference */}
           <image 
-  href={humanLogo} 
-  x=""  // Adjust these values to position the image where you want
-  y="450" 
-  height="340"  // Adjust these values for the size you want
-  width="800"
-  preserveAspectRatio="xMidYMid meet"
-/>
+            href={humanLogo} 
+            x={humanX}
+            y={humanY}
+            height={humanHeight}
+            width={humanWidth}
+            preserveAspectRatio="xMidYMid meet"
+          />
+
           {/* Niche (outer box) - only visible if isNiche is true */}
           {isNiche && (
             <>
@@ -265,15 +292,6 @@ const DiagramLED = () => {
               />
 
               {/* Niche width label */}
-              {/* <rect
-                x="50"
-                y="268"
-                width="40"
-                height="20"
-                fill="none"
-                stroke="black"
-                strokeWidth="1"
-              /> */}
               <text x="70" y="280" textAnchor="middle" fontSize="12">
                 {DirnicheHeight.toFixed(1)}
               </text>
@@ -308,16 +326,6 @@ const DiagramLED = () => {
                 strokeWidth=".5"
                 strokeDasharray="2"
               />
-
-              {/* <rect
-                x="350"
-                y={nicheY + nicheHeightPx + 58}
-                width="40"
-                height="20"
-                fill="none"
-                stroke="black"
-                strokeWidth="1"
-              /> */}
 
               <text
                 x="370"
@@ -360,7 +368,7 @@ const DiagramLED = () => {
               />
 
               {/* Side view - scaled with depth */}
-              <text x="795" y="648" textAnchor="start" fontSize="12">
+              <text x={sideViewX - 5} y={sideViewY + sideViewHeight + 30} textAnchor="start" fontSize="12">
                 Side View
               </text>
 
@@ -619,16 +627,7 @@ const DiagramLED = () => {
             strokeWidth=".5"
             strokeDasharray="2"
           />
-          {/*Width textarea*/}
-          {/* <rect
-            x={centerX - 70}
-            y={screenY - 72}
-            width="0"
-            height="20"
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-          /> */}
+          
           <text
             x={centerX - 50}
             y={screenY - 60}
@@ -639,15 +638,6 @@ const DiagramLED = () => {
           </text>
 
           {/* Floor Distance label */}
-          {/* <rect
-            x="31"
-            y="315"
-            width="40"
-            height="20"
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-          /> */}
           <text x="50" y="330" textAnchor="middle" fontSize="12">
             {floorDistance || "50"}
           </text>
@@ -690,16 +680,6 @@ const DiagramLED = () => {
             strokeDasharray="2"
           />
 
-          {/* <rect
-            x={screenX + screenWidthPx + 50}
-            y={centerY - 10}
-            width="40"
-            height="20"
-            fill="none"
-            stroke="black"
-            strokeWidth="1"
-          /> */}
-
           <text
             x={screenX + screenWidthPx + 90}
             y={centerY - 10}
@@ -712,9 +692,9 @@ const DiagramLED = () => {
           {/* Floor Line */}
           <line
             x1="90"
-            y1="643"
+            y1={floorLineY}
             x2="700"
-            y2="643"
+            y2={floorLineY}
             stroke="black"
             strokeWidth="1"
           />
@@ -726,13 +706,13 @@ const DiagramLED = () => {
                 x1="90"
                 y1={centerY + 7}
                 x2="90"
-                y2="640"
+                y2={floorLineY - 3}
                 stroke="black"
                 strokeWidth="1"
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
               />
-              <text x="30" y="620" textAnchor="middle" fontSize="12">
+              <text x="30" y={floorLineY - 23} textAnchor="middle" fontSize="12">
                 Floor Line
               </text>
             </>
