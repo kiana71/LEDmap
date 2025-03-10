@@ -37,6 +37,10 @@ const DiagramLED = () => {
     selectedScreen,
     variantDepth,
 
+    // Wall dimensions
+    wallWidth,
+    wallHeight,
+
     // Receptacle boxes state and methods
     receptacleBoxes,
     boxCount,
@@ -58,68 +62,91 @@ const DiagramLED = () => {
   const rawHeight = parseFloat(selectedScreen?.["Height"] || 0);
   const depth = parseFloat(selectedScreen?.["Depth"] || 0);
 
+  // Convert inches to meters for the screen
+  const INCHES_TO_METERS = 0.0254;
+  const screenWidthMeters = rawWidth * INCHES_TO_METERS;
+  const screenHeightMeters = rawHeight * INCHES_TO_METERS;
+
   // Determine width and height based on orientation
   // If vertical (isHorizontal = false), swap width and height
   const width = isHorizontal ? rawWidth : rawHeight;
   const height = isHorizontal ? rawHeight : rawWidth;
+  const screenWidthOrientedMeters = isHorizontal ? screenWidthMeters : screenHeightMeters;
+  const screenHeightOrientedMeters = isHorizontal ? screenHeightMeters : screenWidthMeters;
 
+  // Base dimensions for the diagram area
+  const BASE_WIDTH = 1000;
+  const BASE_HEIGHT = 900;
+  
+  // Define pixels per meter for the wall
+  const WALL_SCALE = 110; // Pixels per meter for the wall
+  
+  // Wall dimensions in pixels
+  const wallWidthPx = wallWidth * WALL_SCALE;
+  const wallHeightPx = wallHeight * WALL_SCALE;
+  
+  // Scaling factor for the LED display relative to the wall
+  // This creates the effect where the screen gets smaller as the wall gets larger
+  const screenToWallWidthRatio = screenWidthOrientedMeters / wallWidth;
+  const screenToWallHeightRatio = screenHeightOrientedMeters / wallHeight;
+  
+  // Calculate screen dimensions in pixels - scaled relative to the wall
+  const screenWidthPx = wallWidthPx * screenToWallWidthRatio;
+  const screenHeightPx = wallHeightPx * screenToWallHeightRatio;
+  
   // Calculate niche dimensions with proper margins
   const nicheWidthExtra = width < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
   const nicheHeightExtra = height < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
-  const nicheWidth = rawWidth + nicheWidthExtra;
-  const nicheHeight = rawHeight + nicheHeightExtra;
-
-  const DirnicheWidth = isHorizontal ? nicheWidth : nicheHeight;
-  const DirnicheHeight = isHorizontal ? nicheHeight : nicheWidth;
   
-  // Base dimensions for the diagram area
-  const BASE_WIDTH = 800;
-  const BASE_HEIGHT = 800;
+  // Convert niche margins to meters, then to pixels at wall scale
+  const nicheWidthExtraPx = nicheWidthExtra * INCHES_TO_METERS * WALL_SCALE;
+  const nicheHeightExtraPx = nicheHeightExtra * INCHES_TO_METERS * WALL_SCALE;
   
-  // Maximum dimensions for the screen in the SVG
-  const MAX_SCREEN_WIDTH = 500;
-  const MAX_SCREEN_HEIGHT = 400; // Reduced from 800 to ensure it fits better
-
-  // Dynamic scaling factor based on screen size
-  // This will automatically scale down larger screens to fit
-  const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
-  const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
+  // Calculate niche dimensions in pixels, accounting for extra margins on both sides
+  const nicheWidthPx = screenWidthPx + (nicheWidthExtraPx * 2);
+  const nicheHeightPx = screenHeightPx + (nicheHeightExtraPx * 2);
   
-  // Use the smaller of the two scale factors to maintain aspect ratio
-  const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
-
-  // Calculate screen dimensions in pixels with adaptive scaling
-  const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
-  const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
-
-  // Calculate niche dimensions in pixels
-  const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
-  const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
-
-  // Calculate center positions - ensure we have enough margin on all sides
+  // Wall position
+  const wallX = BASE_WIDTH / 2 - wallWidthPx / 2;
+  const wallY = 100;
+  
+  // Calculate center positions
   const centerX = BASE_WIDTH / 2;
-  const centerY = 300; // Center position for the screen
-
-  // Calculate screen position (centered)
-  const screenX = centerX - screenWidthPx / 2;
-  const screenY = centerY - screenHeightPx / 2;
-
+  const centerY = wallY + wallHeightPx / 2; // Center of the wall
+  
+  // Calculate screen position (centered in the wall)
+  const screenX = centerX - (screenWidthPx / 2);
+  const screenY = centerY - (screenHeightPx / 2);
+  
   // Calculate niche position (centered around screen)
-  const nicheX = centerX - nicheWidthPx / 2;
-  const nicheY = centerY - nicheHeightPx / 2;
-
+  const nicheX = centerX - (nicheWidthPx / 2);
+  const nicheY = centerY - (nicheHeightPx / 2);
+  
   // Wood backing dimensions (slightly smaller than screen)
-  const woodBackingMargin = 30;
+  const woodBackingMargin = Math.max(5, screenWidthPx * 0.05); // Adaptive margin
   const woodBackingX = screenX + woodBackingMargin;
   const woodBackingY = screenY + woodBackingMargin;
-  const woodBackingWidth = screenWidthPx - woodBackingMargin * 2;
-  const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
+  const woodBackingWidth = screenWidthPx - (woodBackingMargin * 2);
+  const woodBackingHeight = screenHeightPx - (woodBackingMargin * 2);
 
-  // Side view dimensions - scaled with the screen depth but with minimum and maximum
-  const sideViewX = BASE_WIDTH + 10; // Place it just outside the main view
-  const sideViewY = screenY - 14;
+  // Side view dimensions - scale with the screen
+  const sideViewX = wallX + wallWidthPx + 10; // Position to the right of the wall
+  const sideViewY = screenY;
   const sideViewHeight = nicheHeightPx;
-  const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
+  // Scale the depth based on wall scale too
+  const sideViewDepth = depth * INCHES_TO_METERS * WALL_SCALE;
+
+  // Calculate floor line position at bottom of wall
+  const floorLineY = wallY + wallHeightPx;
+  
+  // Human figure position and size - scaled based on wall dimensions
+  // Average human height is about 1.75 meters
+  const HUMAN_HEIGHT_METERS = 1.75;
+  const humanScale = HUMAN_HEIGHT_METERS / wallHeight;
+  const humanHeightPx = wallHeightPx * humanScale;
+  const humanWidthPx = humanHeightPx * 0.27; // Width to height ratio
+  const humanX = wallX + wallWidthPx * 1.05; // Position at 75% of wall width
+  const humanY = floorLineY - humanHeightPx; // Position at floor level
 
   // Update draggable boundary based on screen dimensions
   const draggableBoundary = useMemo(() => {
@@ -127,20 +154,15 @@ const DiagramLED = () => {
       x: screenX,
       y: screenY,
       width: screenWidthPx,
-      height: screenHeightPx,
+      height: screenHeightPx
     };
   }, [screenX, screenY, screenWidthPx, screenHeightPx]);
-
-  // Adjust viewport dimensions to accommodate the diagram
-  // This is crucial to ensure everything is visible
-  const viewBoxWidth = BASE_WIDTH + sideViewDepth + 60; // Add extra space for side view
-  const viewBoxHeight = Math.max(700, screenY + screenHeightPx + 200); // Ensure enough vertical space
 
   // Effect to update the boundary in the store when screen dimensions change
   useEffect(() => {
     // Update the boundary in the store
     updateBoundary(draggableBoundary);
-
+    
     // Reposition any boxes that are now outside the boundary
     repositionBoxes();
   }, [draggableBoundary, updateBoundary, repositionBoxes]);
@@ -148,14 +170,14 @@ const DiagramLED = () => {
   // Convert client coordinates to SVG coordinates
   const clientToSVGCoordinates = (clientX, clientY) => {
     if (!svgRef.current) return { x: 0, y: 0 };
-
+    
     const ctm = svgRef.current.getScreenCTM();
     if (!ctm) return { x: 0, y: 0 };
-
+    
     const svgPoint = svgRef.current.createSVGPoint();
     svgPoint.x = clientX;
     svgPoint.y = clientY;
-
+    
     const point = svgPoint.matrixTransform(ctm.inverse());
     return { x: point.x, y: point.y };
   };
@@ -163,17 +185,17 @@ const DiagramLED = () => {
   // Start dragging
   const startDrag = (event, id) => {
     event.preventDefault();
-
+    
     if (!svgRef.current) return;
-
-    const box = receptacleBoxes.find((box) => box.id === id);
+    
+    const box = receptacleBoxes.find(box => box.id === id);
     if (!box) return;
-
+    
     const point = clientToSVGCoordinates(event.clientX, event.clientY);
     setStartDragInfo(id, point, { x: box.x, y: box.y });
-
-    document.addEventListener("mousemove", handleDrag);
-    document.addEventListener("mouseup", handleMouseUp);
+    
+    document.addEventListener('mousemove', handleDrag);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   // Handle drag
@@ -185,15 +207,15 @@ const DiagramLED = () => {
   // End dragging
   const handleMouseUp = () => {
     endDrag();
-    document.removeEventListener("mousemove", handleDrag);
-    document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener('mousemove', handleDrag);
+    document.removeEventListener('mouseup', handleMouseUp);
   };
 
   // Clean up event listeners on unmount
   useEffect(() => {
     return () => {
-      document.removeEventListener("mousemove", handleDrag);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener('mousemove', handleDrag);
+      document.removeEventListener('mouseup', handleMouseUp);
     };
   }, []);
 
@@ -208,14 +230,9 @@ const DiagramLED = () => {
   const rawWidthValue = rawWidth.toFixed(1);
   const rawHeightValue = rawHeight.toFixed(1);
 
-  // Calculate floor line position
-  const floorLineY = 643;
-  
-  // Calculate the position for the human figure
-  const humanX = centerX - 50; // Center the human figure horizontally
-  const humanY = floorLineY - 340; // Position relative to floor line
-  const humanWidth = 800;
-  const humanHeight = 320;
+  // Convert dimensions to meters for display (1 inch = 0.0254 meters)
+  const widthInMeters = (rawWidth * 0.0254).toFixed(2);
+  const heightInMeters = (rawHeight * 0.0254).toFixed(2);
 
   return (
     <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
@@ -223,11 +240,11 @@ const DiagramLED = () => {
         <svg
           ref={svgRef}
           width="100%"
-          height="100%"
-          viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+          height="1100"
+          viewBox="0 0 1000 900"
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ touchAction: "none", backgroundColor: "F0F0F9" }}
+          style={{ touchAction: "none", backgroundColor: "#FFFFFF" }}
         >
           <title>LED Display Installation Diagram</title>
           <desc>
@@ -253,6 +270,39 @@ const DiagramLED = () => {
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" opacity="0.1" />
 
+          {/* Wall outline */}
+          <rect
+            x={wallX}
+            y={wallY}
+            width={wallWidthPx}
+            height={wallHeightPx}
+            fill="#d7d3d3"
+            stroke="#888888"
+            strokeWidth="1.5"
+            strokeDasharray="5,5"
+          />
+          
+          {/* Wall dimensions */}
+          <text
+            x={centerX}
+            y={wallY - 10}
+            textAnchor="middle"
+            fontSize="14"
+            fill="#555555"
+          >
+            Wall Size: {wallWidth}m × {wallHeight}m
+          </text>
+
+          {/* Human figure for scale reference */}
+          <image 
+            href={humanLogo} 
+            x={humanX}
+            y={humanY}
+            height={humanHeightPx}
+            width={humanWidthPx}
+            preserveAspectRatio="xMidYMid meet"
+          />
+
           {/* Draggable boundary visualization (for debugging) */}
           {showBoundaryBox && (
             <rect
@@ -266,16 +316,6 @@ const DiagramLED = () => {
               strokeDasharray="5,5"
             />
           )}
-          
-          {/* Human figure for scale reference */}
-          <image 
-            href={humanLogo} 
-            x={humanX}
-            y={humanY}
-            height={humanHeight}
-            width={humanWidth}
-            preserveAspectRatio="xMidYMid meet"
-          />
 
           {/* Niche (outer box) - only visible if isNiche is true */}
           {isNiche && (
@@ -291,171 +331,100 @@ const DiagramLED = () => {
                 strokeWidth="1"
               />
 
-              {/* Niche width label */}
-              <text x="70" y="280" textAnchor="middle" fontSize="12">
-                {DirnicheHeight.toFixed(1)}
-              </text>
-
-              {/* Bottom measurement for niche */}
+              {/* Niche measurements */}
               <line
-                x1={nicheX + 6}
-                y1={nicheY + nicheHeightPx + 40}
-                x2={nicheX + nicheWidthPx - 6}
-                y2={nicheY + nicheHeightPx + 40}
+  x1={nicheX + 6}
+  y1={nicheY + nicheHeightPx + 40}
+  x2={nicheX + nicheWidthPx - 6}
+  y2={nicheY + nicheHeightPx + 40}
+  stroke="black"
+  strokeWidth="1"
+  markerStart="url(#arrowReversed)"
+  markerEnd="url(#arrow)"
+/>
+<line
+  x1={nicheX}
+  y1={nicheY + nicheHeightPx}
+  x2={nicheX}
+  y2={nicheY + nicheHeightPx + 40}
+  stroke="black"
+  strokeWidth=".5"
+  strokeDasharray="2"
+/>
+<line
+  x1={nicheX + nicheWidthPx}
+  y1={nicheY + nicheHeightPx}
+  x2={nicheX + nicheWidthPx}
+  y2={nicheY + nicheHeightPx + 40}
+  stroke="black"
+  strokeWidth=".5"
+  strokeDasharray="2"
+/>
+<text 
+  x={centerX}
+  y={nicheY + nicheHeightPx + 60}
+  textAnchor="middle"
+  fontSize="12"
+>
+  {isHorizontal ? (width + 3).toFixed(1) : (height + 3).toFixed(1)}" (Niche Width)
+</text>
+
+              <line
+                x1={nicheX - 20}
+                y1={nicheY}
+                x2={nicheX - 20}
+                y2={nicheY + nicheHeightPx}
                 stroke="black"
                 strokeWidth="1"
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
               />
-
-              <line
-                x1={nicheX}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX}
-                y2={nicheY + nicheHeightPx + 40}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-              <line
-                x1={nicheX + nicheWidthPx}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX + nicheWidthPx}
-                y2={nicheY + nicheHeightPx + 40}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-
-              <text
-                x="370"
-                y={nicheY + nicheHeightPx + 70}
+              <text 
+                x={nicheX - 40}
+                y={centerY}
                 textAnchor="middle"
                 fontSize="12"
               >
-                {DirnicheWidth.toFixed(1)}
+                {isHorizontal ? (height + 3).toFixed(1) : (width + 3).toFixed(1)}" (Niche Height)
               </text>
-
-              {/* Left measurement for niche */}
-              <line
-                x1={nicheX - 40}
-                y1={nicheY + 6}
-                x2={nicheX - 40}
-                y2={nicheY + nicheHeightPx - 6}
-                stroke="black"
-                strokeWidth="1"
-                markerStart="url(#arrowReversed)"
-                markerEnd="url(#arrow)"
-              />
-
-              <line
-                x1={nicheX - 40}
-                y1={nicheY}
-                x2={nicheX}
-                y2={nicheY}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-              <line
-                x1={nicheX - 40}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX}
-                y2={nicheY + nicheHeightPx}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-
+              
               {/* Side view - scaled with depth */}
-              <text x={sideViewX - 5} y={sideViewY + sideViewHeight + 30} textAnchor="start" fontSize="12">
+              <text x={sideViewX + sideViewDepth/2} y={sideViewY - 10} textAnchor="middle" fontSize="12">
                 Side View
               </text>
-
-              <line
-                x1={sideViewX}
-                y1={sideViewY}
-                x2={sideViewX}
-                y2={sideViewY + sideViewHeight}
+              
+              <rect
+                x={sideViewX}
+                y={sideViewY}
+                width={sideViewDepth}
+                height={sideViewHeight}
+                fill="none"
                 stroke="black"
                 strokeWidth="1"
               />
-              <line
-                x1={sideViewX + sideViewDepth}
-                y1={sideViewY}
-                x2={sideViewX + sideViewDepth}
-                y2={sideViewY + sideViewHeight}
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1={sideViewX + sideViewDepth + 6}
-                y1={sideViewY}
-                x2={sideViewX + sideViewDepth + 6}
-                y2={sideViewY + sideViewHeight}
-                stroke="black"
-                strokeWidth="1"
-              />
-
-              {/* Top and bottom lines of side view */}
-              <line
-                x1={sideViewX}
-                y1={sideViewY}
-                x2={sideViewX + sideViewDepth}
-                y2={sideViewY}
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1={sideViewX}
-                y1={sideViewY + sideViewHeight}
-                x2={sideViewX + sideViewDepth}
-                y2={sideViewY + sideViewHeight}
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1={sideViewX + sideViewDepth}
-                y1={sideViewY + sideViewHeight}
-                x2={sideViewX + sideViewDepth + 6}
-                y2={sideViewY + sideViewHeight}
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1={sideViewX + sideViewDepth}
-                y1={sideViewY}
-                x2={sideViewX + sideViewDepth + 6}
-                y2={sideViewY}
-                stroke="black"
-                strokeWidth="1"
-              />
-
+              
               {/* Side view measurement */}
               <line
-                x1={sideViewX - 10}
-                y1={sideViewY + 6}
-                x2={sideViewX - 10}
-                y2={sideViewY + sideViewHeight - 6}
+                x1={sideViewX}
+                y1={sideViewY + sideViewHeight + 20}
+                x2={sideViewX + sideViewDepth}
+                y2={sideViewY + sideViewHeight + 20}
                 stroke="black"
                 strokeWidth="1"
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
               />
-
-              <line
-                x1={sideViewX + sideViewDepth + 15}
-                y1={sideViewY + 2}
-                x2={sideViewX + sideViewDepth + 15}
-                y2={sideViewY + sideViewHeight - 2}
-                stroke="black"
-                strokeWidth="1"
-                markerStart="url(#arrowReversed)"
-                markerEnd="url(#arrow)"
-              />
+              <text 
+                x={sideViewX + sideViewDepth/2}
+                y={sideViewY + sideViewHeight + 35}
+                textAnchor="middle"
+                fontSize="12"
+              >
+                {depth.toFixed(1)}" (Depth)
+              </text>
             </>
           )}
-
+          
           {/* Main Rectangle - Screen (dynamically sized) */}
           <rect
             x={screenX}
@@ -487,31 +456,15 @@ const DiagramLED = () => {
             <>
               <line
                 x1={centerX}
-                y1="50"
+                y1={wallY}
                 x2={centerX}
-                y2="590"
+                y2={wallY + wallHeightPx}
                 stroke="black"
                 strokeWidth="1"
                 strokeDasharray="5,5"
               />
-              <line
-                x1={centerX}
-                y1={centerY}
-                x2="435"
-                y2="53"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <line
-                x1="435"
-                y1="53"
-                x2="453"
-                y2="53"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <text x="595" y="50" textAnchor="end" fontSize="12">
-                Intended Screen Position
+              <text x={centerX + 5} y={wallY + 15} textAnchor="start" fontSize="12">
+                Centerline
               </text>
             </>
           )}
@@ -519,9 +472,9 @@ const DiagramLED = () => {
           {/* Centerline (Horizontal) */}
           {safeVisibility.centreLine && (
             <line
-              x1="50"
+              x1={wallX}
               y1={centerY}
-              x2="760"
+              x2={wallX + wallWidthPx}
               y2={centerY}
               stroke="black"
               strokeWidth="1"
@@ -530,33 +483,32 @@ const DiagramLED = () => {
           )}
 
           {/* Draggable Receptacle Boxes */}
-          {safeVisibility.receptacleBox &&
-            receptacleBoxes.map((box, index) => (
-              <g
-                key={box.id}
-                onMouseDown={(e) => startDrag(e, box.id)}
-                style={{ cursor: "move" }}
+          {safeVisibility.receptacleBox && receptacleBoxes.map((box, index) => (
+            <g 
+              key={box.id} 
+              onMouseDown={(e) => startDrag(e, box.id)}
+              style={{ cursor: 'move' }}
+            >
+              <rect
+                x={box.x}
+                y={box.y}
+                width={box.width}
+                height={box.height}
+                fill={COLORS.background}
+                stroke={COLORS.highlight}
+                strokeWidth="1.5"
+              />
+              <text 
+                x={box.x + (box.width / 2)} 
+                y={box.y - 5} 
+                textAnchor="middle" 
+                fontSize="10"
+                fill={COLORS.highlight}
               >
-                <rect
-                  x={box.x}
-                  y={box.y}
-                  width={box.width}
-                  height={box.height}
-                  fill={COLORS.background}
-                  stroke={COLORS.highlight}
-                  strokeWidth="1.5"
-                />
-                <text
-                  x={box.x + box.width / 2}
-                  y={box.y - 5}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill={COLORS.highlight}
-                >
-                  Box {index + 1}
-                </text>
-              </g>
-            ))}
+                Box {index + 1}
+              </text>
+            </g>
+          ))}
 
           {/* Leader line for receptacle box - only if boxes exist */}
           {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
@@ -564,21 +516,18 @@ const DiagramLED = () => {
               <line
                 x1={receptacleBoxes[0].x + 15}
                 y1={receptacleBoxes[0].y + 15}
-                x2="455"
-                y2="80"
+                x2={receptacleBoxes[0].x + 50}
+                y2={receptacleBoxes[0].y - 30}
                 stroke="black"
                 strokeWidth="1"
                 markerStart="url(#circle)"
               />
-              <line
-                x1="455"
-                y1="80"
-                x2="493"
-                y2="80"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <text x="495" y="78" textAnchor="start" fontSize="12">
+              <text 
+                x={receptacleBoxes[0].x + 55}
+                y={receptacleBoxes[0].y - 35}
+                textAnchor="start"
+                fontSize="12"
+              >
                 Install recessed receptacle box
               </text>
             </>
@@ -600,119 +549,79 @@ const DiagramLED = () => {
 
           {/* Top measurement for screen width */}
           <line
-            x1={screenX + 6}
-            y1={screenY - 40}
-            x2={screenX + screenWidthPx - 6}
-            y2={screenY - 40}
+            x1={screenX}
+            y1={screenY - 20}
+            x2={screenX + screenWidthPx}
+            y2={screenY - 20}
             stroke="black"
             strokeWidth="1"
             markerStart="url(#arrowReversed)"
             markerEnd="url(#arrow)"
           />
-          <line
-            x1={screenX}
-            y1={screenY - 40}
-            x2={screenX}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY - 40}
-            x2={screenX + screenWidthPx}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
           
           <text
-            x={centerX - 50}
-            y={screenY - 60}
+            x={centerX}
+            y={screenY - 35}
             textAnchor="middle"
             fontSize="12"
           >
-            {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
-          </text>
-
-          {/* Floor Distance label */}
-          <text x="50" y="330" textAnchor="middle" fontSize="12">
-            {floorDistance || "50"}
-          </text>
-          <text x="50" y="340" textAnchor="middle" fontSize="12">
-            <tspan x="50" y="345">
-              Centerline of
-            </tspan>
-            <tspan x="50" dy="12">
-              display
-            </tspan>
+            {isHorizontal ? 
+              `${rawWidthValue}" (${widthInMeters}m)` : 
+              `${rawHeightValue}" (${heightInMeters}m)`
+            } ({widthLabel})
           </text>
 
           {/* Right side measurement for screen height */}
           <line
-            x1={screenX + screenWidthPx + 40}
-            y1={screenY + 6}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY + screenHeightPx - 6}
+            x1={screenX + screenWidthPx + 20}
+            y1={screenY}
+            x2={screenX + screenWidthPx + 20}
+            y2={screenY + screenHeightPx}
             stroke="black"
             strokeWidth="1"
             markerStart="url(#arrowReversed)"
             markerEnd="url(#arrow)"
           />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY + screenHeightPx}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY + screenHeightPx}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
 
-          <text
-            x={screenX + screenWidthPx + 90}
-            y={centerY - 10}
-            textAnchor="middle"
+          <text 
+            x={screenX + screenWidthPx + 40} 
+            y={centerY} 
+            textAnchor="start" 
             fontSize="12"
           >
-            {isHorizontal ? rawHeightValue : rawWidthValue} (Height)
+            {isHorizontal ? 
+              `${rawHeightValue}" (${heightInMeters}m)` : 
+              `${rawWidthValue}" (${widthInMeters}m)`
+            } ({heightLabel})
           </text>
 
           {/* Floor Line */}
           <line
-            x1="90"
+            x1={wallX - 20}
             y1={floorLineY}
-            x2="700"
+            x2={wallX + wallWidthPx + 20}
             y2={floorLineY}
             stroke="black"
-            strokeWidth="1"
+            strokeWidth="1.5"
           />
-
+          
           {/* Floor Line Measurement */}
           {safeVisibility.floorLine && (
             <>
               <line
-                x1="90"
-                y1={centerY + 7}
-                x2="90"
-                y2={floorLineY - 3}
+                x1={wallX - 40}
+                y1={centerY}
+                x2={wallX - 40}
+                y2={floorLineY}
                 stroke="black"
                 strokeWidth="1"
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
               />
-              <text x="30" y={floorLineY - 23} textAnchor="middle" fontSize="12">
+              <text x={wallX - 60} y={floorLineY - 50} textAnchor="middle" fontSize="12">
+                Floor to<br/>Centerline:<br/>{floorDistance || "50"}
+              </text>
+              <text x={wallX - 60} y={floorLineY + 15} textAnchor="middle" fontSize="12">
                 Floor Line
               </text>
             </>
@@ -747,20 +656,8 @@ const DiagramLED = () => {
           {/* Center point circle at intersection of centerlines */}
           {safeVisibility.centreLine && (
             <>
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r="5"
-                fill="none"
-                stroke="black"
-              />
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r="3"
-                fill="yellow"
-                stroke="black"
-              />
+              <circle cx={centerX} cy={centerY} r="5" fill="none" stroke="black" />
+              <circle cx={centerX} cy={centerY} r="3" fill="yellow" stroke="black" />
             </>
           )}
         </svg>

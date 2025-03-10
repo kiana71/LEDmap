@@ -28,16 +28,16 @@ export const useSheetDataStore = create((set, get) => ({
   setVarientDepth: (val) =>
     set(old => ({ ...old, variantDepth: parseFloat(val) || 0 })),  // Parse as number
   //wall width
-  wallWidth: 5, 
+  wallWidth: 4, 
   wallHeight: 3, 
   setWallWidth: (val) =>
-    set(old => ({ ...old, wallWidth: Math.min(60, Math.max(1, parseFloat(val) || 0)) })),  // Parse as number with limits
+    set(old => ({ ...old, wallWidth: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),  // Parse as number with limits
   
   setWallHeight: (val) =>
-    set(old => ({ ...old, wallHeight: Math.min(60, Math.max(1, parseFloat(val) || 0)) })),  // Parse as number with limits
+    set(old => ({ ...old, wallHeight: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),  // Parse as number with limits
 
 
-  floorDistance: 50,  // Default value as number
+  floorDistance: 10,  // Default value as number
   setFloorDistance: (val) =>
     set(old => ({ ...old, floorDistance: parseFloat(val) || 0 })),  // Parse as number
   
@@ -46,8 +46,8 @@ export const useSheetDataStore = create((set, get) => ({
     id: Date.now(),
     x: 205,
     y: 370,
-    width: 60,
-    height: 60,
+    width: 50,
+    height: 50,
   }],
   boxCount: 1,
   activeBoxId: null,
@@ -55,8 +55,8 @@ export const useSheetDataStore = create((set, get) => ({
   startBoxPosition: { x: 0, y: 0 },
   
   // Boundary constants
-  BOX_WIDTH: 60,
-  BOX_HEIGHT: 60,
+  BOX_WIDTH: 50,
+  BOX_HEIGHT: 50,
   BOX_SPACING: 10,
   INITIAL_X: 205,
   INITIAL_Y: 370,
