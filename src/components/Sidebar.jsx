@@ -1,18 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import SelectInput from "./SelectInput";
 import DimensionItem from "./DimensionItem";
 import ChoosableOptions from "./ChoosableOption";
-import TextInputGroup from "./TextInputGroup";
-import TextInput from "./TextInput";
 import useExcelData from "../hook/formData";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
-import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
-import Hamburger from "./Hamburger";
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from "@mui/icons-material/Download";
 
-const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
-  
+const Sidebar = ({ toPDF, isOpen }) => {
   // Get all state and methods from the store
   const {
     selectedScreen,
@@ -28,27 +23,31 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
     toggleIsHorizontal,
     toggleIsNiche,
     variantDepth,
-    setVariantDepth, // FIXED: Corrected from setVarientDepth
+    setVariantDepth,
     setFloorDistance,
     floorDistance,
-    wallWidth,
-    wallHeight,
-    setWallWidth, // FIXED: Corrected from setWallwidth
-    setWallHeight, // FIXED: Corrected from setWallheight
-    
-    // Receptacle box state
+
+    // Receptacle box settings
+    bottomDistance,
+    setBottomDistance,
+    leftDistance,
+    setLeftDistance,
+    boxGap,
+    setBoxGap,
     boxCount,
     incrementBoxCount,
     decrementBoxCount,
-    BOX_WIDTH, // To check it exists
-    BOUNDARY //To check it exists
+    maxBoxesReached,
+    updateBoxPositions,
   } = useSheetDataStore();
 
-  // description form states
+  // Description form states
   const { formData, setFormData } = useDescriptionDataStore((state) => state);
 
-  // sheetData state
-  const { sheetData, loading, error } = useExcelData("https://docs.google.com/spreadsheets/d/e/2PACX-1vQH7Uju3LbhqpO7joSwpTvCmAQMK79pspbH_Qnc1pNgMUUk-jFzvE1DSOBedsYc5l21It8bsE7yX3X6/pub?output=xlsx");
+  // Sheet data state
+  const { sheetData, loading, error } = useExcelData(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQH7Uju3LbhqpO7joSwpTvCmAQMK79pspbH_Qnc1pNgMUUk-jFzvE1DSOBedsYc5l21It8bsE7yX3X6/pub?output=xlsx"
+  );
 
   // Getting data right when rendered
   useEffect(() => {
@@ -58,70 +57,109 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
       setSelectedMount(sheetData.sheet3[0]);
       setSelectedReceptacleBox(sheetData.sheet4[0]);
     }
-  }, [sheetData]);
+  }, [sheetData, setSelectedScreen, setSelectedMediaPlayer, setSelectedMount, setSelectedReceptacleBox]);
 
-  // Function to set default values for all fields
+  // Update box positions when screen dimensions or box settings change
+  useEffect(() => {
+    if (boxCount > 0) {
+      updateBoxPositions();
+    }
+  }, [
+    selectedScreen, 
+    isHorizontal, 
+    bottomDistance, 
+    leftDistance, 
+    boxGap,
+    updateBoxPositions,
+    boxCount
+  ]);
+
   if (!selectedScreen) return null;
 
-  // Handle floor distance change - parse as number
+  // Handle floor distance change
   const handleFloorDistanceChange = (e) => {
     const numValue = parseFloat(e.target.value) || 0;
     setFloorDistance(numValue);
   };
 
-  // Handle niche depth variant change - parse as number
+  // Increment floor distance
+  const incrementFloorDistance = (e) => {
+    e.preventDefault();
+    setFloorDistance(floorDistance + 1);
+  };
+
+  // Decrement floor distance
+  const decrementFloorDistance = (e) => {
+    e.preventDefault();
+    setFloorDistance(Math.max(0, floorDistance - 1));
+  };
+
+  // Handle variant depth change
   const handleDepthVariantChange = (e) => {
     const numValue = parseFloat(e.target.value) || 0;
-    setVariantDepth(numValue); // FIXED: Corrected spelling
+    setVariantDepth(numValue);
   };
 
-  // Handle wall width change - parse as number with range limits
-  const handleWallWidth = (e) => {
-    const numValue = parseFloat(e.target.value) || 0;
-    // Limit values between 1 and 60 meters
-    const boundedValue = Math.min(60, Math.max(1, numValue));
-    setWallWidth(boundedValue); // FIXED: Corrected function name
+  // Increment variant depth
+  const incrementVariantDepth = (e) => {
+    e.preventDefault();
+    setVariantDepth(variantDepth + 0.5);
   };
 
-  // Handle wall height change - parse as number with range limits
-  const handleWallHeight = (e) => { // FIXED: Corrected function name
-    const numValue = parseFloat(e.target.value) || 0;
-    // Limit values between 1 and 60 meters
-    const boundedValue = Math.min(60, Math.max(1, numValue));
-    setWallHeight(boundedValue); // FIXED: Corrected function name
+  // Decrement variant depth
+  const decrementVariantDepth = (e) => {
+    e.preventDefault();
+    setVariantDepth(Math.max(0, variantDepth - 0.5));
+  };
+
+  // Increment bottom distance
+  const incrementBottomDistance = (e) => {
+    e.preventDefault();
+    setBottomDistance(Math.max(0, bottomDistance + 0.5));
+  };
+
+  // Decrement bottom distance
+  const decrementBottomDistance = (e) => {
+    e.preventDefault();
+    setBottomDistance(Math.max(0, bottomDistance - 0.5));
+  };
+
+  // Increment left distance
+  const incrementLeftDistance = (e) => {
+    e.preventDefault();
+    setLeftDistance(Math.max(0, leftDistance + 0.5));
+  };
+
+  // Decrement left distance
+  const decrementLeftDistance = (e) => {
+    e.preventDefault();
+    setLeftDistance(Math.max(0, leftDistance - 0.5));
+  };
+
+  // Increment box gap
+  const incrementBoxGap = (e) => {
+    e.preventDefault();
+    setBoxGap(Math.max(0, boxGap + 0.5));
+  };
+
+  // Decrement box gap
+  const decrementBoxGap = (e) => {
+    e.preventDefault();
+    setBoxGap(Math.max(0, boxGap - 0.5));
   };
 
   return (
-    <div className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none ${isOpen ? "right-0" : "-right-80"}`}>
+    <div
+      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none ${
+        isOpen ? "right-0" : "-right-80"
+      }`}
+    >
       <div className="w-full p-2 gap-96">
         <div className="w-full lg:border ">
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
             Configuration
           </p>
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
-          <div className="grid mt-2 grid-cols-1 px-4">
-            
-            <p className="font-medium mb-1">Wall Setting (meters)</p>
-           
-              <DimensionItem
-                className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
-                label="Wall Width"
-                value={wallWidth}
-                hasBorder="true"
-                onChange={handleWallWidth}
-                min="1"
-                max="60"
-              />
-              <DimensionItem
-                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
-                label="Wall Height"
-                value={wallHeight}
-                hasBorder="true"
-                onChange={handleWallHeight} // FIXED: Corrected function name
-                min="1"
-                max="60"
-              />
-            </div>
             <SelectInput
               label="Screen"
               value={selectedScreen["Screen MFR"]}
@@ -146,7 +184,9 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
               }))}
               onChange={(e) =>
                 setSelectedMediaPlayer(
-                  sheetData.sheet2.find((q) => q["MFG. PART"] === e.target.value)
+                  sheetData.sheet2.find(
+                    (q) => q["MFG. PART"] === e.target.value
+                  )
                 )
               }
             />
@@ -160,90 +200,230 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
               }))}
               onChange={(e) =>
                 setSelectedMount(
-                  sheetData.sheet3.find((q) => q["MFG. PART"] === e.target.value)
+                  sheetData.sheet3.find(
+                    (q) => q["MFG. PART"] === e.target.value
+                  )
                 )
               }
             />
-            <SelectInput
-              className="text-center"
-              label="Receptacle Box"
-              value={selectedReceptacleBox?.["MFG. PART"] || ""}
-              options={[
-                { value: "", label: "Select option" },
-                ...sheetData.sheet4.map((sh) => ({
-                  value: sh["MFG. PART"],
-                  label: sh["MFG. PART"],
-                })),
-              ]}
-              onChange={(e) => {
-                const selectedValue = e.target.value;
-                if (selectedValue === "") {
-                  setSelectedReceptacleBox(null);
-                } else {
-                  const selectedBox = sheetData.sheet4.find(
-                    (q) => q["MFG. PART"] === selectedValue
-                  );
-                  setSelectedReceptacleBox(selectedBox);
-                }
-              }}
-            />
-            
+
             {/* Receptacle Box Count Control */}
-            <div className="flex justify-center items-center mb-1">
-              <div className="flex items-center border border-gray-300 overflow-hidden" style={{ height: '40px', width: '269px' }}>
-                <div className="h-full flex-grow flex items-center justify-center">
-                  {boxCount}
+            <div className="flex flex-col items-center mb-1 w-full px-4 mt-4">
+              <div className="mb-2 text-center font-semibold">
+                Receptacle Box Settings
+              </div>
+              
+              {/* Box Count */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Box Count:</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      decrementBoxCount();
+                    }}
+                    disabled={boxCount <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {boxCount}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      incrementBoxCount();
+                    }}
+                    disabled={maxBoxesReached}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
                 </div>
-                <button 
-                  type="button" // Important to prevent form submission
-                  onClick={(e) => {
-                    e.preventDefault(); // Prevent form submission
-                    decrementBoxCount();
-                  }}
-                  disabled={boxCount <= 1}
-                  className="h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
-                  style={{ borderRight: '1px solid #e5e7eb' }}
+              </div>
+              
+              {/* Bottom Distance */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Bottom Distance (in):</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
                 >
-                  <span className="text-xl font-bold">−</span>
-                </button>
-                
-                <button 
-                  type="button" // Important to prevent form submission
-                  onClick={(e) => {
-                    e.preventDefault(); // Prevent form submission
-                    incrementBoxCount();
-                  }}
-                  disabled={boxCount >= 10}
-                  className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
-                  style={{ borderLeft: '1px solid #e5e7eb' }}
+                  <button
+                    type="button"
+                    onClick={decrementBottomDistance}
+                    disabled={bottomDistance <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {bottomDistance}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={incrementBottomDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Left Distance */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Left Distance (in):</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
                 >
-                  <span className="text-xl font-bold">+</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={decrementLeftDistance}
+                    disabled={leftDistance <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {leftDistance}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={incrementLeftDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Box Gap */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Box Gap (in):</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
+                >
+                  <button
+                    type="button"
+                    onClick={decrementBoxGap}
+                    disabled={boxGap <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {boxGap}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={incrementBoxGap}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
+              
+              {maxBoxesReached && (
+                <div className="text-red-500 text-sm text-center mb-2">
+                  Maximum box limit reached for this LED size
+                </div>
+              )}
+              
+              <div className="text-sm text-gray-600 mb-4">
+                Boxes will be placed starting from bottom-left
               </div>
             </div>
 
-            <div className="text-sm text-gray-600 ">
-              Tip: Drag boxes inside the main<br/> rectangle
-            </div>
+            <div className="flex flex-col items-center mb-1 w-full px-4 mt-2">
+              <div className="mb-2 text-center font-semibold">
+                Display Settings
+              </div>
               
-            <div className="grid mt-2 grid-cols-1 px-4">
-              <DimensionItem
-                className="flex flex-row items-center justify-between bg-gray-100 border border-gray-300 h-8"
-                label="Floor Distance"
-                value={floorDistance}
-                hasBorder="true"
-                onChange={handleFloorDistanceChange}
-              />
-              <DimensionItem
-                className="flex flex-row items-center justify-between border bg-gray-100 border-gray-300 h-8"
-                label="Niche Depth var"
-                value={variantDepth}
-                hasBorder="true"
-                onChange={handleDepthVariantChange}
-              />
+              {/* Floor Distance with buttons */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Floor Distance (in):</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
+                >
+                  <button
+                    type="button"
+                    onClick={decrementFloorDistance}
+                    disabled={floorDistance <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {floorDistance}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={incrementFloorDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Niche Depth Var with buttons */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Niche Depth Var (in):</div>
+                <div className="flex items-center border border-gray-300 overflow-hidden"
+                  style={{ height: "40px", width: "100%" }}
+                >
+                  <button
+                    type="button"
+                    onClick={decrementVariantDepth}
+                    disabled={variantDepth <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+                  
+                  <div className="h-full flex-grow flex items-center justify-center">
+                    {variantDepth}
+                  </div>
+                  
+                  <button
+                    type="button"
+                    onClick={incrementVariantDepth}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
             </div>
-            
-            <div className="grid w-full grid-cols-2 px-4 ">
+
+            <div className="grid w-full grid-cols-2 px-4 mt-2">
               <ChoosableOptions
                 label="Vertical"
                 isSelected={!isHorizontal}
@@ -266,22 +446,21 @@ const Sidebar = ({ toPDF, targetRef, isOpen, toggleSidebar }) => {
               />
             </div>
           </form>
-           <div
-        onClick={(e) => {
-          e.preventDefault();
-          toPDF();
-        }}
-        className="h-16 fixed bottom-0 justify-center items-center flex flex-row no-wrap"
-      >
-        <button 
-          className="w-60 h-8 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out"
-        >
-          Download
-        </button>
-        <div className="bg-blue-700 text-white h-8 w-10">
-          <DownloadIcon/>
-        </div>
-      </div>
+          
+          <div
+            onk={(e) => {
+              e.preventDefault();
+              toPDF();
+            }}
+            className="h-16 fixed bottom-0 justify-center items-center flex flex-row no-wrap"
+          >
+            <button className="w-60 h-8 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
+              Download
+            </button>
+            <div className="bg-blue-700 text-white h-8 w-10">
+              <DownloadIcon />
+            </div>
+          </div>
         </div>
       </div>
     </div>

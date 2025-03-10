@@ -1,3 +1,5 @@
+// Updated useSheetDataStore with structured receptacle box placement
+
 import { create } from "zustand";
 
 export const useSheetDataStore = create((set, get) => ({
@@ -24,42 +26,49 @@ export const useSheetDataStore = create((set, get) => ({
   toggleIsNiche: () =>
     set(old => ({ ...old, isNiche: !old.isNiche })),
   
-  variantDepth: 0,  // Changed to number instead of empty string
-  setVarientDepth: (val) =>
-    set(old => ({ ...old, variantDepth: parseFloat(val) || 0 })),  // Parse as number
-  //wall width
+  // Screen and wall settings
+  variantDepth: 0,
+  setVariantDepth: (val) => 
+    set(old => ({ ...old, variantDepth: parseFloat(val) || 0 })),
+
   wallWidth: 4, 
   wallHeight: 3, 
-  setWallWidth: (val) =>
-    set(old => ({ ...old, wallWidth: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),  // Parse as number with limits
+  setWallWidth: (val) => 
+    set(old => ({ ...old, wallWidth: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),
   
-  setWallHeight: (val) =>
-    set(old => ({ ...old, wallHeight: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),  // Parse as number with limits
+  setWallHeight: (val) => 
+    set(old => ({ ...old, wallHeight: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),
 
-
-  floorDistance: 10,  // Default value as number
+  floorDistance: 20,
   setFloorDistance: (val) =>
-    set(old => ({ ...old, floorDistance: parseFloat(val) || 0 })),  // Parse as number
+    set(old => ({ ...old, floorDistance: parseFloat(val) || 0 })),
   
-  // Receptacle boxes state
-  receptacleBoxes: [{
-    id: Date.now(),
-    x: 205,
-    y: 370,
-    width: 50,
-    height: 50,
-  }],
-  boxCount: 1,
+  // Receptacle box settings
+  bottomDistance: 0, // Default 5 inches from bottom of LED
+  setBottomDistance: (val) =>
+    set(old => ({ ...old, bottomDistance: Math.max(0, parseFloat(val) || "") })),
+
+  leftDistance: 0, // Default 1 inches from left of LED
+  setLeftDistance: (val) =>
+    set(old => ({ ...old, leftDistance: Math.max(0, parseFloat(val) || "") })),
+
+  boxGap: 0, // Default 1 inches gap between boxes
+  setBoxGap: (val) =>
+    set(old => ({ ...old, boxGap: Math.max(0, parseFloat(val) || "") })),
+  
+  // Initialize with one box instead of empty array
+  receptacleBoxes: [], // Will be populated in initializer function
+  boxCount: 1, // Start with 1 box instead of 0
+  maxBoxesReached: false, // Flag to indicate if max boxes reached
   activeBoxId: null,
   startPoint: { x: 0, y: 0 },
   startBoxPosition: { x: 0, y: 0 },
   
-  // Boundary constants
-  BOX_WIDTH: 50,
-  BOX_HEIGHT: 50,
-  BOX_SPACING: 10,
-  INITIAL_X: 205,
-  INITIAL_Y: 370,
+  // Box dimensions in inches (scaled to pixels in the diagram)
+  BOX_WIDTH: 6, // 6 inches wide
+  BOX_HEIGHT: 6, // 6 inches tall
+  
+  // Boundary for dragging
   BOUNDARY: {
     x: 150,
     y: 150,
@@ -67,32 +76,32 @@ export const useSheetDataStore = create((set, get) => ({
     height: 300
   },
   
-  // New method to update the boundary
+  // Update boundary based on screen dimensions
   updateBoundary: (newBoundary) => set(state => ({
     ...state,
     BOUNDARY: newBoundary
   })),
   
-  // New method to reposition boxes that are outside boundary
+  // Reposition boxes that are outside boundary
   repositionBoxes: () => set(state => {
-    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT } = state;
+    const { BOUNDARY, receptacleBoxes } = state;
     
-    const updatedBoxes = state.receptacleBoxes.map(box => {
+    const updatedBoxes = receptacleBoxes.map(box => {
       // Check if box is outside boundary
       if (
         box.x < BOUNDARY.x || 
         box.y < BOUNDARY.y || 
-        box.x + BOX_WIDTH > BOUNDARY.x + BOUNDARY.width || 
-        box.y + BOX_HEIGHT > BOUNDARY.y + BOUNDARY.height
+        box.x + box.width > BOUNDARY.x + BOUNDARY.width || 
+        box.y + box.height > BOUNDARY.y + BOUNDARY.height
       ) {
         // Calculate safe position within boundary
         const safeX = Math.max(
           BOUNDARY.x, 
-          Math.min(BOUNDARY.x + BOUNDARY.width - BOX_WIDTH, box.x)
+          Math.min(BOUNDARY.x + BOUNDARY.width - box.width, box.x)
         );
         const safeY = Math.max(
           BOUNDARY.y, 
-          Math.min(BOUNDARY.y + BOUNDARY.height - BOX_HEIGHT, box.y)
+          Math.min(BOUNDARY.y + BOUNDARY.height - box.height, box.y)
         );
         
         return {
@@ -110,48 +119,149 @@ export const useSheetDataStore = create((set, get) => ({
     };
   }),
   
-  // Methods for receptacle boxes using proper get() access
+  // Calculate possible box positions based on current settings
+  calculateBoxPositions: () => {
+    const state = get();
+    const { 
+      BOUNDARY, BOX_WIDTH, BOX_HEIGHT, 
+      leftDistance, bottomDistance, boxGap 
+    } = state;
+    
+    // Convert inches to pixels based on diagram scale
+    // Note: In your diagram, make sure to use the same scale factor
+    const SCALE_FACTOR = 10; // Assuming 10px = 1 inch
+    
+    const boxWidthPx = BOX_WIDTH * SCALE_FACTOR;
+    const boxHeightPx = BOX_HEIGHT * SCALE_FACTOR;
+    const leftDistancePx = leftDistance * SCALE_FACTOR;
+    const bottomDistancePx = bottomDistance * SCALE_FACTOR;
+    const boxGapPx = boxGap * SCALE_FACTOR;
+    
+    // Calculate usable dimensions
+   // Calculate usable dimensions, ensuring we never go outside the boundary
+   const usableWidth = BOUNDARY.width - leftDistancePx;
+   const usableHeight = BOUNDARY.height - bottomDistancePx;
+   
+   // Calculate how many complete boxes can fit in a row
+  const boxesPerRow = Math.floor(
+    usableWidth / (boxWidthPx + boxGapPx)
+  );
+  
+  // Calculate how many complete rows can fit
+  const maxRows = Math.floor(
+    usableHeight / (boxHeightPx + boxGapPx)
+  );
+  // Calculate maximum possible boxes
+  const maxBoxes = boxesPerRow * maxRows;
+  
+    // Create array of possible positions
+    const positions = [];
+  
+  for (let row = 0; row < maxRows; row++) {
+    for (let col = 0; col < boxesPerRow; col++) {
+      // Calculate position (x, y is top-left corner)
+      const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
+      
+      // Y starts from bottom and goes up
+      // FIXED: Ensure the box is completely within the boundary
+      const y = (BOUNDARY.y + BOUNDARY.height) - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
+      
+      // Verify the box is completely within bounds
+      if (
+        x >= BOUNDARY.x && 
+        y >= BOUNDARY.y && 
+        x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
+        y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
+      ) {
+        positions.push({
+          x: x,
+          y: y,
+          width: boxWidthPx,
+          height: boxHeightPx
+        });
+      }
+    }
+  }
+  
+  return {
+    positions: positions,
+    maxBoxes: positions.length
+  };
+},
+  // Add a box at the next calculated position
   incrementBoxCount: () => set(state => {
-    if (state.boxCount >= 10) return state; // Maximum 10 boxes
+    const { boxCount, receptacleBoxes } = state;
+    const { positions, maxBoxes } = state.calculateBoxPositions();
     
-    const newCount = state.boxCount + 1;
-    const rowCount = Math.floor((newCount - 1) / 10);
-    const colCount = (newCount - 1) % 10;
+    // Check if we've reached the maximum number of boxes
+    if (boxCount >= maxBoxes) {
+      return {
+        ...state,
+        maxBoxesReached: true
+      };
+    }
     
-    // Calculate position ensuring it's within boundaries
-    let x = state.INITIAL_X + (colCount * (state.BOX_WIDTH + state.BOX_SPACING));
-    let y = state.INITIAL_Y + (rowCount * (state.BOX_HEIGHT + state.BOX_SPACING));
-    
-    // Constrain to boundary
-    x = Math.max(state.BOUNDARY.x, Math.min(state.BOUNDARY.x + state.BOUNDARY.width - state.BOX_WIDTH, x));
-    y = Math.max(state.BOUNDARY.y, Math.min(state.BOUNDARY.y + state.BOUNDARY.height - state.BOX_HEIGHT, y));
+    // Get the next position
+    const newPos = positions[boxCount];
     
     const newBox = {
       id: Date.now(),
-      x: x,
-      y: y,
-      width: state.BOX_WIDTH,
-      height: state.BOX_HEIGHT
+      ...newPos
     };
     
     return {
       ...state,
-      boxCount: newCount,
-      receptacleBoxes: [...state.receptacleBoxes, newBox]
+      boxCount: boxCount + 1,
+      receptacleBoxes: [...receptacleBoxes, newBox],
+      maxBoxesReached: boxCount + 1 >= maxBoxes
     };
   }),
   
+  // Remove the last box
   decrementBoxCount: () => set(state => {
-    if (state.boxCount <= 1) return state; // Minimum 1 box
+    if (state.boxCount <= 1) return state; // Changed from 0 to 1 to always keep at least one box
     
     const newCount = state.boxCount - 1;
     return {
       ...state,
       boxCount: newCount,
-      receptacleBoxes: state.receptacleBoxes.slice(0, newCount)
+      receptacleBoxes: state.receptacleBoxes.slice(0, newCount),
+      maxBoxesReached: false
     };
   }),
   
+  // Update box positions when screen or settings change
+  updateBoxPositions: () => set(state => {
+    const { 
+      boxCount, 
+      calculateBoxPositions 
+    } = state;
+    
+    const { positions, maxBoxes } = calculateBoxPositions();
+    
+    // Update positions of existing boxes
+    const updatedBoxes = state.receptacleBoxes.map((box, index) => {
+      if (index < positions.length) {
+        return {
+          ...box,
+          x: positions[index].x,
+          y: positions[index].y,
+          width: positions[index].width,
+          height: positions[index].height
+        };
+      }
+      return box;
+    }).slice(0, Math.min(boxCount, maxBoxes));
+    
+    return {
+      ...state,
+      receptacleBoxes: updatedBoxes,
+      boxCount: updatedBoxes.length,
+      maxBoxesReached: boxCount >= maxBoxes
+    };
+  }),
+  
+  // Dragging functionality
   setStartDragInfo: (boxId, startPoint, boxPosition) => set(state => ({
     ...state,
     activeBoxId: boxId,
@@ -170,8 +280,8 @@ export const useSheetDataStore = create((set, get) => ({
     let newY = state.startBoxPosition.y + deltaY;
     
     // Constrain to boundary
-    newX = Math.max(state.BOUNDARY.x, Math.min(state.BOUNDARY.x + state.BOUNDARY.width - state.BOX_WIDTH, newX));
-    newY = Math.max(state.BOUNDARY.y, Math.min(state.BOUNDARY.y + state.BOUNDARY.height - state.BOX_HEIGHT, newY));
+    newX = Math.max(state.BOUNDARY.x, Math.min(state.BOUNDARY.x + state.BOUNDARY.width - state.BOX_WIDTH * 10, newX));
+    newY = Math.max(state.BOUNDARY.y, Math.min(state.BOUNDARY.y + state.BOUNDARY.height - state.BOX_HEIGHT * 10, newY));
     
     return {
       ...state,
@@ -193,3 +303,20 @@ export const useSheetDataStore = create((set, get) => ({
     activeBoxId: null
   }))
 }));
+
+// Initialize the store with one box
+const store = useSheetDataStore.getState();
+const { positions } = store.calculateBoxPositions();
+
+// Only add a box if positions are available
+if (positions && positions.length > 0) {
+  const firstPosition = positions[0];
+  const initialBox = {
+    id: Date.now(),
+    ...firstPosition
+  };
+  
+  useSheetDataStore.setState({
+    receptacleBoxes: [initialBox]
+  });
+}

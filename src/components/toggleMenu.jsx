@@ -59,18 +59,18 @@ export const VisibilityProvider = ({ children }) => {
   );
 };
 
-// Toggle Option component
+// Toggle Option components
 const ToggleOption = ({ label, isActive, onToggle }) => {
   return (
     <div className="py-3 px-4 my-2 flex items-center justify-between bg-white rounded-md shadow-sm">
       <span className="text-lg font-medium">{label}</span>
       <div
-        className={`relative w-14 h-7 rounded-full transition-colors duration-300 cursor-pointer ${isActive ? 'bg-blue-500' : 'bg-gray-200'}`}
+        className={`relative w-14 h-7 rounded-full transition-colors duration-300 cursor-pointer ${isActive ? 'bg-blue-500 '  : 'bg-gray-200'}`}
         onClick={onToggle}
       >
         <div
           className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${
-            isActive ? 'transform translate-x-7' : 'transform translate-x-1'
+            isActive ? 'transform translate-x-8' : 'transform translate-x-1'
           }`}
         />
       </div>
