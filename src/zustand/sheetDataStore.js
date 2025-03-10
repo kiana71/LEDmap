@@ -35,7 +35,7 @@ export const useSheetDataStore = create((set, get) => ({
   wallHeight: 3, 
   setWallWidth: (val) => 
     set(old => ({ ...old, wallWidth: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),
-  
+  //hei
   setWallHeight: (val) => 
     set(old => ({ ...old, wallHeight: Math.min(40, Math.max(2, parseFloat(val) || 0)) })),
 
