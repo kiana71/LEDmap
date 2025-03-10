@@ -250,7 +250,7 @@ const DiagramLED = () => {
           viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ touchAction: "none", backgroundColor: "F0F0F9" }}
+          style={{ touchAction: "none" }}
         >
           <title>LED Display Installation Diagram</title>
           <desc>
@@ -580,7 +580,7 @@ const DiagramLED = () => {
 }
 
           {/* Leader line for receptacle box - only if boxes exist */}
-          {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
+          {/* {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
             <>
               <line
                 x1={receptacleBoxes[0].x + 15}
@@ -603,7 +603,7 @@ const DiagramLED = () => {
                 Install recessed receptacle box
               </text>
             </>
-          )}
+          )} */}
 
           {/* Circle Marker Definition */}
           <defs>

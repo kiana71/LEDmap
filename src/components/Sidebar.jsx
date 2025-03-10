@@ -448,7 +448,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
           </form>
           
           <div
-            onk={(e) => {
+            onClick={(e) => {
               e.preventDefault();
               toPDF();
             }}
