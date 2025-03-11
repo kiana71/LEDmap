@@ -658,18 +658,7 @@ const DiagramLED = () => {
             {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
           </text>
 
-          {/* Floor Distance label */}
-          <text x="50" y="330" textAnchor="middle" fontSize="12">
-            {floorDistance || "50"}
-          </text>
-          <text x="50" y="340" textAnchor="middle" fontSize="12">
-            <tspan x="50" y="345">
-              Centerline of
-            </tspan>
-            <tspan x="50" dy="12">
-              display
-            </tspan>
-          </text>
+          
 
           {/* Right side measurement for screen height */}
           <line
@@ -724,6 +713,19 @@ const DiagramLED = () => {
           {/* Floor Line Measurement */}
           {safeVisibility.floorLine && (
             <>
+{/* Floor Distance label */}
+<text x="50" y="330" textAnchor="middle" fontSize="12">
+            {floorDistance || "0"}
+          </text>
+          <text x="50" y="340" textAnchor="middle" fontSize="12">
+            <tspan x="50" y="345">
+              Centerline of
+            </tspan>
+            <tspan x="50" dy="12">
+              display
+            </tspan>
+          </text>
+
               {/* Measurement line from center to floor */}
               <line
                 x1="90"
