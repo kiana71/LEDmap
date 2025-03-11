@@ -13,9 +13,10 @@ const DimensionBoxes = () => {
     selectedMediaPlayer,
     selectedMount,
     variantDepth,
+    isNiche
   } = useSheetDataStore((state) => state);
   
-  
+
   // Calculate raw nicheDepth
 const rawNicheDepth = parseFloat(selectedScreen?.Depth || 0) + 
 parseFloat(findMax((selectedMediaPlayer?.Depth || 0), 
@@ -87,6 +88,8 @@ const nicheDepth = roundToNearest8th(rawNicheDepth);
             </DimensionGroup>
 
             {/* Niche Dimensions */}
+            {isNiche && (
+
             <DimensionGroup title="Niche Dimensions" className="w-full">
              
               <DimensionItem
@@ -119,6 +122,7 @@ const nicheDepth = roundToNearest8th(rawNicheDepth);
                 className="flex flex-row items-center justify-between border-b border-black h-8"
               />
             </DimensionGroup>
+            )}
 
             {/* Toggle Options Menu */}
             <div className="w-full">

@@ -714,7 +714,7 @@ const DiagramLED = () => {
           {safeVisibility.floorLine && (
             <>
 {/* Floor Distance label */}
-<text x="50" y="330" textAnchor="middle" fontSize="12">
+          <text x="50" y="330" textAnchor="middle" fontSize="12">
             {floorDistance || "0"}
           </text>
           <text x="50" y="340" textAnchor="middle" fontSize="12">

@@ -39,6 +39,11 @@ const Sidebar = ({ toPDF, isOpen }) => {
     decrementBoxCount,
     maxBoxesReached,
     updateBoxPositions,
+    
+    // Limit flags
+    isAtMaxBottomDistance,
+    isAtMaxLeftDistance,
+    isAtMaxBoxGap,
   } = useSheetDataStore();
 
   // Description form states
@@ -225,7 +230,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
                       e.preventDefault();
                       decrementBoxCount();
                     }}
-                    disabled={boxCount <= 0}
+                    disabled={boxCount <= 1}
                     className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
                     style={{ borderRight: "1px solid #e5e7eb" }}
                   >
@@ -274,7 +279,8 @@ const Sidebar = ({ toPDF, isOpen }) => {
                   <button
                     type="button"
                     onClick={incrementBottomDistance}
-                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    disabled={isAtMaxBottomDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
                     style={{ borderLeft: "1px solid #e5e7eb" }}
                   >
                     <span className="text-xl font-bold">+</span>
@@ -305,7 +311,8 @@ const Sidebar = ({ toPDF, isOpen }) => {
                   <button
                     type="button"
                     onClick={incrementLeftDistance}
-                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    disabled={isAtMaxLeftDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
                     style={{ borderLeft: "1px solid #e5e7eb" }}
                   >
                     <span className="text-xl font-bold">+</span>
@@ -336,7 +343,8 @@ const Sidebar = ({ toPDF, isOpen }) => {
                   <button
                     type="button"
                     onClick={incrementBoxGap}
-                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md"
+                    disabled={isAtMaxBoxGap}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
                     style={{ borderLeft: "1px solid #e5e7eb" }}
                   >
                     <span className="text-xl font-bold">+</span>
