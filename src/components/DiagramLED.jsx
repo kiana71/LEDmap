@@ -111,17 +111,17 @@ const DiagramLED = () => {
   const nicheY = centerY - nicheHeightPx / 2;
 
   // Wood backing dimensions (slightly smaller than screen)
-  const woodBackingMargin =30;
+  const woodBackingMargin = 30;
   const woodBackingX = screenX + woodBackingMargin;
   const woodBackingY = screenY + woodBackingMargin;
   const woodBackingWidth = screenWidthPx - woodBackingMargin * 2;
   const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
   // Side view dimensions - scaled with the screen depth but with minimum and maximum
-  const sideViewX = BASE_WIDTH + 10; // Place it just outside the main view
-  const sideViewY = screenY - 14;
-  const sideViewHeight = nicheHeightPx;
-  const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
+const sideViewX = screenX + screenWidthPx + 50; // Position closer to the right edge of screen
+const sideViewY = screenY -7 ;
+const sideViewHeight = nicheHeightPx;
+const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
   // Update draggable boundary based on screen dimensions
   const draggableBoundary = useMemo(() => {
@@ -133,15 +133,16 @@ const DiagramLED = () => {
     };
   }, [screenX, screenY, screenWidthPx, screenHeightPx]);
 
-  // Calculate floor line position dynamically based on input with a minimum distance
-  // Ensure floor line is always visible even with very small floorDistance values
   const MIN_FLOOR_DISTANCE = 5; // Minimum distance in inches
   const calculatedFloorDistance = Math.max(MIN_FLOOR_DISTANCE, floorDistance);
-  const floorLineY = centerY + (calculatedFloorDistance * SCALE_FACTOR);
+  // Set a static position for the floor line - a bit lower than the LED
+  const floorLineY = screenY + screenHeightPx + 100; // 100px below the bottom of the LED
   
-  // Adjust viewport dimensions to accommodate the diagram
-  // This is crucial to ensure everything is visible
-  const viewBoxWidth = BASE_WIDTH + sideViewDepth + 60; // Add extra space for side view
+  //sideview
+  const viewBoxWidth = Math.max(
+    BASE_WIDTH, 
+    sideViewX + sideViewDepth + 60
+  ); // Ensure we have space for the side view
   
   // Calculate dynamic viewBoxHeight based on floor distance with extra padding
   // This ensures the diagram always fits within the viewport as floorDistance changes
@@ -331,24 +332,22 @@ const DiagramLED = () => {
                 markerEnd="url(#arrow)"
               />
 
-              <line
-                x1={nicheX}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX}
-                y2={nicheY + nicheHeightPx + 40}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-              <line
-                x1={nicheX + nicheWidthPx}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX + nicheWidthPx}
-                y2={nicheY + nicheHeightPx + 40}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
+<line
+  x1={nicheX}
+  y1={(nicheY) + nicheHeightPx + 6}
+  x2={nicheX}
+  y2={nicheY + nicheHeightPx + 40}
+  stroke="black"
+  strokeWidth=".5"
+/>
+<line
+  x1={nicheX + nicheWidthPx}
+  y1={nicheY + nicheHeightPx + 5}
+  x2={nicheX + nicheWidthPx}
+  y2={nicheY + nicheHeightPx + 40}
+  stroke="black"
+  strokeWidth=".5"
+/>
 
               <text
                 x="370"
@@ -371,29 +370,27 @@ const DiagramLED = () => {
                 markerEnd="url(#arrow)"
               />
 
-              <line
-                x1={nicheX - 40}
-                y1={nicheY}
-                x2={nicheX}
-                y2={nicheY}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
-              <line
-                x1={nicheX - 40}
-                y1={nicheY + nicheHeightPx}
-                x2={nicheX}
-                y2={nicheY + nicheHeightPx}
-                stroke="black"
-                strokeWidth=".5"
-                strokeDasharray="2"
-              />
+<line
+  x1={nicheX - 40}
+  y1={nicheY}
+  x2={nicheX - 2}
+  y2={nicheY}
+  stroke="black"
+  strokeWidth=".5"
+/>
+<line
+  x1={nicheX - 40}
+  y1={nicheY + nicheHeightPx}
+  x2={nicheX - 2}
+  y2={nicheY + nicheHeightPx}
+  stroke="black"
+  strokeWidth=".5"
+/>
 
               {/* Side view - scaled with depth */}
-              <text x={sideViewX - 5} y={sideViewY + sideViewHeight + 30} textAnchor="start" fontSize="12">
-                Side View
-              </text>
+              <text x={sideViewX + (sideViewDepth / 2)} y={sideViewY + sideViewHeight + 30} textAnchor="middle" fontSize="12">
+  Side View
+</text>
 
               <line
                 x1={sideViewX}
@@ -491,32 +488,48 @@ const DiagramLED = () => {
             opacity="1"
           />
 
-          {/* Wood Backing - Inner rectangle (only if visible) */}
-          {safeVisibility.woodBacking && (
-            <rect
-              x={woodBackingX}
-              y={woodBackingY}
-              width={woodBackingWidth}
-              height={woodBackingHeight}
-              fill="none"
-              stroke="black"
-              strokeDasharray="8,8"
-              strokeWidth="1"
-            />
-          )}
-
-          {/* Centerline (Vertical) */}
+          {/* Centerlines - only within screen boundaries */}
           {safeVisibility.centreLine && (
             <>
+              {/* Vertical centerline - constrained to screen */}
               <line
                 x1={centerX}
-                y1="50"
+                y1={screenY}
                 x2={centerX}
-                y2={floorLineY + 50} // Extend to below floor line
+                y2={screenY + screenHeightPx}
                 stroke="black"
                 strokeWidth="1"
                 strokeDasharray="5,5"
               />
+              
+              {/* Horizontal centerline - constrained to screen */}
+              <line
+                x1={screenX}
+                y1={centerY}
+                x2={screenX + screenWidthPx}
+                y2={centerY}
+                stroke="black"
+                strokeWidth="1"
+                strokeDasharray="4"
+              />
+              
+              {/* Center point circle at intersection of centerlines */}
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r="5"
+                fill="none"
+                stroke="black"
+              />
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r="3"
+                fill="yellow"
+                stroke="black"
+              />
+              
+              {/* Label line */}
               <line
                 x1={centerX}
                 y1={centerY}
@@ -539,71 +552,45 @@ const DiagramLED = () => {
             </>
           )}
 
-          {/* Centerline (Horizontal) */}
-          {safeVisibility.centreLine && (
-            <line
-              x1="50"
-              y1={centerY}
-              x2="760"
-              y2={centerY}
+          {/* Wood Backing - Inner rectangle (only if visible) */}
+          {safeVisibility.woodBacking && (
+            <rect
+              x={woodBackingX}
+              y={woodBackingY}
+              width={woodBackingWidth}
+              height={woodBackingHeight}
+              fill="none"
               stroke="black"
+              strokeDasharray="8,8"
               strokeWidth="1"
-              strokeDasharray="4"
             />
           )}
 
-          {/* Draggable Receptacle Boxes */}
-         {/* Receptacle Boxes - NOT draggable */}
-{safeVisibility.receptacleBox &&
-  receptacleBoxes.map((box, index) => (
-    <g key={box.id}>
-      <rect
-        x={box.x}
-        y={box.y}
-        width={box.width}
-        height={box.height}
-        fill={COLORS.background}
-        stroke={COLORS.highlight}
-        strokeWidth="1.5"
-      />
-      <text 
-        x={box.x + (box.width / 2)} 
-        y={box.y - 5} 
-        textAnchor="middle" 
-        fontSize="10"
-        fill={COLORS.highlight}
-      >
-        Box {index + 1}
-      </text>
-    </g>
-  ))
-}
-
-          {/* Leader line for receptacle box - only if boxes exist */}
-          {/* {safeVisibility.receptacleBox && receptacleBoxes.length > 0 && (
-            <>
-              <line
-                x1={receptacleBoxes[0].x + 15}
-                y1={receptacleBoxes[0].y + 15}
-                x2="455"
-                y2="80"
-                stroke="black"
-                strokeWidth="1"
-                markerStart="url(#circle)"
-              />
-              <line
-                x1="455"
-                y1="80"
-                x2="493"
-                y2="80"
-                stroke="black"
-                strokeWidth="1"
-              />
-              <text x="495" y="78" textAnchor="start" fontSize="12">
-                Install recessed receptacle box
-              </text>
-            </>
-          )} */}
+          {/* Receptacle Boxes - NOT draggable */}
+          {safeVisibility.receptacleBox &&
+            receptacleBoxes.map((box, index) => (
+              <g key={box.id}>
+                <rect
+                  x={box.x}
+                  y={box.y}
+                  width={box.width}
+                  height={box.height}
+                  fill={COLORS.background}
+                  stroke={COLORS.highlight}
+                  strokeWidth="1.5"
+                />
+                <text 
+                  x={box.x + (box.width / 2)} 
+                  y={box.y - 5} 
+                  textAnchor="middle" 
+                  fontSize="10"
+                  fill={COLORS.highlight}
+                >
+                  Box {index + 1}
+                </text>
+              </g>
+            ))
+          }
 
           {/* Circle Marker Definition */}
           <defs>
@@ -621,33 +608,31 @@ const DiagramLED = () => {
 
           {/* Top measurement for screen width */}
           <line
-            x1={screenX + 6}
-            y1={screenY - 40}
-            x2={screenX + screenWidthPx - 6}
-            y2={screenY - 40}
-            stroke="black"
-            strokeWidth="1"
-            markerStart="url(#arrowReversed)"
-            markerEnd="url(#arrow)"
-          />
-          <line
-            x1={screenX}
-            y1={screenY - 40}
-            x2={screenX}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY - 40}
-            x2={screenX + screenWidthPx}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
+  x1={screenX + 6}
+  y1={screenY - 40}
+  x2={screenX + screenWidthPx - 6}
+  y2={screenY - 40}
+  stroke="black"
+  strokeWidth="1"
+  markerStart="url(#arrowReversed)"
+  markerEnd="url(#arrow)"
+/>
+<line
+  x1={screenX}
+  y1={screenY - 40}
+  x2={screenX}
+  y2={screenY - 12}
+  stroke="black"
+  strokeWidth=".5"
+/>
+<line
+  x1={screenX + screenWidthPx}
+  y1={screenY - 40}
+  x2={screenX + screenWidthPx}
+  y2={screenY - 12}
+  stroke="black"
+  strokeWidth=".5"
+/>
           
           <text
             x={centerX - 50}
@@ -658,37 +643,33 @@ const DiagramLED = () => {
             {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
           </text>
 
-          
-
           {/* Right side measurement for screen height */}
           <line
-            x1={screenX + screenWidthPx + 40}
-            y1={screenY + 6}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY + screenHeightPx - 6}
-            stroke="black"
-            strokeWidth="1"
-            markerStart="url(#arrowReversed)"
-            markerEnd="url(#arrow)"
-          />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
-          <line
-            x1={screenX + screenWidthPx}
-            y1={screenY + screenHeightPx}
-            x2={screenX + screenWidthPx + 40}
-            y2={screenY + screenHeightPx}
-            stroke="black"
-            strokeWidth=".5"
-            strokeDasharray="2"
-          />
+  x1={screenX + screenWidthPx + 40}
+  y1={screenY + 6}
+  x2={screenX + screenWidthPx + 40}
+  y2={screenY + screenHeightPx - 6}
+  stroke="black"
+  strokeWidth="1"
+  markerStart="url(#arrowReversed)"
+  markerEnd="url(#arrow)"
+/>
+<line
+  x1={screenX + screenWidthPx + 12}
+  y1={screenY}
+  x2={screenX + screenWidthPx + 40}
+  y2={screenY}
+  stroke="black"
+  strokeWidth=".5"
+/>
+<line
+  x1={screenX + screenWidthPx + 12}
+  y1={screenY + screenHeightPx}
+  x2={screenX + screenWidthPx + 40}
+  y2={screenY + screenHeightPx}
+  stroke="black"
+  strokeWidth=".5"
+/>
 
           <text
             x={screenX + screenWidthPx + 90}
@@ -713,21 +694,12 @@ const DiagramLED = () => {
           {/* Floor Line Measurement */}
           {safeVisibility.floorLine && (
             <>
-{/* Floor Distance label */}
-          <text x="50" y="330" textAnchor="middle" fontSize="12">
-            {floorDistance || "0"}
-          </text>
-          <text x="50" y="340" textAnchor="middle" fontSize="12">
-            <tspan x="50" y="345">
-              Centerline of
-            </tspan>
-            <tspan x="50" dy="12">
-              display
-            </tspan>
-          </text>
+              {/* Floor Distance label */}
+          
+             
 
               {/* Measurement line from center to floor */}
-              <line
+              {/* <line
                 x1="90"
                 y1={centerY + 7}
                 x2="90"
@@ -736,12 +708,88 @@ const DiagramLED = () => {
                 strokeWidth="1.5"
                 markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
-              />
-              
+              /> */}
+              {/* Add measurement line with zigzag break */}
+{/* Top portion of line */}
+
+{/* Measurement line with zigzag break - proper scaling for small screens */}
+{/* Top portion of line */}
+<line
+  x1="90"
+  y1={centerY +7}
+  x2="90"
+  y2={centerY + 50}
+  stroke={COLORS.measurement}
+  strokeWidth="1.5"
+  markerStart="url(#arrowReversed)"
+/>
+
+{/* Zigzag break in the middle - with dynamic spacing based on total distance */}
+<polyline 
+  points={`90,${centerY + 50} 
+           80,${centerY + 60} 
+           100,${centerY + 70} 
+           80,${centerY + 80} 
+           100,${centerY + 90} 
+           `} 
+  stroke={COLORS.measurement} 
+  fill="transparent" 
+  strokeWidth="1.5" 
+/>
+
+{/* Bottom portion of line - connect directly to floor line */}
+<line
+  x1="90"
+  y1={centerY + 100}
+  x2="90"
+  y2={floorLineY - 3}
+  stroke={COLORS.measurement}
+  strokeWidth="1.5"
+  markerEnd="url(#arrow)"
+/>
+
+{/* Break symbol text - rotated 90 degrees */}
+<text 
+  x="-8" 
+  y={centerY + 142} 
+  fontSize="8"
+  fill={COLORS.measurement}
+  transform={`rotate(90, 105, ${centerY + 130})`}
+>
+  Not to scale
+</text>
+
+{/* Distance measurement */}
+<g>
+  {/* Background for better visibility */}
+  {/* <rect 
+    x="70" 
+    y={(centerY + floorLineY) / 2 - 10} 
+    width="50" 
+    height="20" 
+    fill="white" 
+    fillOpacity="0.7" 
+    rx="5" 
+    ry="5"
+  /> */}
+  {/* Measurement text */}
+  <text 
+    x="69" 
+    y={(centerY + floorLineY) / 2 + 5} 
+    textAnchor="middle" 
+    fontSize="10"
+    fontWeight="bold"
+    fill={COLORS.measurement}
+  >
+    
+    {floorDistance}
+  </text>
+ 
+</g>
               {/* Floor line label */}
               <text 
                 x="40" 
-                y={floorLineY - 10} 
+                y={floorLineY } 
                 textAnchor="middle" 
                 fontSize="12"
                 fontWeight="bold"
@@ -751,30 +799,7 @@ const DiagramLED = () => {
               </text>
               
               {/* Distance measurement */}
-              <g>
-                {/* Background for better visibility */}
-                <rect 
-                  x="70" 
-                  y={(centerY + floorLineY) / 2 - 10} 
-                  width="50" 
-                  height="20" 
-                  fill="white" 
-                  fillOpacity="0.7" 
-                  rx="5" 
-                  ry="5"
-                />
-                {/* Measurement text */}
-                <text 
-                  x="95" 
-                  y={(centerY + floorLineY) / 2 + 5} 
-                  textAnchor="middle" 
-                  fontSize="12"
-                  fontWeight="bold"
-                  fill={COLORS.measurement}
-                >
-                  {floorDistance}"
-                </text>
-              </g>
+            
               
               {/* Visual indicator markers with animations */}
               <circle 
@@ -831,26 +856,6 @@ const DiagramLED = () => {
               <path d="M10,0 L0,5 L10,10 z" fill="black" />
             </marker>
           </defs>
-
-          {/* Center point circle at intersection of centerlines */}
-          {safeVisibility.centreLine && (
-            <>
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r="5"
-                fill="none"
-                stroke="black"
-              />
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r="3"
-                fill="yellow"
-                stroke="black"
-              />
-            </>
-          )}
         </svg>
       </div>
 

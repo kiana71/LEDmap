@@ -6,6 +6,7 @@ import useExcelData from "../hook/formData";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 import DownloadIcon from "@mui/icons-material/Download";
+import ToggleOptionsMenu from "./toggleMenu";
 
 const Sidebar = ({ toPDF, isOpen }) => {
   // Get all state and methods from the store
@@ -213,7 +214,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
             />
 
             {/* Receptacle Box Count Control */}
-            <div className="flex flex-col items-center mb-1 w-full px-4 mt-4">
+            <div className="flex flex-col items-center mb-1 w-full px-4 ">
               <div className="mb-2 text-center font-semibold">
                 Receptacle Box Settings
               </div>
@@ -358,12 +359,12 @@ const Sidebar = ({ toPDF, isOpen }) => {
                 </div>
               )}
               
-              <div className="text-sm text-gray-600 mb-4">
+              <div className="text-sm text-gray-600 mb-2">
                 Boxes will be placed starting from bottom-left
               </div>
             </div>
 
-            <div className="flex flex-col items-center mb-1 w-full px-4 mt-2">
+            <div className="flex flex-col items-center  w-full px-4">
               <div className="mb-2 text-center font-semibold">
                 Display Settings
               </div>
@@ -453,6 +454,9 @@ const Sidebar = ({ toPDF, isOpen }) => {
                 onSelect={() => toggleIsNiche()}
               />
             </div>
+            <div className="w-full pt-5 pb-96 px-3">
+              <ToggleOptionsMenu />
+            </div>
           </form>
           
           <div
@@ -462,13 +466,14 @@ const Sidebar = ({ toPDF, isOpen }) => {
             }}
             className="h-16 fixed bottom-0 justify-center items-center flex flex-row no-wrap"
           >
-            <button className="w-60 h-8 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
+            <button className="w-60 h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
               Download
             </button>
-            <div className="bg-blue-700 text-white h-8 w-10">
+            <div className="bg-blue-700 text-white h-9 w-16">
               <DownloadIcon />
             </div>
           </div>
+          
         </div>
       </div>
     </div>

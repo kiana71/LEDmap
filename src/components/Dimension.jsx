@@ -125,9 +125,9 @@ const nicheDepth = roundToNearest8th(rawNicheDepth);
             )}
 
             {/* Toggle Options Menu */}
-            <div className="w-full">
+            {/* <div className="w-full">
               <ToggleOptionsMenu />
-            </div>
+            </div> */}
           </div>
         </div>
 

@@ -1,9 +1,10 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import DiagramLED from './DiagramLED';
 import DimensionBoxes from './Dimension';
 
 
 const Content = ({ toPDF, targetRef }) => {
+
   return (
     
       <section className="overflow-y-auto w-full h-full pt-14 lg:pr-80 pr-0 top-0">

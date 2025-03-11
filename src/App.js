@@ -6,8 +6,13 @@ import ErrorBoundary from "./errorsManagement/ErrorBoundary";
 import Fallback from "./errorsManagement/Fallback";
 import { Margin, usePDF } from "react-to-pdf";
 import { useState } from "react";
-import ToggleOptionsMenu, { VisibilityProvider } from './components/toggleMenu';
+import  { VisibilityProvider } from './components/toggleMenu';
+import { usePDFStore } from "./zustand/usePDFStore";
+
+
 function App() {
+  
+const {isPDFMode , setPDFMode} = usePDFStore();
   //sidebar menu state
   const [isOpen, setIsOpen] = useState(false);
   //sidebar menu function
@@ -25,9 +30,10 @@ function App() {
     <div className="App">
       <ErrorBoundary FallbackComponent={Fallback}>
       <VisibilityProvider>
-        <Content toPDF={toPDF} targetRef={targetRef} />
-       </VisibilityProvider>
+        <Content toPDF={toPDF} targetRef={targetRef} isPdfMode={isPDFMode}/>
+       
         <Sidebar toPDF={toPDF} targetRef={targetRef} isOpen={isOpen} toggleSidebar={toggleSidebar} />
+        </VisibilityProvider>
         <Header toggleSidebar={toggleSidebar} isOpen={isOpen}/>
       </ErrorBoundary>
     </div>
