@@ -212,7 +212,29 @@ const Sidebar = ({ toPDF, isOpen }) => {
                 )
               }
             />
-
+ <SelectInput
+              className="text-center"
+              label="Receptacle Box"
+              value={selectedReceptacleBox?.["MFG. PART"] || ""}
+              options={[
+                { value: "", label: "Select option" },
+                ...sheetData.sheet4.map((sh) => ({
+                  value: sh["MFG. PART"],
+                  label: sh["MFG. PART"],
+                })),
+              ]}
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                if (selectedValue === "") {
+                  setSelectedReceptacleBox(null);
+                } else {
+                  const selectedBox = sheetData.sheet4.find(
+                    (q) => q["MFG. PART"] === selectedValue
+                  );
+                  setSelectedReceptacleBox(selectedBox);
+                }
+              }}
+            />
             {/* Receptacle Box Count Control */}
             <div className="flex flex-col items-center mb-1 w-full px-4 ">
               <div className="mb-2 text-center font-semibold">
