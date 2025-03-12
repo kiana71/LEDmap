@@ -162,7 +162,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
     >
       <div className="w-full p-2 gap-96">
         <div className="w-full lg:border ">
-          <p className="pl-5 pt-4 text-start font-bold text-lg mb-5">
+          <p className="pl-5 pt-4 text-start font-bold text-lg mb-2">
             Configuration
           </p>
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
@@ -454,7 +454,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
                 onSelect={() => toggleIsNiche()}
               />
             </div>
-            <div className="w-full pt-5 pb-96 px-3">
+            <div className="w-full pt-1 pb-90 px-3">
               <ToggleOptionsMenu />
             </div>
           </form>

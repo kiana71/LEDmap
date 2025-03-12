@@ -20,7 +20,7 @@ const {isPDFMode , setPDFMode} = usePDFStore();
 
   const { toPDF, targetRef } = usePDF({
     filename: "form.pdf",
-    page: { format: "A4", margin: Margin.SMALL, orientation: "landscape" },
+    page: { format: "letter", margin: Margin.SMALL, orientation: "landscape" },
   }); //important
 
   const toggleSidebar = ()=>{

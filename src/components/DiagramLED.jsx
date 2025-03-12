@@ -242,12 +242,12 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
   const humanHeight = 320;
 
   return (
-    <div className="w-full flex justify-center bg-white flex-col text-center p-4 ml-0">
-      <div className="mb-0 flex justify-start text-start">
+    <div className="w-full h-full flex justify-center bg-white flex-col text-center p-4 ml-0">
+      <div className="h-screen mb-0 flex justify-start text-start">
         <svg
           ref={svgRef}
           width="100%"
-          height="100%"
+          height="100=%"
           viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
@@ -315,10 +315,7 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
                 strokeWidth="1"
               />
 
-              {/* Niche width label */}
-              <text x="70" y="280" textAnchor="middle" fontSize="12">
-                {DirnicheHeight.toFixed(1)}
-              </text>
+              {/* Left measurement for niche - COMPLETELY REMOVED */}
 
               {/* Bottom measurement for niche */}
               <line
@@ -332,22 +329,22 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
                 markerEnd="url(#arrow)"
               />
 
-<line
-  x1={nicheX}
-  y1={(nicheY) + nicheHeightPx + 6}
-  x2={nicheX}
-  y2={nicheY + nicheHeightPx + 40}
-  stroke="black"
-  strokeWidth=".5"
-/>
-<line
-  x1={nicheX + nicheWidthPx}
-  y1={nicheY + nicheHeightPx + 5}
-  x2={nicheX + nicheWidthPx}
-  y2={nicheY + nicheHeightPx + 40}
-  stroke="black"
-  strokeWidth=".5"
-/>
+              <line
+                x1={nicheX}
+                y1={(nicheY) + nicheHeightPx + 6}
+                x2={nicheX}
+                y2={nicheY + nicheHeightPx + 40}
+                stroke="black"
+                strokeWidth=".5"
+              />
+              <line
+                x1={nicheX + nicheWidthPx}
+                y1={nicheY + nicheHeightPx + 5}
+                x2={nicheX + nicheWidthPx}
+                y2={nicheY + nicheHeightPx + 40}
+                stroke="black"
+                strokeWidth=".5"
+              />
 
               <text
                 x="370"
@@ -358,39 +355,41 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
                 {DirnicheWidth.toFixed(1)}
               </text>
 
-              {/* Left measurement for niche */}
+              {/* RIGHT measurement for niche height (NEW POSITION) */}
+             
               <line
-                x1={nicheX - 40}
-                y1={nicheY + 6}
-                x2={nicheX - 40}
-                y2={nicheY + nicheHeightPx - 6}
+                x1={nicheX + nicheWidthPx}
+                y1={nicheY}
+                x2={sideViewX - 15}
+                y2={nicheY}
                 stroke="black"
-                strokeWidth="1"
-                markerStart="url(#arrowReversed)"
-                markerEnd="url(#arrow)"
+                strokeWidth=".5"
               />
-
-<line
-  x1={nicheX - 40}
-  y1={nicheY}
-  x2={nicheX - 2}
-  y2={nicheY}
-  stroke="black"
-  strokeWidth=".5"
-/>
-<line
-  x1={nicheX - 40}
-  y1={nicheY + nicheHeightPx}
-  x2={nicheX - 2}
-  y2={nicheY + nicheHeightPx}
-  stroke="black"
-  strokeWidth=".5"
-/>
+              <line
+                x1={nicheX + nicheWidthPx}
+                y1={nicheY + nicheHeightPx}
+                x2={sideViewX - 15}
+                y2={nicheY + nicheHeightPx}
+                stroke="black"
+                strokeWidth=".5"
+              />
+              
+              {/* Height label on right side */}
+              <text 
+                x={sideViewX + 80} 
+                y={centerY}
+                textAnchor="middle" 
+                fontSize="12"
+                transform="rotate(270, sideViewX - 35, centerY)"
+              
+              >
+                {DirnicheHeight.toFixed(1)} (Niche)
+              </text>
 
               {/* Side view - scaled with depth */}
               <text x={sideViewX + (sideViewDepth / 2)} y={sideViewY + sideViewHeight + 30} textAnchor="middle" fontSize="12">
-  Side View
-</text>
+                Side View
+              </text>
 
               <line
                 x1={sideViewX}
@@ -451,17 +450,6 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
                 strokeWidth="1"
               />
 
-              {/* Side view measurement */}
-              <line
-                x1={sideViewX - 10}
-                y1={sideViewY + 6}
-                x2={sideViewX - 10}
-                y2={sideViewY + sideViewHeight - 6}
-                stroke="black"
-                strokeWidth="1"
-                markerStart="url(#arrowReversed)"
-                markerEnd="url(#arrow)"
-              />
 
               <line
                 x1={sideViewX + sideViewDepth + 15}
@@ -608,32 +596,32 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
           {/* Top measurement for screen width */}
           <line
-  x1={screenX + 6}
-  y1={screenY - 40}
-  x2={screenX + screenWidthPx - 6}
-  y2={screenY - 40}
-  stroke="black"
-  strokeWidth="1"
-  markerStart="url(#arrowReversed)"
-  markerEnd="url(#arrow)"
-/>
-<line
-  x1={screenX}
-  y1={screenY - 40}
-  x2={screenX}
-  y2={screenY - 12}
-  stroke="black"
-  strokeWidth=".5"
-/>
-<line
-  x1={screenX + screenWidthPx}
-  y1={screenY - 40}
-  x2={screenX + screenWidthPx}
-  y2={screenY - 12}
-  stroke="black"
-  strokeWidth=".5"
-/>
-          
+            x1={screenX + 6}
+            y1={screenY - 40}
+            x2={screenX + screenWidthPx - 6}
+            y2={screenY - 40}
+            stroke="black"
+            strokeWidth="1"
+            markerStart="url(#arrowReversed)"
+            markerEnd="url(#arrow)"
+          />
+          <line
+            x1={screenX}
+            y1={screenY - 40}
+            x2={screenX}
+            y2={screenY - 12}
+            stroke="black"
+            strokeWidth=".5"
+          />
+          <line
+            x1={screenX + screenWidthPx}
+            y1={screenY - 40}
+            x2={screenX + screenWidthPx}
+            y2={screenY - 12}
+            stroke="black"
+            strokeWidth=".5"
+          />
+                  
           <text
             x={centerX - 50}
             y={screenY - 60}
@@ -643,39 +631,40 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
             {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
           </text>
 
-          {/* Right side measurement for screen height */}
+          {/* LEFT side measurement for screen height (moved from right) */}
           <line
-  x1={screenX + screenWidthPx + 40}
-  y1={screenY + 6}
-  x2={screenX + screenWidthPx + 40}
-  y2={screenY + screenHeightPx - 6}
-  stroke="black"
-  strokeWidth="1"
-  markerStart="url(#arrowReversed)"
-  markerEnd="url(#arrow)"
-/>
-<line
-  x1={screenX + screenWidthPx + 12}
-  y1={screenY}
-  x2={screenX + screenWidthPx + 40}
-  y2={screenY}
-  stroke="black"
-  strokeWidth=".5"
-/>
-<line
-  x1={screenX + screenWidthPx + 12}
-  y1={screenY + screenHeightPx}
-  x2={screenX + screenWidthPx + 40}
-  y2={screenY + screenHeightPx}
-  stroke="black"
-  strokeWidth=".5"
-/>
+            x1={screenX - 40}
+            y1={screenY + 6}
+            x2={screenX - 40}
+            y2={screenY + screenHeightPx - 6}
+            stroke="black"
+            strokeWidth="1"
+            markerStart="url(#arrowReversed)"
+            markerEnd="url(#arrow)"
+          />
+          <line
+            x1={screenX - 40}
+            y1={screenY}
+            x2={screenX - 12}
+            y2={screenY}
+            stroke="black"
+            strokeWidth=".5"
+          />
+          <line
+            x1={screenX - 40}
+            y1={screenY + screenHeightPx}
+            x2={screenX - 12}
+            y2={screenY + screenHeightPx}
+            stroke="black"
+            strokeWidth=".5"
+          />
 
           <text
-            x={screenX + screenWidthPx + 90}
-            y={centerY - 10}
+            x={screenX - 75}
+            y={centerY}
             textAnchor="middle"
             fontSize="12"
+            transform="rotate(270, screenX - 75, centerY)"
           >
             {isHorizontal ? rawHeightValue : rawWidthValue} (Height)
           </text>
@@ -694,98 +683,68 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
           {/* Floor Line Measurement */}
           {safeVisibility.floorLine && (
             <>
-              {/* Floor Distance label */}
-          
-             
-
-              {/* Measurement line from center to floor */}
-              {/* <line
+              {/* Measurement line with zigzag break - proper scaling for small screens */}
+              {/* Top portion of line */}
+              <line
                 x1="90"
-                y1={centerY + 7}
+                y1={centerY +7}
+                x2="90"
+                y2={centerY + 50}
+                stroke={COLORS.measurement}
+                strokeWidth="1.5"
+                markerStart="url(#arrowReversed)"
+              />
+
+              {/* Zigzag break in the middle - with dynamic spacing based on total distance */}
+              <polyline 
+                points={`90,${centerY + 50} 
+                        80,${centerY + 60} 
+                        100,${centerY + 70} 
+                        80,${centerY + 80} 
+                        100,${centerY + 90} 
+                        `} 
+                stroke={COLORS.measurement} 
+                fill="transparent" 
+                strokeWidth="1.5" 
+              />
+
+              {/* Bottom portion of line - connect directly to floor line */}
+              <line
+                x1="90"
+                y1={centerY + 100}
                 x2="90"
                 y2={floorLineY - 3}
                 stroke={COLORS.measurement}
                 strokeWidth="1.5"
-                markerStart="url(#arrowReversed)"
                 markerEnd="url(#arrow)"
-              /> */}
-              {/* Add measurement line with zigzag break */}
-{/* Top portion of line */}
+              />
 
-{/* Measurement line with zigzag break - proper scaling for small screens */}
-{/* Top portion of line */}
-<line
-  x1="90"
-  y1={centerY +7}
-  x2="90"
-  y2={centerY + 50}
-  stroke={COLORS.measurement}
-  strokeWidth="1.5"
-  markerStart="url(#arrowReversed)"
-/>
+              {/* Break symbol text - rotated 90 degrees */}
+              <text 
+                x="-8" 
+                y={centerY + 142} 
+                fontSize="8"
+                fill={COLORS.measurement}
+                transform={`rotate(90, 105, ${centerY + 130})`}
+              >
+                Not to scale
+              </text>
 
-{/* Zigzag break in the middle - with dynamic spacing based on total distance */}
-<polyline 
-  points={`90,${centerY + 50} 
-           80,${centerY + 60} 
-           100,${centerY + 70} 
-           80,${centerY + 80} 
-           100,${centerY + 90} 
-           `} 
-  stroke={COLORS.measurement} 
-  fill="transparent" 
-  strokeWidth="1.5" 
-/>
-
-{/* Bottom portion of line - connect directly to floor line */}
-<line
-  x1="90"
-  y1={centerY + 100}
-  x2="90"
-  y2={floorLineY - 3}
-  stroke={COLORS.measurement}
-  strokeWidth="1.5"
-  markerEnd="url(#arrow)"
-/>
-
-{/* Break symbol text - rotated 90 degrees */}
-<text 
-  x="-8" 
-  y={centerY + 142} 
-  fontSize="8"
-  fill={COLORS.measurement}
-  transform={`rotate(90, 105, ${centerY + 130})`}
->
-  Not to scale
-</text>
-
-{/* Distance measurement */}
-<g>
-  {/* Background for better visibility */}
-  {/* <rect 
-    x="70" 
-    y={(centerY + floorLineY) / 2 - 10} 
-    width="50" 
-    height="20" 
-    fill="white" 
-    fillOpacity="0.7" 
-    rx="5" 
-    ry="5"
-  /> */}
-  {/* Measurement text */}
-  <text 
-    x="69" 
-    y={(centerY + floorLineY) / 2 + 5} 
-    textAnchor="middle" 
-    fontSize="10"
-    fontWeight="bold"
-    fill={COLORS.measurement}
-  >
-    
-    {floorDistance}
-  </text>
- 
-</g>
+              {/* Distance measurement */}
+              <g>
+                {/* Measurement text */}
+                <text 
+                  x="69" 
+                  y={(centerY + floorLineY) / 2 + 5} 
+                  textAnchor="middle" 
+                  fontSize="10"
+                  fontWeight="bold"
+                  fill={COLORS.measurement}
+                >
+                  {floorDistance}
+                </text>
+              </g>
+              
               {/* Floor line label */}
               <text 
                 x="40" 
@@ -797,9 +756,6 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
               >
                 Floor Line
               </text>
-              
-              {/* Distance measurement */}
-            
               
               {/* Visual indicator markers with animations */}
               <circle 
