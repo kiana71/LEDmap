@@ -1,17 +1,9 @@
-
 /* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-/* Custom styles for printing */
-@media print {
-  .hide-on-print {
-    display: none !important;
-  }
-}
-
+/* Base styles */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -25,7 +17,221 @@ code {
     monospace;
 }
 
+/* Custom focus styles */
 .focus:bg-gray-500:hover:border-b:hover:border-gray-400 {
   border-bottom-color: #3c75e8;
 }
- 
+
+/* Layout spacing */
+.dimension-group + .dimension-group {
+  margin-top: 0.5rem;
+}
+
+/* Ensure spacing between dimension groups and table */
+.info-table {
+  margin-top: auto;
+}
+
+/* Height adjustments for different screen sizes */
+@media (min-height: 900px) {
+  .h-40 {
+    height: 12rem !important;
+  }
+}
+
+@media (max-height: 800px) {
+  .h-40 {
+    height: 8rem !important;
+  }
+}
+
+/* FLOATING TOOLBAR STYLES */
+.floating-toolbar {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  padding: 6px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 380px;
+  transform: translateX(-50%);
+  transition: opacity 0.2s ease-in-out;
+}
+
+.floating-toolbar:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: white transparent transparent;
+}
+
+/* Toolbar buttons */
+.toolbar-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 0 2px;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  min-width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.toolbar-btn:active {
+  background-color: #e0e0e0;
+}
+
+/* Toolbar dropdowns */
+.toolbar-select {
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 0 2px;
+  padding: 3px;
+  font-size: 14px;
+  max-width: 100px;
+}
+
+/* Animation for toolbar appearance */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px) translateX(-50%); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) translateX(-50%); 
+  }
+}
+
+.floating-toolbar-enter {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Portal container for toolbar DOM positioning */
+.portal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.portal-container .floating-toolbar {
+  pointer-events: auto;
+}
+
+/* FIXED CELL STYLES */
+
+/* Fixed table row */
+.fixed-row {
+  height: 40px !important;
+  max-height: 40px !important;
+  min-height: 40px !important;
+}
+
+/* Fixed table cell */
+.fixed-cell {
+  height: 40px !important;
+  max-height: 40px !important;
+  min-height: 40px !important;
+  overflow: hidden !important;
+  vertical-align: middle !important;
+  position: relative;
+}
+
+/* Fixed size container for editable content */
+.fixed-size-container {
+  height: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+/* Content styles for fixed containers */
+.fixed-content {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  display: block !important;
+  text-align: center !important;
+}
+
+/* ContentEditable overrides for fixed containers */
+[contenteditable="true"] {
+  cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* When inside fixed container */
+.fixed-size-container [contenteditable="true"] {
+  overflow: hidden !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  min-height: auto !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Focus styles for editable content */
+[contenteditable="true"]:focus {
+  outline: none;
+}
+
+/* Handle font sizes in fixed containers */
+.fixed-content [style*="font-size"],
+.fixed-size-container [style*="font-size"] {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Ensure table has fixed layout */
+table {
+  table-layout: fixed !important;
+}
+
+/* Additional spacing utilities */
+.mr-1 {
+  margin-right: 4px !important;
+}
+
+/* Override any dynamic styles that might affect fixed cells */
+.fixed-cell * {
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Handle lists and formatted content in fixed cells */
+.fixed-cell ul, 
+.fixed-cell ol,
+.fixed-cell p {
+  margin: 0 !important;
+  padding: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

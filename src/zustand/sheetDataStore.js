@@ -4,6 +4,7 @@
 import { create } from "zustand";
 
 export const useSheetDataStore = create((set, get) => ({
+  
   selectedScreen: {},
   selectedMediaPlayer: {},
   selectedMount: {},
@@ -515,4 +516,7 @@ if (positions && positions.length > 0) {
   useSheetDataStore.setState({
     receptacleBoxes: [initialBox]
   });
+
+  
 }
+

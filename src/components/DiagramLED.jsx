@@ -1,9 +1,25 @@
-import React, { useRef, useEffect, useMemo, useState } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import { useVisibility } from "./toggleMenu";
 import humanLogo from "../img/outline-human-body-mens-figure-in-linear-style-the-outline-of-a-young-man-black-and-white-silho.png";
+import { useToolbar } from "../hook/ToolbarContext";
 
 const DiagramLED = () => {
+  // Generate a unique component ID for the notes section
+  const notesComponentId = "diagram-notes-editor";
+  
+  // Use the toolbar hook
+  const toolbar = useToolbar(notesComponentId);
+  
+  // Enable toolbar for notes section on component mount
+  useEffect(() => {
+    toolbar.enable();
+    // Cleanup will happen automatically when component unmounts
+    return () => {
+      toolbar.disable();
+    };
+  }, [toolbar]);
+  
   // Get visibility state from context with fallback values
   const { visibleElements = {} } = useVisibility();
 
@@ -118,10 +134,10 @@ const DiagramLED = () => {
   const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
   // Side view dimensions - scaled with the screen depth but with minimum and maximum
-const sideViewX = screenX + screenWidthPx + 50; // Position closer to the right edge of screen
-const sideViewY = screenY -7 ;
-const sideViewHeight = nicheHeightPx;
-const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
+  const sideViewX = screenX + screenWidthPx + 50; // Position closer to the right edge of screen
+  const sideViewY = screenY -7 ;
+  const sideViewHeight = nicheHeightPx;
+  const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
   // Update draggable boundary based on screen dimensions
   const draggableBoundary = useMemo(() => {
@@ -136,7 +152,7 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
   const MIN_FLOOR_DISTANCE = 5; // Minimum distance in inches
   const calculatedFloorDistance = Math.max(MIN_FLOOR_DISTANCE, floorDistance);
   // Set a static position for the floor line - a bit lower than the LED
-  const floorLineY = screenY + screenHeightPx + 100; // 100px below the bottom of the LED
+  const floorLineY = screenY + screenHeightPx + 80; // 100px below the bottom of the LED
   
   //sideview
   const viewBoxWidth = Math.max(
@@ -146,9 +162,9 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
   
   // Calculate dynamic viewBoxHeight based on floor distance with extra padding
   // This ensures the diagram always fits within the viewport as floorDistance changes
-  const FLOOR_PADDING = 100; // Extra padding below floor line
+  const FLOOR_PADDING = 0; // Extra padding below floor line
   const viewBoxHeight = Math.max(
-    700, 
+    600, 
     screenY + screenHeightPx + 200,
     floorLineY + FLOOR_PADDING
   );
@@ -242,12 +258,13 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
   const humanHeight = 320;
 
   return (
-    <div className="w-full h-full flex justify-center bg-white flex-col text-center p-4 ml-0">
-      <div className="h-screen mb-0 flex justify-start text-start">
+    <div className="w-full h-full flex flex-col bg-white">
+      {/* Fixed-height SVG container */}
+      <div className="flex-grow h-[calc(100%-200px)] overflow-hidden">
         <svg
           ref={svgRef}
           width="100%"
-          height="100=%"
+          height="100%"
           viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
           preserveAspectRatio="xMidYMid meet"
           xmlns="http://www.w3.org/2000/svg"
@@ -815,9 +832,16 @@ const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
         </svg>
       </div>
 
-      <div className="w-full flex text-left flex-col mt-0 h-80 border-gray-400 border-2 p-4 justify-center">
+      {/* Fixed-height Notes section */}
+      <div className=" h-[250px] border-2 border-gray-400 p-4">
         <p className="mb-1 text-xl font-bold">Notes:</p>
-        <textarea className="border-0 w-full h-full resize-none focus:outline-none"></textarea>
+        <div 
+          className="border-0 w-full h-[calc(100%-30px)] overflow-auto"
+          contentEditable="true"
+          style={{ outline: "none" }}
+          data-toolbar-enabled={notesComponentId} // This is the key attribute for toolbar targeting
+        >
+        </div>
       </div>
     </div>
   );

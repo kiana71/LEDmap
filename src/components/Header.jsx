@@ -6,7 +6,7 @@ const Header = ({ toggleSidebar, isOpen }) => {
   return (
     <div className="z-100 bg-white fixed top-0 w-full left-0 h-14 border-b">
       <div className="fixed left-5 top-4">
-        <img className="w-24" src={logo} alt="logo" />
+        <img className="w-36" src={logo} alt="logo" />
       </div>
       <div
         className="text-menu_item_on absolute right-6 z-50 top-3 lg:hidden"
@@ -22,7 +22,7 @@ const Header = ({ toggleSidebar, isOpen }) => {
           <p>User</p>
           <p className="text-gray-600">Admin</p>
         </div>
-        <div className="flex-shrink-0 flex justify-center items-center rounded-full w-12 h-12 bg-blue-100">
+        <div className="flex-shrink-0 flex justify-center items-center rounded-full w-14 h-14 bg-blue-100">
         <svg
             className="w-5 h-5 text-blue-500 "
             xmlns="http://www.w3.org/2000/svg"

@@ -63,8 +63,8 @@ const InfoTable = () => {
           <img className="h-6" src={Logo} alt="Signcast Media" />
         </div>
         <div className="w-2/3 text-right text-lg leading-tight">
-          <div className="text-right w-full mb-1 px-1">{fixedContent.address}</div>
-          <div className="text-right w-full mb-1 px-1">{fixedContent.city}</div>
+          <div className="text-right w-full mb-1 px-1">{fixedContent.address} , {fixedContent.city}</div>
+          {/* <div className="text-right w-full mb-1 px-1">{fixedContent.city}</div> */}
           <div className="text-right w-full px-1">{fixedContent.phone}</div>
         </div>
       </div>
