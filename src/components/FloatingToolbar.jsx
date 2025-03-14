@@ -308,7 +308,6 @@ const FloatingToolbar = () => {
       </button>
     </div>
   );
-  
   return ReactDOM.createPortal(toolbar, createPortalContainer());
 };
 

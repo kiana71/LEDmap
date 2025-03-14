@@ -63,8 +63,8 @@ const DimensionBoxes = () => {
   if (rawNicheDepth)
     // The formula for calculating niche depth is: Screen depth + Max(Media player depth, Mount depth) + Depth variance
     return selectedScreen ? (
-      <div className="w-full h-full p-2 bg-white border-gray-200 flex justify-between flex-col">
-        <div className="flex h-full justify-center md:justify-end mb-4 pt-10 pr-10">
+      <div className="w-full h-full p-2 bg-white border-gray-200 flex justify-between gap-96 flex-col">
+        <div className="flex justify-center md:justify-end mb-4 pt-10 pr-10">
           {/* Right corner container with fixed width (half width) */}
           <div className="w-full md:w-2/3 lg:w-1/3 flex flex-row md:flex-col gap-2">
             {/* Screen Dimensions */}
@@ -129,14 +129,23 @@ const DimensionBoxes = () => {
         </div>
         
         {/* InfoTable */}
-        <div className="w-full flex-grow px-10"
-     
-       >
-        
+        <div className="w-full flex-grow">
+          
           <InfoTable />
         </div>
         
-       
+        {/* Text Editor and Custom Measurements */}
+        {/* <div className="w-full mt-4 mb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FloatingToolbar
+              id="dimensions-notes"
+              label="Dimension Notes:"
+              placeholder="Add notes about dimensions, measurements, or special requirements..."
+              rows={4}
+              className="border border-gray-200 rounded"
+            />      
+          </div>
+        </div> */}
       </div>
     ) : null;
 };

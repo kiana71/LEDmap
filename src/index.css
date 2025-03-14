@@ -235,3 +235,8 @@ table {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+.ratio{
+  width: 1150px;
+  height: 850px;
+  
+}

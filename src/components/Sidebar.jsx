@@ -42,7 +42,8 @@ const Sidebar = ({ toPDF, isOpen }) => {
     decrementBoxCount,
     maxBoxesReached,
     updateBoxPositions,
-    
+    isEditMode,
+    setIsEditMode,
     // Limit flags
     isAtMaxBottomDistance,
     isAtMaxLeftDistance,
@@ -484,13 +485,16 @@ const Sidebar = ({ toPDF, isOpen }) => {
           </form>
           <div className="w-full px-4 my-4">
               <div className="flex justify-between items-center border border-gray-300 rounded p-2 bg-gray-50">
-                <span className="text-sm font-medium">Text Editor Toolbar</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                   
-                    className="sr-only peer"
-                  />
+                <span className="text-sm font-medium">
+    {isEditMode ? "Switch to View Mode" : "Switch to Edit Mode"}
+  </span>
+  <label className="relative inline-flex items-center cursor-pointer">
+    <input
+      type="checkbox"
+      checked={isEditMode}
+      onChange={(e) => setIsEditMode(e.target.checked)}
+      className="sr-only peer"
+    />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                 </label>
               </div>

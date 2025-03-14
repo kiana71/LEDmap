@@ -45,6 +45,9 @@ export const useSheetDataStore = create((set, get) => ({
   setFloorDistance: (val) =>
     set(old => ({ ...old, floorDistance: parseFloat(val) || 0 })),
   
+isEditMode: false,
+setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
+
   // Receptacle box settings
   bottomDistance: 0,
   leftDistance: 0,

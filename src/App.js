@@ -7,9 +7,9 @@ import ErrorBoundary from "./errorsManagement/ErrorBoundary";
 import Fallback from "./errorsManagement/Fallback";
 import { Margin, usePDF } from "react-to-pdf";
 import { useState } from "react";
-// import FloatingToolbar from './components/FloatingToolbar';// for text editing
 
 import { usePDFStore } from "./zustand/usePDFStore";
+import Canvas from "./components/Canvas";
 
 function App() {
   const {isPDFMode, setPDFMode} = usePDFStore();
@@ -34,8 +34,8 @@ function App() {
     <div className="App">
      
         <ErrorBoundary FallbackComponent={Fallback}>
-        {/* <FloatingToolbar /> */}
-            <Content toPDF={toPDF} targetRef={targetRef} isPdfMode={isPDFMode}/>
+          
+            <Canvas toPDF={toPDF} targetRef={targetRef} isPdfMode={isPDFMode}/>
             <Sidebar toPDF={toPDF} targetRef={targetRef} isOpen={isOpen} toggleSidebar={toggleSidebar} />
         
           <Header toggleSidebar={toggleSidebar} isOpen={isOpen}/>
