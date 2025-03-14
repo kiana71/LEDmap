@@ -259,8 +259,8 @@ const DiagramLED = () => {
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
-      {/* Fixed-height SVG container */}
-      <div className="flex-grow h-[calc(100%-200px)] overflow-hidden">
+      {/* SVG container - reduced height to make room for larger notes */}
+      <div className="flex-grow h-[calc(100%-300px)] overflow-hidden">
         <svg
           ref={svgRef}
           width="100%"
@@ -832,14 +832,14 @@ const DiagramLED = () => {
         </svg>
       </div>
 
-      {/* Fixed-height Notes section */}
-      <div className=" h-[250px] border-2 border-gray-400 p-4">
-        <p className="mb-1 text-xl font-bold">Notes:</p>
+      {/* Fixed-height Notes section - significantly taller */}
+      <div className="h-[292px] border-2 border-gray-400 p-4 flex flex-col relative mb-3">
+        <p className="absolute left-3 top-3 text-xl font-bold mb-2">Notes:</p>
         <div 
-          className="border-0 w-full h-[calc(100%-30px)] overflow-auto"
+          className=" absolute top-10 left-0 w-full flex-grow overflow-auto"
           contentEditable="true"
           style={{ outline: "none" }}
-          data-toolbar-enabled={notesComponentId} // This is the key attribute for toolbar targeting
+          data-toolbar-enabled={notesComponentId}
         >
         </div>
       </div>

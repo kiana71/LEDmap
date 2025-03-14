@@ -45,7 +45,7 @@ const InfoTable = () => {
         type="text"
         defaultValue={tableData[field]}
         onBlur={(e) => updateField(field, e.target.value)}
-        className="w-full outline-none text-center text-lg px-1 py-1 focus:border-b focus:bg-gray-400 focus:border-gray-400"
+        className="w-full outline-none text-center text-md px-1 py-1 focus:border-b focus:bg-gray-400 focus:border-gray-400"
         style={{
           // Apply styles directly to ensure they're applied consistently
           backgroundColor: 'transparent',
@@ -56,13 +56,13 @@ const InfoTable = () => {
   };
 
   return (
-    <div className="border border-gray-200 shadow-sm bg-white ">
+    <div className="border border-gray-200 shadow-sm bg-white h-auto">
       {/* Header with Logo and Address */}
       <div className="flex items-center justify-between p-2 border-b border-gray-200">
         <div className="w-1/3">
           <img className="h-6" src={Logo} alt="Signcast Media" />
         </div>
-        <div className="w-2/3 text-right text-lg leading-tight">
+        <div className="w-2/3 text-right text-md leading-tight">
           <div className="text-right w-full mb-1 px-1">{fixedContent.address} , {fixedContent.city}</div>
           {/* <div className="text-right w-full mb-1 px-1">{fixedContent.city}</div> */}
           <div className="text-right w-full px-1">{fixedContent.phone}</div>
@@ -70,23 +70,23 @@ const InfoTable = () => {
       </div>
 
       {/* Main Table */}
-      <table className="w-full border-collapse text-lg">
+      <table className="w-full border-collapse text-md">
         <tbody>
           {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center  text-lg">
+            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center  text-md">
               Drawn
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-lg" rowSpan="2">
+            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md" rowSpan="2">
               <div className="flex flex-row items-center justify-center">
                 <span className="mr-2">Dimensions<br />In Inches</span>
                 <img className="w-12 h-auto" src={mapIcon} alt="mapIcon"/>
               </div>
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md">
               Mounting In/On
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md">
               Orientation
             </td>
           </tr>
@@ -107,16 +107,16 @@ const InfoTable = () => {
           
           {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Date
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg" colSpan="1">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md" colSpan="1">
               Screen
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Mount
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Media Player
             </td>
           </tr>
@@ -139,16 +139,16 @@ const InfoTable = () => {
           
           {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Sheet
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Revision
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg" colSpan="1">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md" colSpan="1">
               Department
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-lg">
+            <td className="border border-gray-200 bg-white p-1 text-center text-md">
               Drawing No:
             </td>
           </tr>

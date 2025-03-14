@@ -64,7 +64,7 @@ const DimensionBoxes = () => {
     // The formula for calculating niche depth is: Screen depth + Max(Media player depth, Mount depth) + Depth variance
     return selectedScreen ? (
       <div className="w-full h-full p-2 bg-white border-gray-200 flex justify-between flex-col">
-        <div className="flex justify-center md:justify-end mb-4 pt-10 pr-10">
+        <div className="flex h-full justify-center md:justify-end mb-4 pt-10 pr-10">
           {/* Right corner container with fixed width (half width) */}
           <div className="w-full md:w-2/3 lg:w-1/3 flex flex-row md:flex-col gap-2">
             {/* Screen Dimensions */}
