@@ -7,7 +7,7 @@ import ErrorBoundary from "./errorsManagement/ErrorBoundary";
 import Fallback from "./errorsManagement/Fallback";
 import { Margin, usePDF } from "react-to-pdf";
 import { useState } from "react";
-
+import { ToolbarProvider } from "./hook/ToolbarContext";
 import { usePDFStore } from "./zustand/usePDFStore";
 import Canvas from "./components/Canvas";
 
@@ -16,7 +16,6 @@ function App() {
   //sidebar menu state
   const [isOpen, setIsOpen] = useState(false);
   //sidebar menu function
-
   const { toPDF, targetRef } = usePDF({
     filename: "form.pdf",
     page: { 
@@ -29,14 +28,16 @@ function App() {
   const toggleSidebar = () => {
     setIsOpen(!isOpen)
   }
-  
+
   return (
     <div className="App">
-     
         <ErrorBoundary FallbackComponent={Fallback}>
-          
-            <Canvas toPDF={toPDF} targetRef={targetRef} isPdfMode={isPDFMode}/>
-            <Sidebar toPDF={toPDF} targetRef={targetRef} isOpen={isOpen} toggleSidebar={toggleSidebar} />
+          <div ref={targetRef}>
+            <ToolbarProvider>
+            <Canvas toPDF={toPDF} targetRef={targetRef}/>
+            </ToolbarProvider>
+            </div>
+            <Sidebar toPDF={toPDF} targetRef={targetRef} isOpen={isOpen} toggleSidebar={toggleSidebar}/>
         
           <Header toggleSidebar={toggleSidebar} isOpen={isOpen}/>
           {/* Removed the fixed ExternalToolbar */}

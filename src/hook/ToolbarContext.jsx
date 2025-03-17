@@ -53,10 +53,17 @@ export const useToolbar = (componentId) => {
   }, [componentId, disableToolbar]);
   
   return {
-    isEnabled: isToolbarEnabled(componentId),
+    isEnabled: isToolbarEnabled,
     enable: () => enableToolbar(componentId),
     disable: () => disableToolbar(componentId)
   };
+};
+
+// Helper to ensure contentEditable has initial structure
+export const initializeContentEditable = (element) => {
+  if (element && (!element.innerHTML || element.innerHTML.trim() === '')) {
+    element.innerHTML = '<p><br></p>';
+  }
 };
 
 // Main FloatingToolbar component
@@ -67,7 +74,16 @@ const FloatingToolbar = ({ enabledComponents }) => {
   const toolbarRef = useRef(null);
   
   // Format options
-  const fontSizes = ["12px", "14px", "16px", "18px", "20px", "24px", "28px"];
+  const fontSizes = [
+    { display: "12px", value: 1 },
+    { display: "14px", value: 2 },
+    { display: "16px", value: 3 },
+    { display: "18px", value: 4 },
+    { display: "24px", value: 5 },
+    { display: "32px", value: 6 },
+    { display: "48px", value: 7 }
+  ];
+  
   const fontFamilies = [
     "Arial", 
     "Times New Roman", 
@@ -143,6 +159,12 @@ const FloatingToolbar = ({ enabledComponents }) => {
             return;
           }
           
+          // Initialize editable area if needed
+          if (editableParent.getAttribute("contenteditable") === "true" && 
+              (!editableParent.innerHTML || editableParent.innerHTML.trim() === '')) {
+            editableParent.innerHTML = '<p><br></p>';
+          }
+          
           // Store the selection for later use
           setSelection(selection);
           
@@ -187,61 +209,130 @@ const FloatingToolbar = ({ enabledComponents }) => {
     }
   }, [enabledComponents]);
   
-  // Formatting function
+  // Formatting function with improved list handling
   const applyFormatting = (formatType, value) => {
     try {
       if (!selection) return;
       
+      // Get fresh selection (the stored one might be stale)
       const sel = window.getSelection();
+      
+      // Focus the editable area first to ensure commands work
+      const editableParent = getEditableParent(sel.anchorNode);
+      if (editableParent) {
+        editableParent.focus();
+        
+        // Add notes-editor class for proper styling if not already there
+        if (!editableParent.classList.contains('notes-editor')) {
+          editableParent.classList.add('notes-editor');
+        }
+      }
       
       // Special handling for lists
       if (formatType === "insertUnorderedList" || formatType === "insertOrderedList") {
-        // First, get the contentEditable container
-        let node = sel.anchorNode;
-        let editableDiv = null;
-        
-        while (node && !editableDiv) {
-          if (node.nodeType === 1 && node.getAttribute && node.getAttribute('contenteditable') === 'true') {
-            editableDiv = node;
-          }
-          node = node.parentNode;
-        }
-        
-        if (editableDiv) {
-          // Ensure we have proper structure for lists
-          const hasProperStructure = !!editableDiv.querySelector('p, div, h1, h2, h3, h4, h5, h6');
+        if (editableParent && editableParent.getAttribute("contenteditable") === "true") {
+          // Get the current selection range
+          const range = sel.getRangeAt(0);
           
-          // If no proper structure, wrap content in paragraph
-          if (!hasProperStructure) {
-            // Save selection
-            const range = sel.getRangeAt(0);
-            const content = range.cloneContents();
+          // Check if we're in a list already
+          let ancestorList = null;
+          let node = sel.anchorNode;
+          
+          // Find if we're in a list element
+          while (node && node !== editableParent) {
+            if (node.nodeName === 'UL' || node.nodeName === 'OL') {
+              ancestorList = node;
+              break;
+            }
+            node = node.parentNode;
+          }
+          
+          if (ancestorList) {
+            // We're in a list already, so we want to convert or remove it
+            const isOl = ancestorList.nodeName === 'OL';
+            const isUl = ancestorList.nodeName === 'UL';
             
-            // Create a paragraph and insert it
-            const p = document.createElement('p');
-            p.appendChild(content);
-            range.deleteContents();
-            range.insertNode(p);
+            if ((isOl && formatType === "insertOrderedList") || 
+                (isUl && formatType === "insertUnorderedList")) {
+              // Same list type - remove the list
+              document.execCommand('outdent', false, null);
+              
+              // Sometimes we need to remove list formatting completely
+              document.execCommand('formatBlock', false, 'p');
+            } else {
+              // Convert list type
+              const newListType = formatType === "insertOrderedList" ? 'ol' : 'ul';
+              const newList = document.createElement(newListType);
+              
+              // Copy children
+              while (ancestorList.firstChild) {
+                newList.appendChild(ancestorList.firstChild);
+              }
+              
+              // Replace old list with new list
+              ancestorList.parentNode.replaceChild(newList, ancestorList);
+              
+              // Restore selection
+              setTimeout(() => {
+                try {
+                  sel.removeAllRanges();
+                  sel.addRange(range);
+                } catch (e) {
+                  console.error("Error restoring selection:", e);
+                }
+              }, 0);
+            }
+          } else {
+            // We're not in a list, so create one
+            // First ensure we have a block-level element
+            if (!editableParent.querySelector('p, div:not([contenteditable]), h1, h2, h3, h4, h5, h6')) {
+              document.execCommand('formatBlock', false, 'p');
+            }
             
-            // Reset selection to within the paragraph
-            range.selectNodeContents(p);
-            sel.removeAllRanges();
-            sel.addRange(range);
+            // Save the current selection text
+            const selectedText = range.toString();
+            
+            if (selectedText.trim() === '') {
+              // If no text is selected, just create a new list with an empty item
+              const listTag = formatType === "insertOrderedList" ? 'ol' : 'ul';
+              const listEl = document.createElement(listTag);
+              const listItem = document.createElement('li');
+              listItem.innerHTML = '<br>';
+              listEl.appendChild(listItem);
+              
+              // Insert at cursor
+              range.deleteContents();
+              range.insertNode(listEl);
+              
+              // Move cursor into the list item
+              const newRange = document.createRange();
+              newRange.setStart(listItem, 0);
+              newRange.collapse(true);
+              sel.removeAllRanges();
+              sel.addRange(newRange);
+            } else {
+              // Normal case with selected text - use execCommand
+              document.execCommand(formatType, false, null);
+            }
           }
         }
-        
-        // Now apply the list command
-        document.execCommand(formatType, false, null);
       } 
       // Handle regular formatting
       else {
         document.execCommand(formatType, false, value);
       }
       
-      // Hide toolbar after action
-      setTimeout(() => {
-        setVisible(false);
-      }, 100);
+      // Keep focus on the element
+      if (editableParent) {
+        editableParent.focus();
+      }
+      
+      // Don't hide toolbar immediately for lists to allow continued formatting
+      if (formatType !== "insertUnorderedList" && formatType !== "insertOrderedList") {
+        setTimeout(() => {
+          setVisible(false);
+        }, 100);
+      }
     } catch (err) {
       console.error("Formatting error:", err);
     }
@@ -293,7 +384,7 @@ const FloatingToolbar = ({ enabledComponents }) => {
       >
         <option value="" disabled>Size</option>
         {fontSizes.map((size, idx) => (
-          <option key={idx} value={size}>{size}</option>
+          <option key={idx} value={size.value}>{size.display}</option>
         ))}
       </select>
       

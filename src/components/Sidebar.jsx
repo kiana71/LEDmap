@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import SelectInput from "./SelectInput";
 import DimensionItem from "./DimensionItem";
-import ChoosableOptions from "./ChoosableOption";
+import ChoosableOptions from "./ChoosableOption";    
 import useExcelData from "../hook/formData";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
@@ -9,7 +9,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ToggleOptionsMenu from "./toggleMenu";
 
 
-const Sidebar = ({ toPDF, isOpen }) => {
+const Sidebar = ({ toPDF,targetRef , isOpen }) => {
 
   // Get all state and methods from the store
   const {
@@ -159,7 +159,7 @@ const Sidebar = ({ toPDF, isOpen }) => {
 
   return (
     <div
-      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none ${
+      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none pb-14 ${
         isOpen ? "right-0" : "-right-80"
       }`}
     >
@@ -499,19 +499,21 @@ const Sidebar = ({ toPDF, isOpen }) => {
                 </label>
               </div>
             </div>
-          <div
+            <div
             onClick={(e) => {
               e.preventDefault();
               toPDF();
             }}
-            className="h-16 fixed bottom-0 justify-center items-center flex flex-row no-wrap"
+            className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex "
           >
-            <button className="w-60 h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out">
-              Download
+            <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
+              <div className="h-full flex justify-center flex-1 items-center">
+                <span>Download</span>
+              </div>
+              <div className="bg-blue-700 text-white flex h-full items-center">
+                <DownloadIcon />
+              </div>
             </button>
-            <div className="bg-blue-700 text-white h-9 w-16">
-              <DownloadIcon />
-            </div>
           </div>
           
         </div>

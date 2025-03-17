@@ -2,13 +2,13 @@ import React from "react";
 
 const DimensionGroup = ({ title, children }) => {
   return (
-    <div className="border border-gray-300 rounded-sm p-6  bg-white shadow-sm pb-10 md:mb-10">
+    <div className="rounded-sm  bg-white  ">
       <h3 className="font-semibold text-gray-700 mb-4 text-center text-xl">
         {title}
       </h3>
       <div className="space-y-2">{children}</div>
     </div>
-  );
+  ); 
 };
 
 export default DimensionGroup;

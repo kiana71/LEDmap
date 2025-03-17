@@ -235,8 +235,71 @@ table {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
 }
+
 .ratio{
   width: 1150px;
   height: 850px;
-  
+}
+
+/* NEW STYLES FOR NOTES EDITOR */
+/* Override fixed styles for notes editor specifically */
+.notes-editor {
+  white-space: normal !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  overflow: auto !important;
+  text-overflow: clip !important;
+}
+
+/* Make lists work properly in contentEditable */
+.notes-editor ul, 
+.notes-editor ol {
+  margin-left: 1.5em !important;
+  padding-left: 1em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  list-style-position: outside !important;
+}
+
+.notes-editor li {
+  white-space: normal !important;
+  overflow: visible !important;
+  display: list-item !important;
+  margin-bottom: 0.2em !important;
+}
+
+/* Override global styles for the notes editor */
+.notes-editor p,
+.notes-editor div {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  margin-bottom: 0.5em !important;
+  min-height: 1em !important;
+}
+
+/* Ensure adequate spacing and hierarchy in lists */
+.notes-editor ol li {
+  list-style-type: decimal !important;
+}
+
+.notes-editor ul li {
+  list-style-type: disc !important;
+}
+
+/* Font size adjustments should preserve wrapping */
+.notes-editor [style*="font-size"] {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* Fix specific issue with nested lists */
+.notes-editor ol ol,
+.notes-editor ul ul,
+.notes-editor ol ul,
+.notes-editor ul ol {
+  margin-top: 0.2em !important;
 }
