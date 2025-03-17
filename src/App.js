@@ -34,7 +34,7 @@ function App() {
         <ErrorBoundary FallbackComponent={Fallback}>
           <div ref={targetRef}>
             <ToolbarProvider>
-            <Canvas toPDF={toPDF} targetRef={targetRef}/>
+            <Canvas toPDF={toPDF} targetRef={targetRef} isPDFMode={isPDFMode}/>
             </ToolbarProvider>
             </div>
             <Sidebar toPDF={toPDF} targetRef={targetRef} isOpen={isOpen} toggleSidebar={toggleSidebar}/>

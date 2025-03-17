@@ -39,26 +39,26 @@ const InfoTable = () => {
 
   // StyledInput component with CSS styling applied directly
   const StyledInput = ({ field }) => {
-    //Use inline styles for styling the input
     return (
       <input
         type="text"
-        defaultValue={tableData[field]}
-        onBlur={(e) => updateField(field, e.target.value)}
+        value={tableData[field]}
+        onChange={(e) => updateField(field, e.target.value)}
         className="w-full outline-none text-center text-md px-1 py-1 focus:border-b focus:bg-gray-400 focus:border-gray-400"
         style={{
-          // Apply styles directly to ensure they're applied consistently
           backgroundColor: 'transparent',
-          transition: 'background-color 0.1s, border 0.1s'
+          transition: 'background-color 0.1s, border 0.1s',
+          height: '100%',
+          minHeight: '40px'
         }}
       />
     );
   };
 
   return (
-    <div className="border border-gray-200 shadow-sm bg-white h-auto">
+    <div className="border shadow-sm bg-white h-full">
       {/* Header with Logo and Address */}
-      <div className="flex items-center justify-between p-2 border-b border-gray-200">
+      <div className="flex items-center justify-between  border-b border-gray-200">
         <div className="w-1/3">
           <img className="h-6" src={Logo} alt="Signcast Media" />
         </div>
@@ -74,97 +74,97 @@ const InfoTable = () => {
         <tbody>
           {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center  text-md">
+            <td className="border border-gray-200 bg-white   w-1/6 text-center  text-md">
               Drawn
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md" rowSpan="2">
+            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md" rowSpan="2">
               <div className="flex flex-row items-center justify-center">
                 <span className="mr-2">Dimensions<br />In Inches</span>
                 <img className="w-12 h-auto" src={mapIcon} alt="mapIcon"/>
               </div>
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md">
+            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md">
               Mounting In/On
             </td>
-            <td className="border border-gray-200 bg-white p-1 w-1/6 text-center text-md">
+            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md">
               Orientation
             </td>
           </tr>
           
           {/* Row 2 - Values for Drawn / Mounting / Orientation */}
           <tr>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="drawn" />
             </td>
             {/* Dimensions cell is handled in the rowspan above */}
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="mountingInOn" />
             </td>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="orientation" />
             </td>
           </tr>
           
           {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Date
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md" colSpan="1">
+            <td className="border border-gray-200 bg-white   text-center text-md" colSpan="1">
               Screen
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Mount
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Media Player
             </td>
           </tr>
           
           {/* Row 4 - Values for Date / Screen / Mount / Media Player */}
           <tr>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="date" />
             </td>
-            <td className="border border-gray-200 p-1 text-center" colSpan="1">
+            <td className="border border-gray-200   text-center" colSpan="1">
               <StyledInput field="screen" />
             </td>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="mount" />
             </td>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="mediaPlayer" />
             </td>
           </tr>
           
           {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
           <tr>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Sheet
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Revision
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md" colSpan="1">
+            <td className="border border-gray-200 bg-white   text-center text-md" colSpan="1">
               Department
             </td>
-            <td className="border border-gray-200 bg-white p-1 text-center text-md">
+            <td className="border border-gray-200 bg-white   text-center text-md">
               Drawing No:
             </td>
           </tr>
           
           {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
           <tr>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="sheet" />
             </td>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="revision" />
             </td>
-            <td className="border border-gray-200 p-1 text-center" colSpan="1">
+            <td className="border border-gray-200   text-center" colSpan="1">
               <StyledInput field="department" />
             </td>
-            <td className="border border-gray-200 p-1 text-center">
+            <td className="border border-gray-200   text-center">
               <StyledInput field="drawingNo" />
             </td>
           </tr>

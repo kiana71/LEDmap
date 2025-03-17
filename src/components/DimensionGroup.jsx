@@ -8,7 +8,6 @@ const DimensionGroup = ({ title, children }) => {
       </h3>
       <div className="space-y-2">{children}</div>
     </div>
-  ); 
+  );
 };
-
 export default DimensionGroup;

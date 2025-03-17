@@ -1,16 +1,13 @@
 import React from 'react';
 import { useToolbar } from './NotesArea';
-import { CustomToolbar } from './CustomToolbar'; // Ensure this matches your file name exactly
+import { CustomToolbar } from './CostomToolbar';
 
 // This component can be placed anywhere in your layout
 const ExternalToolbar = ({ className = '' }) => {
-  // Get the global editor state from our context
+  // Get the global editor state from our App component
   const { toolbarVisible, editorState, setEditorState } = useToolbar();
   
-  // If toolbar is not visible or there's no editor state yet, don't render
-  if (!toolbarVisible || !editorState) {
-    return null;
-  }
+  if (!toolbarVisible || !editorState) return null;
   
   return (
     <div className={`print:hidden ${className}`}>

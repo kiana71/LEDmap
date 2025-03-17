@@ -151,7 +151,7 @@ code {
   height: 40px !important;
   max-height: 40px !important;
   min-height: 40px !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   vertical-align: middle !important;
   position: relative;
 }
@@ -161,7 +161,7 @@ code {
   height: 100% !important;
   max-height: 100% !important;
   width: 100% !important;
-  overflow: hidden !important;
+  overflow: visible !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -170,8 +170,8 @@ code {
 
 /* Content styles for fixed containers */
 .fixed-content {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
   white-space: nowrap !important;
   max-height: 100% !important;
   width: 100% !important;
@@ -184,16 +184,19 @@ code {
   cursor: text;
   user-select: text;
   -webkit-user-select: text;
+  overflow: visible !important;
+  height: auto !important;
+  min-height: 100% !important;
 }
 
 /* When inside fixed container */
 .fixed-size-container [contenteditable="true"] {
-  overflow: hidden !important;
-  height: 100% !important;
-  max-height: 100% !important;
-  min-height: auto !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
+  overflow: visible !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100% !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
 }
 
 /* Focus styles for editable content */
@@ -229,7 +232,6 @@ table {
 .fixed-cell ul, 
 .fixed-cell ol,
 .fixed-cell p {
-  margin: 0 !important;
   padding: 0 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
@@ -302,4 +304,41 @@ table {
 .notes-editor ol ul,
 .notes-editor ul ol {
   margin-top: 0.2em !important;
+}
+
+/* InfoTable specific styles */
+.info-table input[type="text"] {
+  position: relative !important;
+  z-index: 1 !important;
+  cursor: text !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 40px !important;
+  padding: 4px 8px !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-size: inherit !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.info-table input[type="text"]:focus {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-bottom: 1px solid #666 !important;
+}
+
+.info-table td {
+  position: relative !important;
+  padding: 0 !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  overflow: visible !important;
+}
+
+.info-table td:has(input) {
+  padding: 0 !important;
+  overflow: visible !important;
 }

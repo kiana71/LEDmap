@@ -514,7 +514,7 @@ const Sidebar = ({ toPDF,targetRef , isOpen }) => {
                 <DownloadIcon />
               </div>
             </button>
-          </div>
+          </div>ZZ
           
         </div>
       </div>

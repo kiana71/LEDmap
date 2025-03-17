@@ -3,7 +3,7 @@ import { useSheetDataStore } from "../zustand/sheetDataStore";
 import { useVisibility } from "./toggleMenu";
 //For dimention
 import { findMax } from "../utils/numberUtils";
-
+//
 import humanLogo from "../img/outline-human-body-mens-figure-in-linear-style-the-outline-of-a-young-man-black-and-white-silho.png";
 import { useToolbar } from "../hook/ToolbarContext";
 import DimensionGroup from "./DimensionGroup";
@@ -356,7 +356,7 @@ const Canvas = () => {
   return (
     <>
     {/* Zoom Buttons ----------------------------------------- */}
-      <div className="fixed top-20 left-5 z-10 bg-white p-2 rounded shadow ">
+      <div className="fixed top-16 left-5 z-10 bg-white p-2 rounded shadow">
         <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">+</button>
         <button onClick={resetZoom} className="px-3 py-1 bg-gray-200 rounded mx-2">Reset</button>
         <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">-</button>
@@ -954,7 +954,7 @@ const Canvas = () => {
             </div>
             {/* Dimension Boxes Area 22222222222222222222222*/}
             {/* if (rawNicheDepth) //////////////////////////////////////////*/}
-            {/* {(rawNicheDepth && selectedScreen) ? (
+            {(rawNicheDepth && selectedScreen) ? (
               <div className="w-1/4 p-6 max-w-72">
                 <div className="w-full flex flex-col space-y-4 ">
 
@@ -981,7 +981,7 @@ const Canvas = () => {
                   </div>
 
                   {/* Niche Dimensions Box */}
-                  {/* {isNiche && (
+                  {isNiche && (
                   <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-44">
                     <div className="font-bold text-sm">
                      
@@ -1022,27 +1022,35 @@ const Canvas = () => {
                    )}
                 </div>
               </div>
-            ): null} */}
+            ): null}
+
+
+
+
+
+
+
           </div>
+
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
           <div className="flex space-x-6 h-60">
-            {/* Notes section 33333333333333333333333*/}
+            {/* Notes Section 33333333333333333333333*/}
             <div className="flex-1 border border-gray-400  bg-opacity-30 p-2">
+
               <div className="h-full flex flex-col relative mb-3">
                 <p className="absolute left-3 top-3 text-xl font-bold mb-2">Notes:</p>
                 <div
-                 className="text-left absolute top-10 left-0 w-full h-[calc(100%-40px)] flex-grow overflow-auto"
-                contentEditable="true"
-                style={{ outline: "none" }}
-                data-toolbar-enabled={notesComponentId}
-                suppressContentEditableWarning={true}
+                  className="text-left absolute top-10 left-0 w-full h-[calc(100%-40px)] flex-grow overflow-auto"
+                  contentEditable="true"
+                  style={{ outline: "none" }}
+                  data-toolbar-enabled={notesComponentId}
                 >
-                    <p><br/></p>
                 </div>
               </div>
             </div>
             <div className="flex-1 border border-gray-400 bg-opacity-30 ">
-              {/* <InfoTable/> */}
+
+              <InfoTable />
             </div>
           </div>
         </div>

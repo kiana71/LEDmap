@@ -6,9 +6,9 @@ const DimensionItem = ({ label, className, hasBorder= false, ...rest }) => {
   : "";
 
   return (
-    <div className={`flex items-center text-center ${className}`}>
+    <div className={`flex items-center text-center  ${className}`}>
       <div className="flex justify-center  text-center w-1/2 items-center h-full ">
-        <span className=" text-black text-sm">{label}</span>
+        <span className=" text-black  text-sm ">{label}</span>
       </div>
       <input
         type="text"
@@ -18,5 +18,4 @@ const DimensionItem = ({ label, className, hasBorder= false, ...rest }) => {
     </div>
   );
 };
-
 export default DimensionItem;
