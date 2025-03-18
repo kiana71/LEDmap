@@ -1,138 +1,399 @@
-/* Print.css - Zero margin version */
+/* Print.css - Zero margin version with improved dimension box positioning */
 
 @media print {
-  /* Page settings with ZERO margins */
-  @page {
-    size: letter landscape;
-    margin: 0 !important;
-    padding: 0 !important;
+    /* Page settings with ZERO margins */
+    @page {
+      size: 11in 8.5in landscape !important;
+      margin: 0mm !important;
+      padding: 0mm !important;
+    }
+    
+    /* Force colors to print */
+    body {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+      background-color: white !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 11in !important;
+      height: 8.5in !important;
+      overflow: hidden !important;
+    }
+    
+    /* Hide UI elements */
+    header, nav, .fixed, button, .sidebar {
+      display: none !important;
+    }
+    
+    /* Target container specific fixes */
+    div[ref="targetRef"], [ref="targetRef"] {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+      width: 11in !important;
+      height: 8.5in !important;
+      max-width: 11in !important;
+      max-height: 8.5in !important;
+      transform: none !important;
+      overflow: hidden !important;
+      background-color: white !important;
+    }
+    
+    /* Override ratio class */
+    .ratio {
+      width: 11in !important;
+      height: 8.5in !important;
+      max-width: 11in !important;
+      max-height: 8.5in !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Bottom row containers fix */
+    .flex.space-x-6.h-48,
+    .flex.space-x-6.h-40 {
+      display: flex !important;
+      flex-direction: row !important;
+      height: 190px !important;
+      min-height: 180px !important;
+      max-height: 180px !important;
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      gap: 24px !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    
+    /* Note and InfoTable containers */
+    .flex.space-x-6.h-48 > div,
+    .flex.space-x-6.h-40 > div {
+      width: 48% !important;
+      height: 180px !important;
+      min-height: 180px !important;
+      max-height: 180px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 2px solid black !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+    
+    /* Notes section editable area */
+    [contenteditable="true"] {
+      height: calc(100% - 30px) !important;
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* SVG fixes */
+    svg {
+      height: auto !important;
+      max-height: 6in !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Make borders and strokes visible */
+    rect, line, circle, path {
+      stroke-opacity: 1 !important;
+      fill-opacity: 1 !important;
+    }
+    
+    /* Text visibility */
+    text, tspan {
+      fill: black !important;
+      stroke: none !important;
+    }
+    
+    /* Table fixes */
+    table {
+      border-collapse: collapse !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    td, th {
+      border: 1px solid black !important;
+      padding: 1px !important;
+    }
+    
+    /* Override any animation styles */
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    /* Remove any transformations on print */
+    #root {
+      transform: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 11in !important;
+      height: 8.5in !important;
+      max-width: 11in !important;
+      max-height: 8.5in !important;
+      overflow: hidden !important;
+    }
+    
+    /* Make sure all flex containers have zero margins */
+    .flex {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* App container */
+    .App {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 11in !important;
+      height: 8.5in !important;
+      overflow: hidden !important;
+    }
+    
+    /* Override any layout spacing */
+    .p-4, .p-6, .p-2, .p-1 {
+      padding: 0 !important;
+    }
+    
+    .m-4, .m-6, .m-2, .m-1 {
+      margin: 0 !important;
+    }
+    
+    /* Override overflow settings */
+    .overflow-auto, .overflow-x-auto, .overflow-y-auto {
+      overflow: hidden !important;
+    }
+    
+    /* Target react-specific wrapper divs */
+    #root > div, #root > div > div {
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+  
+    /* Force print styles for dimensions */
+    .pdf-dimension-container {
+      display: block !important;
+      position: absolute !important;
+      right: 50px !important; /* Increased to 50px for more margin from edge */
+      top: 60px !important;   /* Increased to 60px for better vertical positioning */
+      width: 280px !important;
+      max-width: 280px !important;
+      z-index: 10 !important;
+      opacity: 1 !important;
+      page-break-inside: avoid !important;
+    }
+  
+    /* PDF target container must be relative for absolute positioning to work */
+    .pdf-target {
+      position: relative !important;
+      width: 11in !important;
+      height: 8.5in !important;
+      overflow: hidden !important;
+    }
+  
+    /* Ensure space between boxes in print */
+    .pdf-dimensions-wrapper > * + * {
+      margin-top: 28px !important; /* Increased to 28px for more space between boxes */
+    }
+  
+    /* Dimension group spacing */
+    .dimension-group {
+      margin-bottom: 10px !important; /* Increased for better spacing */
+    }
+  
+    /* Dimension item padding */
+    .dimension-item {
+      padding: 5px !important; /* Increased for better text spacing */
+    }
   }
   
-  /* Force colors to print */
-  body {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-    color-adjust: exact !important;
+  /* Class added during PDF generation */
+  .generating-pdf {
     background-color: white !important;
-  }
-  
-  /* Hide UI elements */
-  header, nav, .fixed, button, .sidebar {
-    display: none !important;
-  }
-  
-  /* Main diagram container */
-  div[ref="targetRef"], [ref="targetRef"], .border.border-gray-300 {
-    transform: scale(0.75) !important;
-    transform-origin: top center !important;
-    position: static !important;
     margin: 0 !important;
     padding: 0 !important;
-    border: none !important;
-    width: 100% !important;
+    width: 11in !important;
     height: 8.5in !important;
-    background-color: white !important;
+    max-width: 11in !important;
+    max-height: 8.5in !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
   }
   
-  /* Bottom row containers - critical fix */
-  .flex.space-x-6.h-48 {
+  .generating-pdf .flex.space-x-6.h-48,
+  .generating-pdf .flex.space-x-6.h-40 {
     display: flex !important;
-    flex-direction: row !important;
     height: 180px !important;
-    min-height: 180px !important;
-    max-height: 180px !important;
-    width: 100% !important;
+    gap: 24px !important;
     margin: 0 !important;
     padding: 0 !important;
-    gap: 24px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    background-color: white !important;
+    width: 100% !important;
   }
   
-  /* Note and InfoTable containers */
-  .flex.space-x-6.h-48 > div {
+  .generating-pdf .flex.space-x-6.h-48 > div,
+  .generating-pdf .flex.space-x-6.h-40 > div {
     width: 48% !important;
     height: 180px !important;
-    min-height: 180px !important;
-    max-height: 180px !important;
-    margin: 0 !important;
-    padding: 2px !important;
     border: 2px solid black !important;
-    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
   }
   
-  /* Notes section editable area */
-  [contenteditable="true"] {
-    height: calc(100% - 30px) !important;
-    overflow: hidden !important;
+  /* Force visibility of borders */
+  .generating-pdf *[style*="border"] {
+    border-color: black !important;
+    border-style: solid !important;
   }
   
-  /* Ensure SVG renders properly */
-  svg {
-    height: auto !important;
-    max-height: 6in !important;
+  /* Always make images visible */
+  img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
     margin: 0 !important;
     padding: 0 !important;
   }
   
-  /* Ensure borders and lines appear */
-  rect, line, circle, path {
-    stroke-opacity: 1 !important;
-    fill-opacity: 1 !important;
+  /* Fix specific layout issues */
+  .print\:p-3 {
+    padding: 0 !important;
   }
   
-  /* Force text to be visible */
-  text, tspan {
-    fill: black !important;
-    stroke: none !important;
+  .print\:m-3 {
+    margin: 0 !important;
   }
   
-  /* Make sure table borders show */
-  table {
-    border-collapse: collapse !important;
+  .print\:h-180 {
+    height: 180px !important;
   }
   
-  td, th {
-    border: 1px solid black !important;
-    padding: 1px !important;
+  /* Target the Canvas container */
+  .overflow-auto.w-full.h-screen.pt-14 {
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    position: static !important;
   }
   
-  /* Make inputs visible */
-  input {
+  /* Fix issues with Canvas container */
+  .pdf-target {
+    margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
-    background: transparent !important;
+    background-color: white !important;
+    width: 11in !important;
+    height: 8.5in !important;
+    max-width: 11in !important;
+    max-height: 8.5in !important;
   }
-}
 
-/* Class added during PDF generation */
-.generating-pdf {
-  background-color: white !important;
+/* ======= DIMENSION BOX STYLING ======= */
+
+/* Dimension containers with better positioning and spacing */
+.pdf-dimension-container {
+  position: absolute !important;
+  right: 50px !important; /* Increased from 40px to 50px */
+  top: 60px !important;  /* Increased from 50px to 60px */
+  width: 280px !important;
+  max-width: 280px !important;
+  z-index: 10 !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.generating-pdf .flex.space-x-6.h-48 {
+.pdf-dimensions-wrapper {
   display: flex !important;
-  height: 180px !important;
-  gap: 24px !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 28px !important; /* Increased from 24px to 28px for more space */
   margin: 0 !important;
   padding: 0 !important;
 }
 
-.generating-pdf .flex.space-x-6.h-48 > div {
-  width: 48% !important;
-  height: 180px !important;
+/* Dimension boxes with improved styling */
+.dimension-box {
+  background-color: white !important;
   border: 2px solid black !important;
-  margin: 0 !important;
-  padding: 2px !important;
+  padding: 14px !important; /* Increased from 12px to 14px */
+  margin: 0 0 28px 0 !important; /* Increased bottom margin from 24px to 28px */
+  width: 100% !important;
+  box-sizing: border-box !important;
+  opacity: 1 !important;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.15) !important; /* Enhanced shadow */
+  border-radius: 3px !important; /* Slight rounding of corners */
 }
 
-/* Always make images visible */
-img {
-  -webkit-print-color-adjust: exact !important;
-  print-color-adjust: exact !important;
+/* Make sure the tables inside dimension boxes are displayed correctly */
+.dimension-box table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.dimension-box td,
+.dimension-box th {
+  border: 1px solid black !important;
+  padding: 5px !important; /* Increased from 4px to 5px */
+  text-align: center !important;
+}
+
+/* Special rules for generating-pdf class */
+.generating-pdf .pdf-dimension-container {
+  position: absolute !important;
+  right: 50px !important; /* Increased from 40px to 50px */
+  top: 60px !important;  /* Increased from 50px to 60px */
+  width: 280px !important;
+  max-width: 280px !important;
+  z-index: 10 !important;
+  opacity: 1 !important;
+}
+
+.generating-pdf .dimension-box {
+  background-color: white !important;
+  border: 2px solid black !important;
+  opacity: 1 !important;
+  margin-bottom: 28px !important; /* Increased from 24px to 28px */
+  padding: 14px !important; /* Increased from 12px to 14px */
+  box-shadow: 0 3px 5px rgba(0,0,0,0.15) !important;
+  border-radius: 3px !important;
+}
+
+/* Specific title styling for dimension boxes */
+.dimension-box .dimension-group-title {
+  font-weight: bold !important;
+  font-size: 14px !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 4px !important;
+  border-bottom: 1px solid #ccc !important;
+  text-align: center !important;
+}
+
+/* Improve dimension items styling */
+.dimension-item {
+  padding: 5px 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.dimension-item-label {
+  font-weight: 500 !important;
+}
+
+.dimension-item-value {
+  font-weight: normal !important;
 }
