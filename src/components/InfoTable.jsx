@@ -18,10 +18,6 @@ const InfoTable = () => {
     orientation: ""
   });
 
-  // Instead of using controlled inputs, let's use uncontrolled inputs with defaultValue
-  // and only update the state when the input loses focus
-  // This approach avoids the React re-render focus issues
-
   // Fixed content that's not editable
   const fixedContent = {
     address: "261 Steelcase RD W #1",
@@ -44,132 +40,140 @@ const InfoTable = () => {
         type="text"
         value={tableData[field]}
         onChange={(e) => updateField(field, e.target.value)}
-        className="w-full outline-none text-center text-md px-1 py-1 focus:border-b focus:bg-gray-400 focus:border-gray-400"
+        className="w-full outline-none text-center text-[11px] focus:border-b focus:bg-gray-50 focus:border-gray-300 print:text-[9px] print:border-none"
         style={{
           backgroundColor: 'transparent',
           transition: 'background-color 0.1s, border 0.1s',
           height: '100%',
-          minHeight: '40px'
+          minHeight: '16px',
+          position: 'relative',
+          zIndex: 1,
+          cursor: 'text',
+          padding: '0px 1px'
         }}
+        // Add data attribute to make it easier to target with CSS
+        data-print-field={field}
       />
     );
   };
 
   return (
-    <div className="border shadow-sm bg-white h-full">
-      {/* Header with Logo and Address */}
-      <div className="flex items-center justify-between  border-b border-gray-200">
-        <div className="w-1/3">
-          <img className="h-6" src={Logo} alt="Signcast Media" />
+    <div className="w-full h-full overflow-hidden print:overflow-visible">
+      <div className="border border-gray-300 shadow-sm bg-white h-full print:h-auto print:max-h-48 print:overflow-hidden">
+        {/* Header with Logo and Address */}
+        <div className="flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
+          <div className="w-1/3">
+            <img className="h-8 print:h-6" src={Logo} alt="Signcast Media" />
+          </div>
+          <div className="w-2/3 text-right text-[11px] leading-[14px]">
+            <div className="text-right w-full">{fixedContent.address}</div>
+            <div className="text-right w-full">{fixedContent.city}</div>
+            <div className="text-right w-full">{fixedContent.phone}</div>
+          </div>
         </div>
-        <div className="w-2/3 text-right text-md leading-tight">
-          <div className="text-right w-full mb-1 px-1">{fixedContent.address} , {fixedContent.city}</div>
-          {/* <div className="text-right w-full mb-1 px-1">{fixedContent.city}</div> */}
-          <div className="text-right w-full px-1">{fixedContent.phone}</div>
-        </div>
-      </div>
 
-      {/* Main Table */}
-      <table className="w-full border-collapse text-md">
-        <tbody>
-          {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
-          <tr>
-            <td className="border border-gray-200 bg-white   w-1/6 text-center  text-md">
-              Drawn
-            </td>
-            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md" rowSpan="2">
-              <div className="flex flex-row items-center justify-center">
-                <span className="mr-2">Dimensions<br />In Inches</span>
-                <img className="w-12 h-auto" src={mapIcon} alt="mapIcon"/>
-              </div>
-            </td>
-            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md">
-              Mounting In/On
-            </td>
-            <td className="border border-gray-200 bg-white   w-1/6 text-center text-md">
-              Orientation
-            </td>
-          </tr>
-          
-          {/* Row 2 - Values for Drawn / Mounting / Orientation */}
-          <tr>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="drawn" />
-            </td>
-            {/* Dimensions cell is handled in the rowspan above */}
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="mountingInOn" />
-            </td>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="orientation" />
-            </td>
-          </tr>
-          
-          {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
-          <tr>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Date
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md" colSpan="1">
-              Screen
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Mount
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Media Player
-            </td>
-          </tr>
-          
-          {/* Row 4 - Values for Date / Screen / Mount / Media Player */}
-          <tr>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="date" />
-            </td>
-            <td className="border border-gray-200   text-center" colSpan="1">
-              <StyledInput field="screen" />
-            </td>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="mount" />
-            </td>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="mediaPlayer" />
-            </td>
-          </tr>
-          
-          {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
-          <tr>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Sheet
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Revision
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md" colSpan="1">
-              Department
-            </td>
-            <td className="border border-gray-200 bg-white   text-center text-md">
-              Drawing No:
-            </td>
-          </tr>
-          
-          {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
-          <tr>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="sheet" />
-            </td>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="revision" />
-            </td>
-            <td className="border border-gray-200   text-center" colSpan="1">
-              <StyledInput field="department" />
-            </td>
-            <td className="border border-gray-200   text-center">
-              <StyledInput field="drawingNo" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+        {/* Main Table - With explicit print styling */}
+        <table className="w-full border-collapse text-[11px] print:text-[9px] print:w-full">
+          <tbody>
+            {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+                Drawn
+              </td>
+              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0" rowSpan="2">
+                <div className="flex flex-row items-center justify-center h-full">
+                  <span className="mr-1 border-r border-gray-300  print:text-[8px]">Dimensions<br />In Inches</span>
+                  <img className="w-10 h-auto ml-2 print:w-6" src={mapIcon} alt="mapIcon"/>
+                </div>
+              </td>
+              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+                Mounting In/On
+              </td>
+              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+                Orientation
+              </td>
+            </tr>
+            
+            {/* Row 2 - Values for Drawn / Mounting / Orientation */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="drawn" />
+              </td>
+              {/* Dimensions cell is handled in the rowspan above */}
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="mountingInOn" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="orientation" />
+              </td>
+            </tr>
+            
+            {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Date
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Screen
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Mount
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Media Player
+              </td>
+            </tr>
+            
+            {/* Row 4 - Values for Date / Screen / Mount / Media Player */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="date" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="screen" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="mount" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="mediaPlayer" />
+              </td>
+            </tr>
+            
+            {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Sheet
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Revision
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Department
+              </td>
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+                Drawing No:
+              </td>
+            </tr>
+            
+            {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
+            <tr className="h-[22px] print:h-4">
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="sheet" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="revision" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="department" />
+              </td>
+              <td className="border border-gray-300 text-center p-0 print:p-0">
+                <StyledInput field="drawingNo" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

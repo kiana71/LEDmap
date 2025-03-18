@@ -47,7 +47,7 @@ const roundToNearest8th = (num) => {
 // Get the rounded nicheDepth
 
 
-const Canvas = () => {
+const Canvas = ({targetRef}) => {
   // Generate a unique component ID for the notes section
   const notesComponentId = "diagram-notes-editor";
 
@@ -362,11 +362,30 @@ const Canvas = () => {
         <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">-</button>
       </div>
     {/* Zoom Buttons ----------------------------------------- */}
-      <div className="bg-white overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0">
+      <div className="overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0 bg-gray-200 relative">
         {/* Main Drawing Container - */}
-        <div className="min-w-[1200px] w-full h-full border border-gray-300 p-4 flex flex-col justify-between gap-4" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+        <div 
+          ref={targetRef} 
+          className="w-[1056px] h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0" 
+          style={{ 
+            transform: `translate(calc(-50% - 120px), -50%) scale(${scale})`, 
+            position: 'absolute', 
+            top: '52%', 
+            left: '50%',
+            '@media print': {
+              transform: 'none',
+              position: 'absolute',
+              top: '0',
+              left: '0',
+              margin: '0',
+              padding: '0',
+              width: '816px',
+              height: '1056px'
+            }
+          }}
+        >
           {/* Upper Section --------------------------------------------------------------------*/}
-          <div className="flex-1 flex flex-row justify-between">
+          <div className="flex-1 flex flex-row justify-between print:p-2">
             <div className="flex justify-center flex-1 items-center">
               {/* Main Content Area 111111111111111111111111 */}
               <div className="flex justify-end relative bg-opacity-30 max-w-[1200px] max-h-[1200px] h-full">
@@ -509,13 +528,16 @@ const Canvas = () => {
 
                       {/* Height label on right side */}
                       <text
-                        x={sideViewX + 80}
+                        x={sideViewX + 78}
                         y={centerY}
                         textAnchor="middle"
                         fontSize="12"
                         transform="rotate(270, sideViewX - 35, centerY)"
                       >
-                        {DirnicheHeight.toFixed(1)} (Niche)
+                        {DirnicheHeight.toFixed(1)}
+                        <tspan x={sideViewX + 78} dy="14">
+                          (Niche)
+                        </tspan>
                       </text>
 
                       {/* Side view - scaled with depth */}
@@ -795,13 +817,16 @@ const Canvas = () => {
                   />
 
                   <text
-                    x={screenX - 75}
+                    x={screenX - 87}
                     y={centerY}
                     textAnchor="middle"
                     fontSize="12"
                     transform="rotate(270, screenX - 75, centerY)"
                   >
-                    {isHorizontal ? rawHeightValue : rawWidthValue} (Height)
+                    {isHorizontal ? rawHeightValue : rawWidthValue}
+                    <tspan x={screenX - 87} dy="14">
+                      (Height)
+                    </tspan>
                   </text>
 
                   {/* Floor Line */}
@@ -1033,14 +1058,13 @@ const Canvas = () => {
           </div>
 
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
-          <div className="flex space-x-6 h-60">
+          <div className="flex space-x-6 h-40 print:h-44 print:mx-2 print:mb-2">
             {/* Notes Section 33333333333333333333333*/}
-            <div className="flex-1 border border-gray-400  bg-opacity-30 p-2">
-
-              <div className="h-full flex flex-col relative mb-3">
-                <p className="absolute left-3 top-3 text-xl font-bold mb-2">Notes:</p>
+            <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
+              <div className="h-full flex flex-col relative">
+                <p className="absolute left-3 top-1 text-xl font-bold">Notes:</p>
                 <div
-                  className="text-left absolute top-10 left-0 w-full h-[calc(100%-40px)] flex-grow overflow-auto"
+                  className="text-left absolute top-8 left-0 w-full h-[calc(100%-32px)] flex-grow overflow-auto"
                   contentEditable="true"
                   style={{ outline: "none" }}
                   data-toolbar-enabled={notesComponentId}
@@ -1048,8 +1072,7 @@ const Canvas = () => {
                 </div>
               </div>
             </div>
-            <div className="flex-1 border border-gray-400 bg-opacity-30 ">
-
+            <div className="flex-1 border border-gray-400 bg-opacity-30">
               <InfoTable />
             </div>
           </div>

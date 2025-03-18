@@ -9,7 +9,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import ToggleOptionsMenu from "./toggleMenu";
 
 
-const Sidebar = ({ toPDF,targetRef , isOpen }) => {
+const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
 
   // Get all state and methods from the store
   const {
@@ -502,7 +502,7 @@ const Sidebar = ({ toPDF,targetRef , isOpen }) => {
             <div
             onClick={(e) => {
               e.preventDefault();
-              toPDF();
+              generatePDF();
             }}
             className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex "
           >
@@ -514,7 +514,7 @@ const Sidebar = ({ toPDF,targetRef , isOpen }) => {
                 <DownloadIcon />
               </div>
             </button>
-          </div>ZZ
+          </div>
           
         </div>
       </div>
