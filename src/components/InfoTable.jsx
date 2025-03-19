@@ -59,7 +59,7 @@ const InfoTable = () => {
 
   return (
     <div className="w-full h-full overflow-hidden print:overflow-visible">
-      <div className="border border-gray-300 shadow-sm bg-white h-full print:h-auto print:max-h-48 print:overflow-hidden">
+      <div className="border border-gray-300 border-b-1 shadow-sm bg-white h-full print:h-auto print:max-h-48 print:overflow-hidden">
         {/* Header with Logo and Address */}
         <div className="flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
           <div className="w-1/3">
@@ -73,11 +73,11 @@ const InfoTable = () => {
         </div>
 
         {/* Main Table - With explicit print styling */}
-        <table className="w-full border-collapse text-[11px] print:text-[9px] print:w-full">
-          <tbody>
+        <table className="w-full  text-[11px] print:text-[9px] print:w-full ">
+          <tbody className="!border-r-red">
             {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
             <tr className="h-[22px] print:h-4">
-              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+              <td className="border-t-0 border border-gray-300 border-l-0 bg-white w-1/4 text-center p-0 print:p-0">
                 Drawn
               </td>
               <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0" rowSpan="2">
@@ -89,28 +89,28 @@ const InfoTable = () => {
               <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
                 Mounting In/On
               </td>
-              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+              <td className="border-t-0 border border-gray-300 border-r-0 bg-white w-1/4 text-center p-0 print:p-0">
                 Orientation
               </td>
             </tr>
             
             {/* Row 2 - Values for Drawn / Mounting / Orientation */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="drawn" />
+              <td className="border border-gray-300 border-l-0 text-center p-0 print:p-0">
+                <TransparentInput/>
               </td>
               {/* Dimensions cell is handled in the rowspan above */}
               <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="mountingInOn" />
+              <TransparentInput/>
               </td>
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="orientation" />
+              <td className="border border-gray-300 border-r-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
             </tr>
             
             {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0">
                 Date
               </td>
               <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
@@ -119,30 +119,30 @@ const InfoTable = () => {
               <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
                 Mount
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0">
                 Media Player
               </td>
             </tr>
             
             {/* Row 4 - Values for Date / Screen / Mount / Media Player */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="date" />
+              <td className="border border-gray-300 border-l-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
               <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="screen" />
+              <TransparentInput/>
               </td>
               <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="mount" />
+              <TransparentInput/>
               </td>
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="mediaPlayer" />
+              <td className="border border-gray-300 border-r-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
             </tr>
             
             {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0">
                 Sheet
               </td>
               <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
@@ -151,24 +151,24 @@ const InfoTable = () => {
               <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
                 Department
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0">
                 Drawing No:
               </td>
             </tr>
             
             {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="sheet" />
+              <td className="border border-gray-300 border-l-0 border-b-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="revision" />
+              <td className="border border-gray-300 border-b-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="department" />
+              <td className="border border-gray-300 border-b-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
-              <td className="border border-gray-300 text-center p-0 print:p-0">
-                <StyledInput field="drawingNo" />
+              <td className="border border-gray-300 border-b-0 border-r-0 text-center p-0 print:p-0">
+              <TransparentInput/>
               </td>
             </tr>
           </tbody>
@@ -179,3 +179,26 @@ const InfoTable = () => {
 };
 
 export default InfoTable;
+
+
+const TransparentInput = () => {
+  const [inputValue, setInputValue] = useState("");
+
+  return (
+    <div className="relative w-full h-full">
+      {/* Display div that shows the text */}
+      <div className="absolute inset-0 flex items-center justify-center text-center text-black pointer-events-none">
+        {inputValue}
+      </div>
+
+      {/* Transparent input that captures text */}
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        className="bg-transparent w-full h-full outline-none border-none text-center text-transparent"
+        style={{ caretColor: "black" }} // Makes cursor visible while text is transparent
+      />
+    </div>
+  );
+};

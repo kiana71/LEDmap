@@ -1,8 +1,24 @@
+@media (min-height: 900px) {
+    .h-40 {
+      height: 12rem !important;
+    }
+  }
+  
+  @media (max-height: 800px) {
+    .h-40 {
+      height: 8rem !important;
+    }
+  }
+
+  /*Copy print.css
+
+  /* Print.css - Modified with small margins for print */
+
 @media print {
-    /* Page settings with ZERO margins */
+    /* Page settings with SMALL margins */
     @page {
       size: 11in 8.5in landscape !important;
-      margin: 0mm !important;
+      margin: 3mm !important; /* Added small 3mm margin */
       padding: 0mm !important;
     }
     
@@ -12,10 +28,10 @@
       print-color-adjust: exact !important;
       color-adjust: exact !important;
       background-color: white !important;
-      margin: 0 !important;
+      margin: 3mm !important; /* Added small margin */
       padding: 0 !important;
-      width: 11in !important;
-      height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
       overflow: hidden !important;
     }
     
@@ -27,15 +43,15 @@
     /* Target container specific fixes */
     div[ref="targetRef"], [ref="targetRef"] {
       position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
+      top: 3mm !important; /* Added margin from top */
+      left: 3mm !important; /* Added margin from left */
       margin: 0 !important;
       padding: 0 !important;
       border: none !important;
-      width: 11in !important;
-      height: 8.5in !important;
-      max-width: 11in !important;
-      max-height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
+      max-width: calc(11in - 6mm) !important;
+      max-height: calc(8.5in - 6mm) !important;
       transform: none !important;
       overflow: hidden !important;
       background-color: white !important;
@@ -43,10 +59,10 @@
     
     /* Override ratio class */
     .ratio {
-      width: 11in !important;
-      height: 8.5in !important;
-      max-width: 11in !important;
-      max-height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
+      max-width: calc(11in - 6mm) !important;
+      max-height: calc(8.5in - 6mm) !important;
       margin: 0 !important;
       padding: 0 !important;
     }
@@ -60,11 +76,14 @@
       min-height: 180px !important;
       max-height: 180px !important;
       width: 100% !important;
-      margin: 0 !important;
+      margin: 0 0 3mm 0 !important; /* Added bottom margin */
       padding: 0 !important;
       gap: 24px !important;
       page-break-inside: avoid !important;
       break-inside: avoid !important;
+      position: absolute !important;
+      bottom: 3mm !important; /* Position from bottom with margin */
+      left: 0 !important;
     }
     
     /* Note and InfoTable containers */
@@ -75,7 +94,7 @@
       min-height: 180px !important;
       max-height: 180px !important;
       margin: 0 !important;
-      padding: 0 !important;
+      padding: 2mm !important; /* Added internal padding */
       border: 2px solid black !important;
       overflow: hidden !important;
       box-sizing: border-box !important;
@@ -88,13 +107,13 @@
       height: calc(100% - 30px) !important;
       overflow: hidden !important;
       margin: 0 !important;
-      padding: 0 !important;
+      padding: 1mm !important; /* Added small internal padding */
     }
     
     /* SVG fixes */
     svg {
       height: auto !important;
-      max-height: 6in !important;
+      max-height: calc(6in - 6mm) !important; /* Adjusted for margins */
       margin: 0 !important;
       padding: 0 !important;
     }
@@ -120,7 +139,7 @@
     
     td, th {
       border: 1px solid black !important;
-      padding: 1px !important;
+      padding: 1mm !important; /* Increased padding for better spacing */
     }
     
     /* Override any animation styles */
@@ -132,12 +151,12 @@
     /* Remove any transformations on print */
     #root {
       transform: none !important;
-      margin: 0 !important;
+      margin: 3mm !important; /* Added small margin */
       padding: 0 !important;
-      width: 11in !important;
-      height: 8.5in !important;
-      max-width: 11in !important;
-      max-height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
+      max-width: calc(11in - 6mm) !important;
+      max-height: calc(8.5in - 6mm) !important;
       overflow: hidden !important;
     }
     
@@ -149,10 +168,10 @@
     
     /* App container */
     .App {
-      margin: 0 !important;
+      margin: 3mm !important; /* Added small margin */
       padding: 0 !important;
-      width: 11in !important;
-      height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
       overflow: hidden !important;
     }
     
@@ -181,8 +200,8 @@
     .pdf-dimension-container {
       display: block !important;
       position: absolute !important;
-      right: 50px !important; /* Increased to 50px for more margin from edge */
-      top: 60px !important;   /* Increased to 60px for better vertical positioning */
+      right: 45px !important; /* Adjusted for better positioning with margins */
+      top: 55px !important;  /* Adjusted for better positioning with margins */
       width: 280px !important;
       max-width: 280px !important;
       z-index: 10 !important;
@@ -193,8 +212,8 @@
     /* PDF target container must be relative for absolute positioning to work */
     .pdf-target {
       position: relative !important;
-      width: 11in !important;
-      height: 8.5in !important;
+      width: calc(11in - 6mm) !important; /* Adjusted for margins */
+      height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
       overflow: hidden !important;
     }
   
@@ -212,23 +231,36 @@
     .dimension-item {
       padding: 5px !important; /* Increased for better text spacing */
     }
+
+    /* InfoTable specific fixes for print */
+    .flex.space-x-6.h-48 > div:nth-child(2) table,
+    .flex.space-x-6.h-40 > div:nth-child(2) table {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Force table rows to fill height */
+    .flex.space-x-6.h-48 > div:nth-child(2) table tr,
+    .flex.space-x-6.h-40 > div:nth-child(2) table tr {
+      height: 25% !important;
+    }
   }
   
-  /* Class added during PDF generation */
+  /* Class added during PDF generation - only modified margin-related settings */
   .generating-pdf {
     background-color: white !important;
-    margin: 0 !important;
+    margin: 3mm !important; /* Added small margin */
     padding: 0 !important;
-    width: 11in !important;
-    height: 8.5in !important;
-    max-width: 11in !important;
-    max-height: 8.5in !important;
+    width: calc(11in - 6mm) !important; /* Adjusted for margins */
+    height: calc(8.5in - 6mm) !important; /* Adjusted for margins */
+    max-width: calc(11in - 6mm) !important;
+    max-height: calc(8.5in - 6mm) !important;
     overflow: hidden !important;
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
+    top: 3mm !important; /* Added margin from top */
+    left: 3mm !important; /* Added margin from left */
+    right: 3mm !important; /* Added margin from right */
+    bottom: 3mm !important; /* Added margin from bottom */
   }
   
   .generating-pdf .flex.space-x-6.h-48,
@@ -236,9 +268,12 @@
     display: flex !important;
     height: 180px !important;
     gap: 24px !important;
-    margin: 0 !important;
+    margin: 0 0 3mm 0 !important; /* Added bottom margin */
     padding: 0 !important;
     width: 100% !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
   }
   
   .generating-pdf .flex.space-x-6.h-48 > div,
@@ -247,10 +282,22 @@
     height: 180px !important;
     border: 2px solid black !important;
     margin: 0 !important;
-    padding: 0 !important;
+    padding: 2mm !important; /* Added internal padding */
     box-sizing: border-box !important;
   }
+
+  .generating-pdf .flex.space-x-6.h-48 > div:nth-child(2) table,
+  .generating-pdf .flex.space-x-6.h-40 > div:nth-child(2) table {
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .generating-pdf .flex.space-x-6.h-48 > div:nth-child(2) table tr,
+  .generating-pdf .flex.space-x-6.h-40 > div:nth-child(2) table tr {
+    height: 25% !important;
+  }
   
+  /* Rest of the code remains unchanged */
   /* Force visibility of borders */
   .generating-pdf *[style*="border"] {
     border-color: black !important;
@@ -266,11 +313,11 @@
   }
   
   /* Fix specific layout issues */
-  .print\:p-3 {
+  .print\:p-0 {
     padding: 0 !important;
   }
   
-  .print\:m-3 {
+  .print\:m-0 {
     margin: 0 !important;
   }
   
@@ -352,8 +399,8 @@
 /* Special rules for generating-pdf class */
 .generating-pdf .pdf-dimension-container {
   position: absolute !important;
-  right: 50px !important; /* Increased from 40px to 50px */
-  top: 60px !important;  /* Increased from 50px to 60px */
+  right: 45px !important; /* Adjusted for margins */
+  top: 55px !important;  /* Adjusted for margins */
   width: 280px !important;
   max-width: 280px !important;
   z-index: 10 !important;

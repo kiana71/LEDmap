@@ -499,7 +499,7 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                 </label>
               </div>
             </div>
-            <div
+            {/* <div
             onClick={(e) => {
               e.preventDefault();
               generatePDF();
@@ -514,7 +514,7 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                 <DownloadIcon />
               </div>
             </button>
-          </div>
+          </div> */}
           
         </div>
       </div>

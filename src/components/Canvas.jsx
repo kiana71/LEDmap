@@ -10,6 +10,10 @@ import DimensionGroup from "./DimensionGroup";
 import DimensionItem from "./DimensionItem";
 import InfoTable from "./InfoTable";
 
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import DownloadIcon from "@mui/icons-material/Download";
+
 // Calculate raw nicheDepth
 
 // Force to nearest 1/8th inch (0.125)
@@ -21,7 +25,7 @@ const roundToNearest8th = (num) => {
   const decimalPart = num - wholePart;
 
   // The possible 1/8th fractions
-  const eighths = [0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1];
+  const eighths = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
 
   // Find the closest 1/8th fraction
   let closestEighth = 0;
@@ -46,13 +50,11 @@ const roundToNearest8th = (num) => {
 
 // Get the rounded nicheDepth
 
-
-const Canvas = ({targetRef}) => {
+const Canvas = ({ targetRef }) => {
   // Generate a unique component ID for the notes section
   const notesComponentId = "diagram-notes-editor";
 
-
-  //Note related 
+  //Note related
   // Use the toolbar hook
   const toolbar = useToolbar(notesComponentId);
 
@@ -65,7 +67,6 @@ const Canvas = ({targetRef}) => {
     };
   }, [toolbar]);
   // Note done
-
 
   // Get visibility state from context with fallback values
   const { visibleElements = {} } = useVisibility();
@@ -115,15 +116,20 @@ const Canvas = ({targetRef}) => {
   } = useSheetDataStore();
   //Dimension related
   // Calculate raw nicheDepth
-  const rawNicheDepth = parseFloat(selectedScreen?.Depth || 0) +
-    parseFloat(findMax((selectedMediaPlayer?.Depth || 0),
-      (selectedMount ? selectedMount["Depth (in)"] : 0))) +
+  const rawNicheDepth =
+    parseFloat(selectedScreen?.Depth || 0) +
+    parseFloat(
+      findMax(
+        selectedMediaPlayer?.Depth || 0,
+        selectedMount ? selectedMount["Depth (in)"] : 0
+      )
+    ) +
     parseFloat(variantDepth || 0);
 
   // Force to nearest 1/8th inch (0.125)
   const roundToNearest8th = (num) => {
     console.log(num);
-    
+
     // Get the whole number part
     const wholePart = Math.floor(num);
 
@@ -131,7 +137,7 @@ const Canvas = ({targetRef}) => {
     const decimalPart = num - wholePart;
 
     // The possible 1/8th fractions
-    const eighths = [0, 0.125, 0.250, 0.375, 0.500, 0.625, 0.750, 0.875, 1];
+    const eighths = [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
 
     // Find the closest 1/8th fraction
     let closestEighth = 0;
@@ -156,8 +162,6 @@ const Canvas = ({targetRef}) => {
   // Get the rounded nicheDepth
   const nicheDepth = roundToNearest8th(rawNicheDepth);
   //Dimension end
-
-
 
   //Get dimensions from selected screen and parse as numbers
   const rawWidth = parseFloat(selectedScreen?.["Width"] || 0);
@@ -345,43 +349,118 @@ const Canvas = ({targetRef}) => {
   const humanWidth = 800;
   const humanHeight = 320;
 
-
   // Zoom Buttons -----------------------------------------
   const [scale, setScale] = useState(1);
-  const zoomIn = () => setScale(prev => Math.min(prev + 0.1, 2));
-  const zoomOut = () => setScale(prev => Math.max(prev - 0.1, 0.5));
+  const zoomIn = () => setScale((prev) => Math.min(prev + 0.1, 2));
+  const zoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.5));
   const resetZoom = () => setScale(1);
   // Zoom Buttons -----------------------------------------
 
+  //pdf--------------------------====================
+  const containerRef = useRef(null);
+
+  const exportToPDF = async () => {
+    const bc = document.getElementById("bottom_container");
+
+    bc.classList.remove("h-40");
+    bc.classList.add("h-64");
+    containerRef.current.classList.add("pb-8");
+
+    if (!containerRef.current) return;
+
+    // Configure for high quality
+    const scale = 4; // Higher scale = better quality
+
+    const canvas = await html2canvas(containerRef.current, {
+      scale: scale,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#f3f4f6", // Match your bg-gray-200
+    });
+
+    const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+    // Create PDF with custom dimensions to match your element's aspect ratio
+    // Convert pixels to mm (assuming 96 DPI)
+    const pxToMm = 0.264583333;
+    const widthMm = 1056 * pxToMm;
+    const heightMm = 816 * pxToMm;
+
+    const pdf = new jsPDF({
+      orientation: widthMm > heightMm ? "landscape" : "portrait",
+      unit: "mm",
+      format: [widthMm, heightMm],
+      compress: true, // Optional: reduces file size
+      precision: 4 
+    });
+// Optional: Set PDF print quality
+    pdf.setProperties({
+      title: 'High Resolution Print',
+      creator: 'Your Application Name',
+      printQuality: 300 // Explicitly set print quality
+    });
+    // Add image to perfectly fit the page
+    pdf.addImage(imgData, "JPEG", 0, 0, widthMm, heightMm, "", "FAST");
+
+    pdf.save("container-export.pdf");
+
+    bc.classList.remove("h-64");
+    bc.classList.add("h-40");
+    containerRef.current.classList.remove("pb-8");
+  };
+  //pdf--------------------------====================
+
   return (
     <>
-    {/* Zoom Buttons ----------------------------------------- */}
-      <div className="fixed top-16 left-5 z-10 bg-white p-2 rounded shadow">
-        <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">+</button>
-        <button onClick={resetZoom} className="px-3 py-1 bg-gray-200 rounded mx-2">Reset</button>
-        <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">-</button>
+      <div
+        onClick={exportToPDF}
+        className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
+      >
+        <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
+          <div className="h-full flex justify-center flex-1 items-center">
+            <span>Download</span>
+          </div>
+          <div className="bg-blue-700 text-white flex h-full items-center">
+            <DownloadIcon />
+          </div>
+        </button>
       </div>
-    {/* Zoom Buttons ----------------------------------------- */}
-      <div className="overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0 bg-gray-200 relative">
+      {/* Zoom Buttons ----------------------------------------- */}
+      <div className="fixed top-16 left-5 z-10 bg-white p-2 rounded shadow">
+        <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">
+          +
+        </button>
+        <button
+          onClick={resetZoom}
+          className="px-3 py-1 bg-gray-200 rounded mx-2"
+        >
+          Reset
+        </button>
+        <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">
+          -
+        </button>
+      </div>
+      {/* Zoom Buttons ----------------------------------------- */}
+      <div className=" overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0 bg-gray-200 relative">
         {/* Main Drawing Container - */}
-        <div 
-          ref={targetRef} 
-          className="w-[1056px] h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0" 
-          style={{ 
-            transform: `translate(calc(-50% - 120px), -50%) scale(${scale})`, 
-            position: 'absolute', 
-            top: '52%', 
-            left: '50%',
-            '@media print': {
-              transform: 'none',
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              margin: '0',
-              padding: '0',
-              width: '816px',
-              height: '1056px'
-            }
+        <div
+          ref={containerRef}
+          className="w-[1056px] border h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0"
+          style={{
+            transform: `translate(calc(-50% - 120px), -50%) scale(${scale})`,
+            position: "absolute",
+            top: "52%",
+            left: "50%",
+            "@media print": {
+              transform: "none",
+              position: "absolute",
+              top: "0",
+              left: "0",
+              margin: "0",
+              padding: "0",
+              width: "816px",
+              height: "1056px",
+            },
           }}
         >
           {/* Upper Section --------------------------------------------------------------------*/}
@@ -402,8 +481,8 @@ const Canvas = ({targetRef}) => {
                 >
                   <title>LED Display Installation Diagram</title>
                   <desc>
-                    Technical diagram showing LED display mounting specifications
-                    and measurements
+                    Technical diagram showing LED display mounting
+                    specifications and measurements
                   </desc>
 
                   {/* Grid background */}
@@ -979,22 +1058,24 @@ const Canvas = ({targetRef}) => {
             </div>
             {/* Dimension Boxes Area 22222222222222222222222*/}
             {/* if (rawNicheDepth) //////////////////////////////////////////*/}
-            {(rawNicheDepth && selectedScreen) ? (
-              <div className="w-1/4 p-6 max-w-72">
+            {rawNicheDepth && selectedScreen ? (
+              <div className=" m-0 w-1/6 p-1 max-w-72">
                 <div className="w-full flex flex-col space-y-4 ">
-
-                  <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-44">
+                  <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
                     <div className="font-bold text-sm">
-                      <DimensionGroup title="Screen Dimensions" className="w-full">
+                      <DimensionGroup
+                        title="Screen Dimensions"
+                        className="w-full"
+                      >
                         <DimensionItem
                           label="Height"
                           value={selectedScreen["Height"] || 0}
-                          className="flex flex-row items-center justify-between border-b border-black"
+                          className="flex flex-row items-center justify-between  border-black"
                         />
                         <DimensionItem
                           label="Width"
                           value={selectedScreen["Width"] || 0}
-                          className="flex flex-row items-center justify-between border-b border-black "
+                          className="flex flex-row items-center justify-between  border-black "
                         />
                         <DimensionItem
                           label="Depth"
@@ -1007,33 +1088,35 @@ const Canvas = ({targetRef}) => {
 
                   {/* Niche Dimensions Box */}
                   {isNiche && (
-                  <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-44">
-                    <div className="font-bold text-sm">
-                     
-                        <DimensionGroup title="Niche Dimensions" className="w-full">
+                    <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
+                      <div className="font-bold text-sm">
+                        <DimensionGroup
+                          title="Niche Dimensions"
+                          className="w-full"
+                        >
                           <DimensionItem
                             label="Height"
                             value={
                               selectedScreen?.["Screen Size"]
                                 ? (
-                                  parseFloat(selectedScreen["Height"]) +
-                                  (selectedScreen["Height"] < 55 ? 1.5 : 2)
-                                ).toFixed(2)
+                                    parseFloat(selectedScreen["Height"]) +
+                                    (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                  ).toFixed(2)
                                 : 0
                             }
-                            className="items-center text-center justify-between border-b border-black h-8"
+                            className="items-center text-center justify-between border-black h-8"
                           />
                           <DimensionItem
                             label="Width"
                             value={
                               selectedScreen?.["Screen Size"]
                                 ? (
-                                  parseFloat(selectedScreen["Width"]) +
-                                  (selectedScreen["Height"] < 55 ? 1.5 : 2)
-                                ).toFixed(2)
+                                    parseFloat(selectedScreen["Width"]) +
+                                    (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                  ).toFixed(2)
                                 : 0
                             }
-                            className="flex flex-row items-center justify-between border-b border-black h-8"
+                            className="flex flex-row items-center justify-between  border-black h-8"
                           />
                           <DimensionItem
                             label="Depth"
@@ -1041,39 +1124,35 @@ const Canvas = ({targetRef}) => {
                             className="flex flex-row items-center justify-between border-black h-8"
                           />
                         </DimensionGroup>
-                     
+                      </div>
                     </div>
-                  </div>
-                   )}
+                  )}
                 </div>
               </div>
-            ): null}
-
-
-
-
-
-
-
+            ) : null}
           </div>
 
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
-          <div className="flex space-x-6 h-40 print:h-44 print:mx-2 print:mb-2">
+          <div
+            className="flex space-x-6 h-40 print:h-44 print:mx-2 print:mb-2"
+            id="bottom_container"
+          >
             {/* Notes Section 33333333333333333333333*/}
             <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
               <div className="h-full flex flex-col relative">
-                <p className="absolute left-3 top-1 text-xl font-bold">Notes:</p>
+                <p className="absolute left-3 top-1 text-xl font-bold">
+                  Notes:
+                </p>
                 <div
                   className="text-left absolute top-8 left-0 w-full h-[calc(100%-32px)] flex-grow overflow-auto"
                   contentEditable="true"
                   style={{ outline: "none" }}
                   data-toolbar-enabled={notesComponentId}
-                >
-                </div>
+                ></div>
               </div>
             </div>
-            <div className="flex-1 border border-gray-400 bg-opacity-30">
-              <InfoTable />
+            <div className="flex-1 bg-opacity-30">
+              <InfoTable/>
             </div>
           </div>
         </div>

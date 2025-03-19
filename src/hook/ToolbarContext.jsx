@@ -75,13 +75,16 @@ const FloatingToolbar = ({ enabledComponents }) => {
   
   // Format options
   const fontSizes = [
-    { display: "12px", value: 1 },
-    { display: "14px", value: 2 },
-    { display: "16px", value: 3 },
-    { display: "18px", value: 4 },
-    { display: "24px", value: 5 },
-    { display: "32px", value: 6 },
-    { display: "48px", value: 7 }
+    {display: "8px", value: 1},
+    {display: "9px", value: 2},
+    {display: "10px", value: 3},
+    { display: "12px", value: 4 },
+    { display: "14px", value: 5 },
+    { display: "16px", value: 6 },
+    { display: "18px", value: 7 },
+    { display: "24px", value: 8 },
+    { display: "32px", value: 9 },
+    { display: "48px", value: 10 }
   ];
   
   const fontFamilies = [
