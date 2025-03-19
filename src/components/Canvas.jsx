@@ -128,8 +128,6 @@ const Canvas = ({ targetRef }) => {
 
   // Force to nearest 1/8th inch (0.125)
   const roundToNearest8th = (num) => {
-    console.log(num);
-
     // Get the whole number part
     const wholePart = Math.floor(num);
 
@@ -361,9 +359,13 @@ const Canvas = ({ targetRef }) => {
 
   const exportToPDF = async () => {
     const bc = document.getElementById("bottom_container");
-
+    toggleClassOnTableInputs("table_input","bottom-3", true)
+    toggleClassOnTableInputs("table_input_td","pb-3", true)
+toggleClassOnTableInputs("p_print", "pb-3" , true)
     bc.classList.remove("h-40");
     bc.classList.add("h-64");
+    bc.classList.remove("mb-1");
+    bc.classList.add("mb-3");
     containerRef.current.classList.add("pb-8");
 
     if (!containerRef.current) return;
@@ -403,9 +405,12 @@ const Canvas = ({ targetRef }) => {
     pdf.addImage(imgData, "JPEG", 0, 0, widthMm, heightMm, "", "FAST");
 
     pdf.save("container-export.pdf");
-
+    toggleClassOnTableInputs("table_input","bottom-3", false)
+    toggleClassOnTableInputs("table_input_td","pb-3", false)
+    toggleClassOnTableInputs("p_print", "pb-3" , false)
     bc.classList.remove("h-64");
     bc.classList.add("h-40");
+    bc.classList.remove("mb-3")
     containerRef.current.classList.remove("pb-8");
   };
   //pdf--------------------------====================
@@ -414,7 +419,7 @@ const Canvas = ({ targetRef }) => {
     <>
       <div
         onClick={exportToPDF}
-        className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
+        className=" h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
       >
         <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
           <div className="h-full flex justify-center flex-1 items-center">
@@ -619,16 +624,16 @@ const Canvas = ({ targetRef }) => {
                         </tspan>
                       </text>
 
-                      {/* Side view - scaled with depth */}
+                      {/* Side view - scaled with depth and the lines*/}
                       <text
                         x={sideViewX + sideViewDepth / 2}
-                        y={sideViewY + sideViewHeight + 30}
+                        y={sideViewY + sideViewHeight + 63}
                         textAnchor="middle"
                         fontSize="12"
                       >
-                        Side View
+                        (Side View){nicheDepth.toFixed(2)}
                       </text>
-
+                      {nicheDepth.toFixed(3)}
                       <line
                         x1={sideViewX}
                         y1={sideViewY}
@@ -693,6 +698,33 @@ const Canvas = ({ targetRef }) => {
                         y1={sideViewY + 2}
                         x2={sideViewX + sideViewDepth + 15}
                         y2={sideViewY + sideViewHeight - 2}
+                        stroke="black"
+                        strokeWidth="1"
+                        markerStart="url(#arrowReversed)"
+                        markerEnd="url(#arrow)"
+                      />
+                      {/*Niche side view dimension lines*/}
+                       <line
+                        x1={nicheX + nicheWidthPx + 40}
+                        y1={nicheY + nicheHeightPx + 5}
+                        x2={nicheX + nicheWidthPx +40}
+                        y2={nicheY + nicheHeightPx + 40}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
+                       <line
+                        x1={nicheX + nicheWidthPx + 72}
+                        y1={nicheY + nicheHeightPx + 5}
+                        x2={nicheX + nicheWidthPx +72}
+                        y2={nicheY + nicheHeightPx + 40}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
+                       <line
+                        x1={nicheX + nicheWidthPx + 42}
+                        y1={nicheY + nicheHeightPx + 40}
+                        x2={nicheX + nicheWidthPx +70}
+                        y2={nicheY + nicheHeightPx + 40}
                         stroke="black"
                         strokeWidth="1"
                         markerStart="url(#arrowReversed)"
@@ -1052,7 +1084,6 @@ const Canvas = ({ targetRef }) => {
                     </marker>
                   </defs>
                 </svg>
-
                 {/* Center line */}
               </div>
             </div>
@@ -1162,3 +1193,25 @@ const Canvas = ({ targetRef }) => {
 };
 
 export default Canvas;
+
+
+/**
+ * Toggles a specific class on all elements with the className "table_input"
+ * @param {string} className - The class to add or remove
+ * @param {boolean} shouldAdd - True to add the class, false to remove it
+ */
+function toggleClassOnTableInputs(targetClass, className, shouldAdd) {
+  // Get all elements with the className "table_input"
+  const tableInputs = document.querySelectorAll('.'+targetClass);
+  
+  // Loop through each element
+  tableInputs.forEach(element => {
+    if (shouldAdd) {
+      // Add the class if it doesn't exist
+      element.classList.add(className);
+    } else {
+      // Remove the class if it exists
+      element.classList.remove(className);
+    }
+  });
+}

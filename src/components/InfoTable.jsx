@@ -20,8 +20,7 @@ const InfoTable = () => {
 
   // Fixed content that's not editable
   const fixedContent = {
-    address: "261 Steelcase RD W #1",
-    city: "MARKHAM, ONTARIO",
+    address: "261 Steelcase RD W #1 , MARKHAM, ONTARIO",
     phone: "Phone: (416) 900-2263"
   };
 
@@ -59,7 +58,7 @@ const InfoTable = () => {
 
   return (
     <div className="w-full h-full overflow-hidden print:overflow-visible">
-      <div className="border border-gray-300 border-b-1 shadow-sm bg-white h-full print:h-auto print:max-h-48 print:overflow-hidden">
+      <div className="border border-gray-300 border-b-1 shadow-sm bg-white h-full print:h-auto print:max-h-36 print:overflow-hidden">
         {/* Header with Logo and Address */}
         <div className="flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
           <div className="w-1/3">
@@ -67,7 +66,7 @@ const InfoTable = () => {
           </div>
           <div className="w-2/3 text-right text-[11px] leading-[14px]">
             <div className="text-right w-full">{fixedContent.address}</div>
-            <div className="text-right w-full">{fixedContent.city}</div>
+            
             <div className="text-right w-full">{fixedContent.phone}</div>
           </div>
         </div>
@@ -75,9 +74,9 @@ const InfoTable = () => {
         {/* Main Table - With explicit print styling */}
         <table className="w-full  text-[11px] print:text-[9px] print:w-full ">
           <tbody className="!border-r-red">
-            {/* Row 1 - Drawn / Dimensions / Mounting / Orientation Headers */}
+            {/* Row 1 - Drawn / Dimensions / Mounting/ Orientation Headers */}
             <tr className="h-[22px] print:h-4">
-              <td className="border-t-0 border border-gray-300 border-l-0 bg-white w-1/4 text-center p-0 print:p-0">
+              <td className="border-t-0 border border-gray-300 border-l-0 bg-white w-1/4 text-center p-0 print:p-0 table_input_td">
                 Drawn
               </td>
               <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0" rowSpan="2">
@@ -86,10 +85,10 @@ const InfoTable = () => {
                   <img className="w-10 h-auto ml-2 print:w-6" src={mapIcon} alt="mapIcon"/>
                 </div>
               </td>
-              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0">
+              <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0 table_input_td">
                 Mounting In/On
               </td>
-              <td className="border-t-0 border border-gray-300 border-r-0 bg-white w-1/4 text-center p-0 print:p-0">
+              <td className="border-t-0 border border-gray-300 border-r-0 bg-white w-1/4 text-center p-0 print:p-0 table_input_td">
                 Orientation
               </td>
             </tr>
@@ -110,16 +109,16 @@ const InfoTable = () => {
             
             {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0 table_input_td">
                 Date
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0 table_input_td">
                 Screen
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0 table_input_td">
                 Mount
               </td>
-              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0 table_input_td">
                 Media Player
               </td>
             </tr>
@@ -142,16 +141,16 @@ const InfoTable = () => {
             
             {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
             <tr className="h-[22px] print:h-4">
-              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0 table_input_td">
                 Sheet
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0 table_input_td">
                 Revision
               </td>
-              <td className="border border-gray-300 bg-white text-center p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center p-0 print:p-0 table_input_td">
                 Department
               </td>
-              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0">
+              <td className="border border-gray-300 bg-white text-center border-r-0 p-0 print:p-0 table_input_td">
                 Drawing No:
               </td>
             </tr>
@@ -187,7 +186,7 @@ const TransparentInput = () => {
   return (
     <div className="relative w-full h-full">
       {/* Display div that shows the text */}
-      <div className="absolute inset-0 flex items-center justify-center text-center text-black pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-center text-center text-black pointer-events-none table_input">
         {inputValue}
       </div>
 
