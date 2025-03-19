@@ -73,6 +73,14 @@ const FloatingToolbar = ({ enabledComponents }) => {
   const [selection, setSelection] = useState(null);
   const toolbarRef = useRef(null);
   
+  // Line Spacing Options
+  const lineSpacingOptions = [
+    { display: "Single", value: "1" },
+    { display: "1.15", value: "1.15" },
+    { display: "1.5", value: "1.5" },
+    { display: "Double", value: "2" }
+  ];
+  
   // Format options
   const fontSizes = [
     {display: "8px", value: 1},
@@ -228,6 +236,26 @@ const FloatingToolbar = ({ enabledComponents }) => {
         // Add notes-editor class for proper styling if not already there
         if (!editableParent.classList.contains('notes-editor')) {
           editableParent.classList.add('notes-editor');
+        }
+        
+        // Line Spacing Handling
+        if (formatType === 'lineSpacing') {
+          // Apply line height to paragraphs within the editable parent
+          const paragraphs = editableParent.querySelectorAll('p');
+          if (paragraphs.length > 0) {
+            paragraphs.forEach(p => {
+              p.style.lineHeight = value;
+            });
+          } else {
+            // If no paragraphs, apply to the entire editable parent
+            editableParent.style.lineHeight = value;
+          }
+          
+          setTimeout(() => {
+            setVisible(false);
+          }, 100);
+          
+          return;
         }
       }
       
@@ -401,6 +429,19 @@ const FloatingToolbar = ({ enabledComponents }) => {
         {colors.map((color, idx) => (
           <option key={idx} value={color.value}>{color.name}</option>
         ))}
+      </select>
+      
+      {/* Line Spacing Select */}
+      <select 
+        className="toolbar-select mr-1"
+        onChange={(e) => applyFormatting("lineSpacing", e.target.value)}
+        value=""
+      >
+        <option value="" disabled>Line Spacing</option>
+        {/* Line Spacing Select (continued) */}
+      {lineSpacingOptions.map((spacing, idx) => (
+        <option key={idx} value={spacing.value}>{spacing.display}</option>
+      ))}
       </select>
       
       {/* Style Buttons */}

@@ -277,11 +277,9 @@ const Canvas = ({ targetRef }) => {
       svgRef.current.setAttribute("viewBox", currentViewBox);
     }
   }, [floorDistance, viewBoxHeight]);
-
-  // Convert client coordinates to SVG coordinates
+  //Convert client coordinates to SVG coordinates
   const clientToSVGCoordinates = (clientX, clientY) => {
     if (!svgRef.current) return { x: 0, y: 0 };
-
     const ctm = svgRef.current.getScreenCTM();
     if (!ctm) return { x: 0, y: 0 };
 
@@ -385,8 +383,8 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
     // Create PDF with custom dimensions to match your element's aspect ratio
     // Convert pixels to mm (assuming 96 DPI)
     const pxToMm = 0.264583333;
-    const widthMm = 1056 * pxToMm;
-    const heightMm = 816 * pxToMm;
+    const widthMm = 3300 * pxToMm;
+    const heightMm = 2550 * pxToMm;
 
     const pdf = new jsPDF({
       orientation: widthMm > heightMm ? "landscape" : "portrait",
