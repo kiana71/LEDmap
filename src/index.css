@@ -247,12 +247,11 @@ table {
 /* NEW STYLES FOR NOTES EDITOR */
 /* Override fixed styles for notes editor specifically */
 .notes-editor {
-  white-space: normal !important;
-  overflow-wrap: break-word !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
-  overflow: auto !important;
-  text-overflow: clip !important;
+  white-space: normal !important;
 }
 
 /* Make lists work properly in contentEditable */
@@ -276,6 +275,9 @@ table {
 /* Override global styles for the notes editor */
 .notes-editor p,
 .notes-editor div {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;

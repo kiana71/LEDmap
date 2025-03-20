@@ -65,7 +65,7 @@ const Canvas = ({ targetRef }) => {
     return () => {
       toolbar.disable();
     };
-  }, [toolbar]);
+  }, []);
   // Note done
 
   // Get visibility state from context with fallback values
@@ -1168,17 +1168,22 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
           >
             {/* Notes Section 33333333333333333333333*/}
             <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
-              <div className="h-full flex flex-col relative">
-                <p className="absolute left-3 top-1 text-xl font-bold">
-                  Notes:
-                </p>
-                <div
-                  className="text-left absolute top-8 left-0 w-full h-[calc(100%-32px)] flex-grow overflow-auto"
-                  contentEditable="true"
-                  style={{ outline: "none" }}
-                  data-toolbar-enabled={notesComponentId}
-                ></div>
-              </div>
+            <div className="h-[140px] p-4  flex-col relative mb-3">
+  <p className="absolute left-3 top-3 text-md font-light underline mb-2">NOTES:</p>
+  <div
+    className="absolute top-10 left-3 right-3 bottom-3 overflow-auto notes-editor"
+    contentEditable="true"
+    style={{ 
+      outline: "none", 
+      maxHeight: "100%", 
+      overflowY: "auto",
+      wordWrap: "break-word",
+      wordBreak: "break-word"
+    }}
+    data-toolbar-enabled={notesComponentId}
+  >
+  </div>
+</div>
             </div>
             <div className="flex-1 bg-opacity-30">
               <InfoTable/>

@@ -50,7 +50,7 @@ export const useToolbar = (componentId) => {
     return () => {
       disableToolbar(componentId);
     };
-  }, [componentId, disableToolbar]);
+  }, [componentId]);
   
   return {
     isEnabled: isToolbarEnabled,
