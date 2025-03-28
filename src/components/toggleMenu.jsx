@@ -6,7 +6,8 @@ export const VisibilityContext = createContext({
     floorLine: true,
     centreLine: true,
     woodBacking: true,
-    receptacleBox: true
+    receptacleBox: true,
+    intendedPosition: true,
   },
   toggleVisibility: () => {}
 });
@@ -22,6 +23,7 @@ export const VisibilityProvider = ({ children }) => {
     { id: 'centreLine', label: 'Centre Line', isActive: true },
     { id: 'woodBacking', label: 'Wood Backing', isActive: true },
     { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
+    { id: 'intendedPosition', label: 'Intended', isActive: true },
   ]);
 
   
@@ -30,7 +32,8 @@ export const VisibilityProvider = ({ children }) => {
     floorLine: true,
     centreLine: true,
     woodBacking: true,
-    receptacleBox: true
+    receptacleBox: true,
+    intendedPosition: true,
   });
 
   // Update visibility object whenever options change
@@ -99,6 +102,7 @@ const ToggleOptionsMenu = ({ title = "Show/Hide Elements" }) => {
     { id: 'centreLine', label: 'Centre Line', isActive: visibleElements.centreLine },
     { id: 'woodBacking', label: 'Wood Backing', isActive: visibleElements.woodBacking },
     { id: 'receptacleBox', label: 'Receptacle Box', isActive: visibleElements.receptacleBox },
+    { id: 'intendedPosition', label: 'Intended', isActive: visibleElements.intendedPosition },
   ];
 
   return (

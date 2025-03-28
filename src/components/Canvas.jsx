@@ -227,9 +227,9 @@ const Canvas = ({ targetRef }) => {
   const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
   // Side view dimensions - scaled with the screen depth but with minimum and maximum
-  const sideViewX = screenX + screenWidthPx + 50; // Position closer to the right edge of screen
-  const sideViewY = screenY - 7;
-  const sideViewHeight = nicheHeightPx;
+  const sideViewX = screenX + screenWidthPx + 70; // Changed from 50 to 70 to move 20px more right
+  const sideViewY = screenY; // Changed from screenY - 7 to screenY to align with LED
+  const sideViewHeight = screenHeightPx;
   const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
 
   // Update draggable boundary based on screen dimensions
@@ -245,7 +245,7 @@ const Canvas = ({ targetRef }) => {
   const MIN_FLOOR_DISTANCE = 5; // Minimum distance in inches
   const calculatedFloorDistance = Math.max(MIN_FLOOR_DISTANCE, floorDistance);
   // Set a static position for the floor line - a bit lower than the LED
-  const floorLineY = screenY + screenHeightPx + 80; // 100px below the bottom of the LED
+  const floorLineY = screenY + screenHeightPx + 120; // 100px below the bottom of the LED
 
   //sideview
   const viewBoxWidth = Math.max(BASE_WIDTH, sideViewX + sideViewDepth + 60); // Ensure we have space for the side view
@@ -549,8 +549,6 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
                         strokeWidth="1"
                       />
 
-                      {/* Left measurement for niche - COMPLETELY REMOVED */}
-
                       {/* Bottom measurement for niche */}
                       <line
                         x1={nicheX + 6}
@@ -590,11 +588,10 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
                       </text>
 
                       {/* RIGHT measurement for niche height (NEW POSITION) */}
-
                       <line
                         x1={nicheX + nicheWidthPx}
                         y1={nicheY}
-                        x2={sideViewX - 15}
+                        x2={sideViewX - 20}
                         y2={nicheY}
                         stroke="black"
                         strokeWidth=".5"
@@ -602,7 +599,7 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
                       <line
                         x1={nicheX + nicheWidthPx}
                         y1={nicheY + nicheHeightPx}
-                        x2={sideViewX - 15}
+                        x2={sideViewX - 20}
                         y2={nicheY + nicheHeightPx}
                         stroke="black"
                         strokeWidth=".5"
@@ -610,126 +607,137 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
 
                       {/* Height label on right side */}
                       <text
-                        x={sideViewX + 78}
+                        x={sideViewX - 37}
                         y={centerY}
                         textAnchor="middle"
                         fontSize="12"
                         transform="rotate(270, sideViewX - 35, centerY)"
                       >
                         {DirnicheHeight.toFixed(1)}
-                        <tspan x={sideViewX + 78} dy="14">
+                        <tspan x={sideViewX - 37} dy="14">
                           (Niche)
                         </tspan>
                       </text>
-
-                      {/* Side view - scaled with depth and the lines*/}
-                      <text
-                        x={sideViewX + sideViewDepth / 2}
-                        y={sideViewY + sideViewHeight + 63}
-                        textAnchor="middle"
-                        fontSize="12"
-                      >
-                        (Side View){nicheDepth.toFixed(2)}
-                      </text>
-                      {nicheDepth.toFixed(3)}
-                      <line
-                        x1={sideViewX}
-                        y1={sideViewY}
-                        x2={sideViewX}
-                        y2={sideViewY + sideViewHeight}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1={sideViewX + sideViewDepth}
-                        y1={sideViewY}
-                        x2={sideViewX + sideViewDepth}
-                        y2={sideViewY + sideViewHeight}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1={sideViewX + sideViewDepth + 6}
-                        y1={sideViewY}
-                        x2={sideViewX + sideViewDepth + 6}
-                        y2={sideViewY + sideViewHeight}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-
-                      {/* Top and bottom lines of side view */}
-                      <line
-                        x1={sideViewX}
-                        y1={sideViewY}
-                        x2={sideViewX + sideViewDepth}
-                        y2={sideViewY}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1={sideViewX}
-                        y1={sideViewY + sideViewHeight}
-                        x2={sideViewX + sideViewDepth}
-                        y2={sideViewY + sideViewHeight}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1={sideViewX + sideViewDepth}
-                        y1={sideViewY + sideViewHeight}
-                        x2={sideViewX + sideViewDepth + 6}
-                        y2={sideViewY + sideViewHeight}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1={sideViewX + sideViewDepth}
-                        y1={sideViewY}
-                        x2={sideViewX + sideViewDepth + 6}
-                        y2={sideViewY}
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-
-                      <line
-                        x1={sideViewX + sideViewDepth + 15}
-                        y1={sideViewY + 2}
-                        x2={sideViewX + sideViewDepth + 15}
-                        y2={sideViewY + sideViewHeight - 2}
-                        stroke="black"
-                        strokeWidth="1"
-                        markerStart="url(#arrowReversed)"
-                        markerEnd="url(#arrow)"
-                      />
-                      {/*Niche side view dimension lines*/}
-                       <line
-                        x1={nicheX + nicheWidthPx + 40}
-                        y1={nicheY + nicheHeightPx + 5}
-                        x2={nicheX + nicheWidthPx +40}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-                       <line
-                        x1={nicheX + nicheWidthPx + 72}
-                        y1={nicheY + nicheHeightPx + 5}
-                        x2={nicheX + nicheWidthPx +72}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-                       <line
-                        x1={nicheX + nicheWidthPx + 42}
-                        y1={nicheY + nicheHeightPx + 40}
-                        x2={nicheX + nicheWidthPx +70}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth="1"
-                        markerStart="url(#arrowReversed)"
-                        markerEnd="url(#arrow)"
-                      />
                     </>
                   )}
+
+                  {/* Side view - always visible */}
+                  {/* Gray background for side view */}
+                  <rect
+                    x={sideViewX}
+                    y={sideViewY}
+                    width={sideViewDepth + 6}
+                    height={sideViewHeight}
+                    fill="#CCCCCC"
+                    stroke="none"
+                    opacity="1"
+                  />
+                  <text
+                    x={sideViewX + sideViewDepth / 2}
+                    y={sideViewY + sideViewHeight + 63}
+                    textAnchor="middle"
+                    fontSize="12"
+                  >
+                    (Side View){nicheDepth.toFixed(2)}
+                  </text>
+                  {nicheDepth.toFixed(3)}
+                  <line
+                    x1={sideViewX}
+                    y1={sideViewY}
+                    x2={sideViewX}
+                    y2={sideViewY + sideViewHeight}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1={sideViewX + sideViewDepth}
+                    y1={sideViewY}
+                    x2={sideViewX + sideViewDepth}
+                    y2={sideViewY + sideViewHeight}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1={sideViewX + sideViewDepth + 6}
+                    y1={sideViewY}
+                    x2={sideViewX + sideViewDepth + 6}
+                    y2={sideViewY + sideViewHeight}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+
+                  {/* Top and bottom lines of side view */}
+                  <line
+                    x1={sideViewX}
+                    y1={sideViewY}
+                    x2={sideViewX + sideViewDepth}
+                    y2={sideViewY}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1={sideViewX}
+                    y1={sideViewY + sideViewHeight}
+                    x2={sideViewX + sideViewDepth}
+                    y2={sideViewY + sideViewHeight}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1={sideViewX + sideViewDepth}
+                    y1={sideViewY + sideViewHeight}
+                    x2={sideViewX + sideViewDepth + 6}
+                    y2={sideViewY + sideViewHeight}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1={sideViewX + sideViewDepth}
+                    y1={sideViewY}
+                    x2={sideViewX + sideViewDepth + 6}
+                    y2={sideViewY}
+                    stroke="black"
+                    strokeWidth="1"
+                  />
+
+                  <line
+                    x1={sideViewX - 15}
+                    y1={sideViewY + 2}
+                    x2={sideViewX - 15}
+                    y2={sideViewY + sideViewHeight - 2}
+                    stroke="black"
+                    strokeWidth="1"
+                    markerStart="url(#arrowReversed)"
+                    markerEnd="url(#arrow)"
+                  />
+
+                  {/* Side view dimension lines - always visible */}
+                  <line
+                    x1={sideViewX}
+                    y1={sideViewY + sideViewHeight + 5}
+                    x2={sideViewX}
+                    y2={sideViewY + sideViewHeight + 40}
+                    stroke="black"
+                    strokeWidth=".5"
+                  />
+                  <line
+                    x1={sideViewX + sideViewDepth + 7}
+                    y1={sideViewY + sideViewHeight + 5}
+                    x2={sideViewX + sideViewDepth + 7}
+                    y2={sideViewY + sideViewHeight + 40}
+                    stroke="black"
+                    strokeWidth=".5"
+                  />
+                  <line
+                    x1={sideViewX + 2}
+                    y1={sideViewY + sideViewHeight + 40}
+                    x2={sideViewX + sideViewDepth + 4}
+                    y2={sideViewY + sideViewHeight + 40}
+                    stroke="black"
+                    strokeWidth="1"
+                    markerStart="url(#arrowReversed)"
+                    markerEnd="url(#arrow)"
+                  />
 
                   {/* Main Rectangle - Screen (dynamically sized) */}
                   <rect
@@ -861,82 +869,88 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
                   </defs>
 
                   {/* Top measurement for screen width */}
-                  <line
-                    x1={screenX + 6}
-                    y1={screenY - 40}
-                    x2={screenX + screenWidthPx - 6}
-                    y2={screenY - 40}
-                    stroke="black"
-                    strokeWidth="1"
-                    markerStart="url(#arrowReversed)"
-                    markerEnd="url(#arrow)"
-                  />
-                  <line
-                    x1={screenX}
-                    y1={screenY - 40}
-                    x2={screenX}
-                    y2={screenY - 12}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
-                  <line
-                    x1={screenX + screenWidthPx}
-                    y1={screenY - 40}
-                    x2={screenX + screenWidthPx}
-                    y2={screenY - 12}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
 
-                  <text
-                    x={centerX - 50}
-                    y={screenY - 60}
-                    textAnchor="middle"
-                    fontSize="12"
-                  >
-                    {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
-                  </text>
+                  {!isNiche && (
+                    <>
+                      <line
+                        x1={screenX + 6}
+                        y1={screenY - 40}
+                        x2={screenX + screenWidthPx - 6}
+                        y2={screenY - 40}
+                        stroke="black"
+                        strokeWidth="1"
+                        markerStart="url(#arrowReversed)"
+                        markerEnd="url(#arrow)"
+                      />
+                      <line
+                        x1={screenX}
+                        y1={screenY - 40}
+                        x2={screenX}
+                        y2={screenY - 12}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
+                      <line
+                        x1={screenX + screenWidthPx}
+                        y1={screenY - 40}
+                        x2={screenX + screenWidthPx}
+                        y2={screenY - 12}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
 
-                  {/* LEFT side measurement for screen height (moved from right) */}
-                  <line
-                    x1={screenX - 40}
-                    y1={screenY + 6}
-                    x2={screenX - 40}
-                    y2={screenY + screenHeightPx - 6}
-                    stroke="black"
-                    strokeWidth="1"
-                    markerStart="url(#arrowReversed)"
-                    markerEnd="url(#arrow)"
-                  />
-                  <line
-                    x1={screenX - 40}
-                    y1={screenY}
-                    x2={screenX - 12}
-                    y2={screenY}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
-                  <line
-                    x1={screenX - 40}
-                    y1={screenY + screenHeightPx}
-                    x2={screenX - 12}
-                    y2={screenY + screenHeightPx}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
+                      <text
+                        x={centerX - 50}
+                        y={screenY - 60}
+                        textAnchor="middle"
+                        fontSize="12"
+                      >
+                        {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
+                      </text>
 
-                  <text
-                    x={screenX - 87}
-                    y={centerY}
-                    textAnchor="middle"
-                    fontSize="12"
-                    transform="rotate(270, screenX - 75, centerY)"
-                  >
-                    {isHorizontal ? rawHeightValue : rawWidthValue}
-                    <tspan x={screenX - 87} dy="14">
-                      (Height)
-                    </tspan>
-                  </text>
+                      {/* LEFT side measurement for screen height (moved from right) */}
+                      <line
+                        x1={screenX - 40}
+                        y1={screenY + 6}
+                        x2={screenX - 40}
+                        y2={screenY + screenHeightPx - 6}
+                        stroke="black"
+                        strokeWidth="1"
+                        markerStart="url(#arrowReversed)"
+                        markerEnd="url(#arrow)"
+                      />
+                      <line
+                        x1={screenX - 40}
+                        y1={screenY}
+                        x2={screenX - 12}
+                        y2={screenY}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
+                      <line
+                        x1={screenX - 40}
+                        y1={screenY + screenHeightPx}
+                        x2={screenX - 12}
+                        y2={screenY + screenHeightPx}
+                        stroke="black"
+                        strokeWidth=".5"
+                      />
+
+                      <text
+                        x={screenX - 87}
+                        y={centerY}
+                        textAnchor="middle"
+                        fontSize="12"
+                        transform="rotate(270, screenX - 75, centerY)"
+                      >
+                        {isHorizontal ? rawHeightValue : rawWidthValue}
+                        <tspan x={screenX - 87} dy="14">
+                          (Height)
+                        </tspan>
+                      </text>
+                    </>
+                  )}
+                 
 
                   {/* Floor Line */}
                   <line

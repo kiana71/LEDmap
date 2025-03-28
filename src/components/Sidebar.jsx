@@ -1,16 +1,14 @@
 import React, { useEffect } from "react";
 import SelectInput from "./SelectInput";
 import DimensionItem from "./DimensionItem";
-import ChoosableOptions from "./ChoosableOption";    
+import ChoosableOptions from "./ChoosableOption";
 import useExcelData from "../hook/formData";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 import DownloadIcon from "@mui/icons-material/Download";
 import ToggleOptionsMenu from "./toggleMenu";
 
-
-const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
-
+const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
   // Get all state and methods from the store
   const {
     selectedScreen,
@@ -66,7 +64,13 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
       setSelectedMount(sheetData.sheet3[0]);
       setSelectedReceptacleBox(sheetData.sheet4[0]);
     }
-  }, [sheetData, setSelectedScreen, setSelectedMediaPlayer, setSelectedMount, setSelectedReceptacleBox]);
+  }, [
+    sheetData,
+    setSelectedScreen,
+    setSelectedMediaPlayer,
+    setSelectedMount,
+    setSelectedReceptacleBox,
+  ]);
 
   // Update box positions when screen dimensions or box settings change
   useEffect(() => {
@@ -74,13 +78,13 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
       updateBoxPositions();
     }
   }, [
-    selectedScreen, 
-    isHorizontal, 
-    bottomDistance, 
-    leftDistance, 
+    selectedScreen,
+    isHorizontal,
+    bottomDistance,
+    leftDistance,
     boxGap,
     updateBoxPositions,
-    boxCount
+    boxCount,
   ]);
 
   if (!selectedScreen) return null;
@@ -215,7 +219,7 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                 )
               }
             />
- <SelectInput
+            <SelectInput
               className="text-center"
               label="Receptacle Box"
               value={selectedReceptacleBox?.["MFG. PART"] || ""}
@@ -243,11 +247,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
               <div className="mb-2 text-center font-semibold">
                 Receptacle Box Settings
               </div>
-              
+
               {/* Box Count */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Box Count:</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -262,11 +267,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {boxCount}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={(e) => {
@@ -281,11 +286,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Bottom Distance */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Bottom Distance (in):</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -297,11 +303,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {bottomDistance}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={incrementBottomDistance}
@@ -313,11 +319,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Left Distance */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Left Distance (in):</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -329,11 +336,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {leftDistance}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={incrementLeftDistance}
@@ -345,11 +352,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Box Gap */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Box Gap (in):</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -361,11 +369,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {boxGap}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={incrementBoxGap}
@@ -377,13 +385,13 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   </button>
                 </div>
               </div>
-              
+
               {maxBoxesReached && (
                 <div className="text-red-500 text-sm text-center mb-2">
                   Maximum box limit reached for this LED size
                 </div>
               )}
-              
+
               <div className="text-sm text-gray-600 mb-2">
                 Boxes will be placed starting from bottom-left
               </div>
@@ -393,11 +401,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
               <div className="mb-2 text-center font-semibold">
                 Display Settings
               </div>
-              
+
               {/* Floor Distance with buttons */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Floor Distance (in):</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -409,11 +418,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {floorDistance}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={incrementFloorDistance}
@@ -424,11 +433,12 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   </button>
                 </div>
               </div>
-              
+
               {/* Niche Depth Var with buttons */}
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Niche Depth Var (in):</div>
-                <div className="flex items-center border border-gray-300 overflow-hidden"
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -440,11 +450,11 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
                   >
                     <span className="text-xl font-bold">−</span>
                   </button>
-                  
+
                   <div className="h-full flex-grow flex items-center justify-center">
                     {variantDepth}
                   </div>
-                  
+
                   <button
                     type="button"
                     onClick={incrementVariantDepth}
@@ -483,23 +493,24 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
               <ToggleOptionsMenu />
             </div>
           </form>
-          <div className="w-full px-4 my-4">
-              <div className="flex justify-between items-center border border-gray-300 rounded p-2 bg-gray-50">
-                <span className="text-sm font-medium">
-    {isEditMode ? "Switch to View Mode" : "Switch to Edit Mode"}
-  </span>
-  <label className="relative inline-flex items-center cursor-pointer">
-    <input
-      type="checkbox"
-      checked={isEditMode}
-      onChange={(e) => setIsEditMode(e.target.checked)}
-      className="sr-only peer"
-    />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
+          {/* edit mode toggle */}
+          {/* <div className="w-full px-4 my-4">
+            <div className="flex justify-between items-center border border-gray-300 rounded p-2 bg-gray-50">
+              <span className="text-sm font-medium">
+                {isEditMode ? "Switch to View Mode" : "Switch to Edit Mode"}
+              </span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isEditMode}
+                  onChange={(e) => setIsEditMode(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
             </div>
-            {/* <div
+          </div> */}
+          {/* <div
             onClick={(e) => {
               e.preventDefault();
               generatePDF();
@@ -515,7 +526,6 @@ const Sidebar = ({ toPDF, isOpen , generatePDF}) => {
               </div>
             </button>
           </div> */}
-          
         </div>
       </div>
     </div>

@@ -20,7 +20,7 @@ const InfoTable = () => {
 
   // Fixed content that's not editable
   const fixedContent = {
-    address: "261 Steelcase RD W #1 , MARKHAM, ONTARIO",
+    address: "361 Steelcase RD W #1 , MARKHAM, ONTARIO",
     phone: "Phone: (416) 900-2263"
   };
 
