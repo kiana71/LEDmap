@@ -171,7 +171,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     e.preventDefault();
     if (boxGap > 0) {
       setBoxGap(boxGap - 0.5);
-    } .
+    }
   };
 
   return (
