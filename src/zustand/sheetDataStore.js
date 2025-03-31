@@ -14,7 +14,37 @@ export const useSheetDataStore = create((set, get) => ({
   setSelectedMount: (value) =>
     set((old) => ({ ...old, selectedMount: value })),
   setSelectedReceptacleBox: (value) =>
-    set((old) => ({ ...old, selectedReceptacleBox: value })),
+    set((old) => {
+      // Log the entire object to see its structure
+      console.log('Selected Receptacle Box Data:', value);
+      console.log('Object keys:', Object.keys(value || {}));
+      
+      // Get dimensions from the correct property names
+      const width = value && value['Width (in)'] ? parseFloat(value['Width (in)']) : 6;
+      const height = value && value['Height (in)'] ? parseFloat(value['Height (in)']) : 6;
+      
+      console.log('Found dimensions:', { width, height });
+     
+      const newState = {
+        ...old,
+        selectedReceptacleBox: value,
+        BOX_WIDTH: width,
+        BOX_HEIGHT: height
+      };
+      
+      // Force an update of box positions
+      setTimeout(() => {
+        const store = get();
+        if (store.updateBoxPositions) {
+          store.updateBoxPositions();
+        }
+        if (store.repositionBoxes) {
+          store.repositionBoxes();
+        }
+      }, 0);
+      
+      return newState;
+    }),
   
   isHorizontal: true,
   isNiche: true,
