@@ -77,8 +77,12 @@ const Canvas = ({ targetRef }) => {
     centreLine: true,
     woodBacking: true,
     receptacleBox: true,
+    intendedPosition: true,
     ...visibleElements,
   };
+
+  // Destructure intendedPosition from safeVisibility
+  const { intendedPosition } = safeVisibility;
 
   // Add constants for better maintainability
   const COLORS = {
@@ -113,6 +117,7 @@ const Canvas = ({ targetRef }) => {
     repositionBoxes,
     selectedMount,
     variantDepth,
+    isEdgeToEdge,
   } = useSheetDataStore();
   //Dimension related
   // Calculate raw nicheDepth
@@ -220,7 +225,7 @@ const Canvas = ({ targetRef }) => {
   const nicheY = centerY - nicheHeightPx / 2;
 
   // Wood backing dimensions (slightly smaller than screen)
-  const woodBackingMargin = 30;
+  const woodBackingMargin = isEdgeToEdge ? 5 : 30;
   const woodBackingX = screenX + woodBackingMargin;
   const woodBackingY = screenY + woodBackingMargin;
   const woodBackingWidth = screenWidthPx - woodBackingMargin * 2;
@@ -793,25 +798,30 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
                       />
 
                       {/* Label line */}
-                      <line
-                        x1={centerX}
-                        y1={centerY}
-                        x2="435"
-                        y2="53"
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <line
-                        x1="435"
-                        y1="53"
-                        x2="453"
-                        y2="53"
-                        stroke="black"
-                        strokeWidth="1"
-                      />
-                      <text x="595" y="50" textAnchor="end" fontSize="12">
-                        Intended Screen Position
-                      </text>
+                     {intendedPosition && (
+                      <>
+ <line
+ x1={centerX}
+ y1={centerY}
+ x2="435"
+ y2="53"
+ stroke="black"
+ strokeWidth="1"
+/>
+<line
+ x1="435"
+ y1="53"
+ x2="453"
+ y2="53"
+ stroke="black"
+ strokeWidth="1"
+/>
+<text x="595" y="50" textAnchor="end" fontSize="12">
+ Intended Screen Position
+</text>
+</>
+                     )}
+                     
                     </>
                   )}
 
@@ -1131,7 +1141,7 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
 
                   {/* Niche Dimensions Box */}
                   {isNiche && (
-                    <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
+                    <div className="border border-black p-1 bg-white bg-opacity-30 w-full ">
                       <div className="font-bold text-sm">
                         <DimensionGroup
                           title="Niche Dimensions"

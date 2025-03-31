@@ -7,6 +7,12 @@ import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 import DownloadIcon from "@mui/icons-material/Download";
 import ToggleOptionsMenu from "./toggleMenu";
+import {
+  createIncrementHandler,
+  createDecrementHandler,
+  increment,
+  decrement,
+} from "../utils/incrementUtils";
 
 const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
   // Get all state and methods from the store
@@ -40,16 +46,17 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     decrementBoxCount,
     maxBoxesReached,
     updateBoxPositions,
-    isEditMode,
-    setIsEditMode,
+    // isEditMode,
+    // setIsEditMode,
     // Limit flags
     isAtMaxBottomDistance,
     isAtMaxLeftDistance,
     isAtMaxBoxGap,
+    toggleIsEdgeToEdge,
+    isEdgeToEdge,
   } = useSheetDataStore();
 
   // Description form states
-  const { formData, setFormData } = useDescriptionDataStore((state) => state);
 
   // Sheet data state
   const { sheetData, loading, error } = useExcelData(
@@ -90,75 +97,70 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
   if (!selectedScreen) return null;
 
   // Handle floor distance change
-  const handleFloorDistanceChange = (e) => {
-    const numValue = parseFloat(e.target.value) || 0;
-    setFloorDistance(numValue);
-  };
 
-  // Increment floor distance
+  // Floor distance handlers
   const incrementFloorDistance = (e) => {
     e.preventDefault();
     setFloorDistance(floorDistance + 1);
   };
 
-  // Decrement floor distance
   const decrementFloorDistance = (e) => {
     e.preventDefault();
-    setFloorDistance(Math.max(0, floorDistance - 1));
+    if (floorDistance > 0) {
+      setFloorDistance(floorDistance - 1);
+    }
   };
 
-  // Handle variant depth change
-  const handleDepthVariantChange = (e) => {
-    const numValue = parseFloat(e.target.value) || 0;
-    setVariantDepth(numValue);
-  };
-
-  // Increment variant depth
+  // Variant depth handlers
   const incrementVariantDepth = (e) => {
     e.preventDefault();
     setVariantDepth(variantDepth + 0.5);
   };
 
-  // Decrement variant depth
   const decrementVariantDepth = (e) => {
     e.preventDefault();
-    setVariantDepth(Math.max(0, variantDepth - 0.5));
+    if (variantDepth > 0) {
+      setVariantDepth(variantDepth - 0.5);
+    }
   };
 
-  // Increment bottom distance
+  // Bottom distance handlers
   const incrementBottomDistance = (e) => {
     e.preventDefault();
-    setBottomDistance(Math.max(0, bottomDistance + 0.5));
+    setBottomDistance(bottomDistance + 0.5);
   };
 
-  // Decrement bottom distance
   const decrementBottomDistance = (e) => {
     e.preventDefault();
-    setBottomDistance(Math.max(0, bottomDistance - 0.5));
+    if (bottomDistance > 0) {
+      setBottomDistance(bottomDistance - 0.5);
+    }
   };
 
-  // Increment left distance
+  // Left distance handlers
   const incrementLeftDistance = (e) => {
     e.preventDefault();
-    setLeftDistance(Math.max(0, leftDistance + 0.5));
+    setLeftDistance(leftDistance + 0.5);
   };
 
-  // Decrement left distance
   const decrementLeftDistance = (e) => {
     e.preventDefault();
-    setLeftDistance(Math.max(0, leftDistance - 0.5));
+    if (leftDistance > 0) {
+      setLeftDistance(leftDistance - 0.5);
+    }
   };
 
-  // Increment box gap
+  // Box gap handlers
   const incrementBoxGap = (e) => {
     e.preventDefault();
-    setBoxGap(Math.max(0, boxGap + 0.5));
+    setBoxGap(boxGap + 0.5);
   };
 
-  // Decrement box gap
   const decrementBoxGap = (e) => {
     e.preventDefault();
-    setBoxGap(Math.max(0, boxGap - 0.5));
+    if (boxGap > 0) {
+      setBoxGap(boxGap - 0.5);
+    }
   };
 
   return (
@@ -238,6 +240,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                   const selectedBox = sheetData.sheet4.find(
                     (q) => q["MFG. PART"] === selectedValue
                   );
+                  console.log('Selected Box Data:', selectedBox);
                   setSelectedReceptacleBox(selectedBox);
                 }
               }}
@@ -291,7 +294,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Bottom Distance (in):</div>
                 <div
-                  className="flex items-center border border-gray-300 overflow-hidden"
+                  className="flex items-center border border-gray-300 overflow-hidden rounded-md"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -304,9 +307,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {bottomDistance}
-                  </div>
+                  <input
+                    type="number"
+                    value={bottomDistance}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setBottomDistance(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.5"
+                  />
 
                   <button
                     type="button"
@@ -324,7 +337,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Left Distance (in):</div>
                 <div
-                  className="flex items-center border border-gray-300 overflow-hidden"
+                  className="flex items-center border border-gray-300 overflow-hidden rounded-md"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -337,9 +350,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {leftDistance}
-                  </div>
+                  <input
+                    type="number"
+                    value={leftDistance}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setLeftDistance(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.5"
+                  />
 
                   <button
                     type="button"
@@ -357,7 +380,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
               <div className="w-full mb-3">
                 <div className="text-sm mb-1">Box Gap (in):</div>
                 <div
-                  className="flex items-center border border-gray-300 overflow-hidden"
+                  className="flex items-center border border-gray-300 overflow-hidden rounded-md"
                   style={{ height: "40px", width: "100%" }}
                 >
                   <button
@@ -370,9 +393,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {boxGap}
-                  </div>
+                  <input
+                    type="number"
+                    value={boxGap}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setBoxGap(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.5"
+                  />
 
                   <button
                     type="button"
@@ -419,9 +452,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {floorDistance}
-                  </div>
+                  <input
+                    type="number"
+                    value={floorDistance}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setFloorDistance(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="1"
+                  />
 
                   <button
                     type="button"
@@ -451,9 +494,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {variantDepth}
-                  </div>
+                  <input
+                    type="number"
+                    value={variantDepth}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setVariantDepth(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.5"
+                  />
 
                   <button
                     type="button"
@@ -478,6 +531,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                 isSelected={isHorizontal}
                 onSelect={() => toggleIsHorizontal()}
               />
+
               <ChoosableOptions
                 label="Niche"
                 isSelected={isNiche}
@@ -489,6 +543,23 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                 onSelect={() => toggleIsNiche()}
               />
             </div>
+             <div className="flex flex-col items-center mb-1 w-full px-4 ">
+              <div className="mb-0 mt-2 text-center font-semibold">
+                Wood Backing
+              </div>
+              <div className="grid w-full grid-cols-2  mt-2">
+              <ChoosableOptions
+                label="Edge to edge"
+                isSelected={isEdgeToEdge}
+                onSelect={() => toggleIsEdgeToEdge()}
+              />
+              <ChoosableOptions
+                label="3 Inches"
+                isSelected={!isEdgeToEdge}
+                onSelect={() => toggleIsEdgeToEdge()}
+              />
+              </div>
+              </div>
             <div className="w-full pt-1 pb-90 px-3">
               <ToggleOptionsMenu />
             </div>

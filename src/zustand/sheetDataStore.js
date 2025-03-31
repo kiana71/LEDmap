@@ -1,6 +1,3 @@
-// Updated useSheetDataStore with structured receptacle box placement
-// Added limits to prevent boxes from being pushed outside the boundary
-
 import { create } from "zustand";
 
 export const useSheetDataStore = create((set, get) => ({
@@ -24,7 +21,14 @@ export const useSheetDataStore = create((set, get) => ({
   
   toggleIsHorizontal: () =>
     set(old => ({ ...old, isHorizontal: !old.isHorizontal })),
+
   
+  isEdgeToEdge: true,
+
+  toggleIsEdgeToEdge: () =>{
+    set(old => ({ ...old, isEdgeToEdge: !old.isEdgeToEdge }))
+  },
+
   toggleIsNiche: () =>
     set(old => ({ ...old, isNiche: !old.isNiche })),
   
@@ -134,7 +138,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   
   // Set bottom distance with limit check
   setBottomDistance: (val) => set(state => {
-    const newVal = Math.max(0, parseFloat(val) || 0);
+    const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
     
     // Calculate max allowed value based on current configuration
     const { maxBottomDistance, isAtMaxBottomDistance } = state.calculateMaxValues();
@@ -151,7 +155,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   
   // Set left distance with limit check
   setLeftDistance: (val) => set(state => {
-    const newVal = Math.max(0, parseFloat(val) || 0);
+    const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
     
     // Calculate max allowed value based on current configuration
     const { maxLeftDistance, isAtMaxLeftDistance } = state.calculateMaxValues();
@@ -168,7 +172,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   
   // Set box gap with limit check
   setBoxGap: (val) => set(state => {
-    const newVal = Math.max(0, parseFloat(val) || 0);
+    const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
     
     // Calculate max allowed value based on current configuration
     const { maxBoxGap, isAtMaxBoxGap } = state.calculateMaxValues();
@@ -522,4 +526,3 @@ if (positions && positions.length > 0) {
 
   
 }
-
