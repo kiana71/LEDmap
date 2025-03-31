@@ -14,6 +14,16 @@ import {
   decrement,
 } from "../utils/incrementUtils";
 
+// Add this before the Sidebar component
+export const hasValidSelections = (selectedScreen, selectedMount) => {
+  return (
+    selectedScreen?.["Screen MFR"] && 
+    selectedScreen["Screen MFR"] !== "" && 
+    selectedMount?.["MFG. PART"] && 
+    selectedMount["MFG. PART"] !== ""
+  );
+};
+
 const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
   // Get all state and methods from the store
   const {
@@ -42,6 +52,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     boxGap,
     setBoxGap,
     boxCount,
+    setBoxCount,
     incrementBoxCount,
     decrementBoxCount,
     maxBoxesReached,
@@ -66,10 +77,10 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
   // Getting data right when rendered
   useEffect(() => {
     if (sheetData) {
-      setSelectedScreen(sheetData.sheet1[0]);
-      setSelectedMediaPlayer(sheetData.sheet2[0]);
-      setSelectedMount(sheetData.sheet3[0]);
-      setSelectedReceptacleBox(sheetData.sheet4[0]);
+      setSelectedScreen({ "Screen MFR": "" });
+      setSelectedMediaPlayer({ "MFG. PART": "" });
+      setSelectedMount({ "MFG. PART": "" });
+      setSelectedReceptacleBox(null);
     }
   }, [
     sheetData,
@@ -94,7 +105,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     boxCount,
   ]);
 
-  if (!selectedScreen) return null;
+  // if (!selectedScreen) return null;
 
   // Handle floor distance change
 
@@ -160,7 +171,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     e.preventDefault();
     if (boxGap > 0) {
       setBoxGap(boxGap - 0.5);
-    }
+    } .
   };
 
   return (
@@ -176,14 +187,20 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
           </p>
           <form className="flex mt-1 flex-col items-center justify-around text-start pb-2">
             <SelectInput
+            className="text-center"
               label="Screen"
-              value={selectedScreen["Screen MFR"]}
-              options={sheetData.sheet1.map((sh) => ({
-                value: sh["Screen MFR"],
-                label: sh["Screen MFR"],
-              }))}
+              value={selectedScreen?.["Screen MFR"] || ""}
+              options={[
+                { value: "", label: "Select option" },
+                ...sheetData.sheet1.map((sh) => ({
+                  value: sh["Screen MFR"],
+                  label: sh["Screen MFR"],
+                })),
+              ]}
               onChange={(e) =>
                 setSelectedScreen(
+                  e.target.value === "" ? 
+                  { "Screen MFR": "" } : 
                   sheetData.sheet1.find(
                     (q) => q["Screen MFR"] === e.target.value
                   )
@@ -191,14 +208,20 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
               }
             />
             <SelectInput
+            className="text-center"
               label="Media Player"
-              value={selectedMediaPlayer["MFG. PART"]}
-              options={sheetData.sheet2.map((sh) => ({
-                value: sh["MFG. PART"],
-                label: sh["MFG. PART"],
-              }))}
+              value={selectedMediaPlayer?.["MFG. PART"] || ""}
+              options={[
+                { value: "", label: "Select option" },
+                ...sheetData.sheet2.map((sh) => ({
+                  value: sh["MFG. PART"],
+                  label: sh["MFG. PART"],
+                })),
+              ]}
               onChange={(e) =>
                 setSelectedMediaPlayer(
+                  e.target.value === "" ?
+                  { "MFG. PART": "" } :
                   sheetData.sheet2.find(
                     (q) => q["MFG. PART"] === e.target.value
                   )
@@ -208,13 +231,18 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
             <SelectInput
               className="text-center"
               label="Mount"
-              value={selectedMount["MFG. PART"]}
-              options={sheetData.sheet3.map((sh) => ({
-                value: sh["MFG. PART"],
-                label: sh["MFG. PART"],
-              }))}
+              value={selectedMount?.["MFG. PART"] || ""}
+              options={[
+                { value: "", label: "Select option" },
+                ...sheetData.sheet3.map((sh) => ({
+                  value: sh["MFG. PART"],
+                  label: sh["MFG. PART"],
+                })),
+              ]}
               onChange={(e) =>
                 setSelectedMount(
+                  e.target.value === "" ?
+                  { "MFG. PART": "" } :
                   sheetData.sheet3.find(
                     (q) => q["MFG. PART"] === e.target.value
                   )
@@ -271,10 +299,19 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
                     <span className="text-xl font-bold">−</span>
                   </button>
 
-                  <div className="h-full flex-grow flex items-center justify-center">
-                    {boxCount}
-                  </div>
-
+                  <input
+                    type="number"
+                    value={boxCount}
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setBoxCount(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.5"
+                  />
                   <button
                     type="button"
                     onClick={(e) => {

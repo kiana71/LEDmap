@@ -1,6 +1,6 @@
 import React from "react";
 
-const DimensionItem = ({ label, className, hasBorder= false, ...rest }) => {
+const DimensionItem = ({ label, className, hasBorder = false, value, ...rest }) => {
   const borderStyle = hasBorder 
   ? "border  border-300" 
   : "";
@@ -12,10 +12,13 @@ const DimensionItem = ({ label, className, hasBorder= false, ...rest }) => {
       </div>
       <input
         type="text"
-        className={`text-center h-7 w-1/2 focus:outline-none focus:ring-2 ${borderStyle}  focus:ring-blue-400`}
+        readOnly
+        value={value}
+        className={`text-center h-7 w-1/2 focus:outline-none focus:ring-2 ${borderStyle}  focus:ring-blue-400 bg-gray-50`}
         {...rest}
       />
     </div>
   );
 };
+
 export default DimensionItem;

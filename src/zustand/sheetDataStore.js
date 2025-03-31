@@ -24,7 +24,10 @@ export const useSheetDataStore = create((set, get) => ({
       const height = value && value['Height (in)'] ? parseFloat(value['Height (in)']) : 6;
       
       console.log('Found dimensions:', { width, height });
-     
+      const newdimenhhs = {
+        width: width,
+        height: height
+      }
       const newState = {
         ...old,
         selectedReceptacleBox: value,
@@ -82,100 +85,62 @@ export const useSheetDataStore = create((set, get) => ({
 isEditMode: false,
 setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
 
-  // Receptacle box settings
+  // Receptacle box settings and controls
   bottomDistance: 0,
   leftDistance: 0,
   boxGap: 0,
+  boxCount: 1,
+  receptacleBoxes: [],
+  maxBoxesReached: false,
+  isAtMaxBottomDistance: false,
+  isAtMaxLeftDistance: false,
+  isAtMaxBoxGap: false,
+  BOX_WIDTH: 6,
+  BOX_HEIGHT: 6,
   
-  // Calculate maximum allowed values for box parameters to prevent pushing boxes outside boundary
+  // Calculate maximum allowed values for box parameters
   calculateMaxValues: () => {
     const state = get();
     const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT, boxCount } = state;
-    
-    // Calculate maximum allowable values based on current box count and boundary dimensions
     const SCALE_FACTOR = 10;
     const boxWidthPx = BOX_WIDTH * SCALE_FACTOR;
     const boxHeightPx = BOX_HEIGHT * SCALE_FACTOR;
-    
-    // Get raw screen dimensions
     const screenWidth = BOUNDARY.width;
     const screenHeight = BOUNDARY.height;
-    
-    // First, determine how many boxes can fit horizontally with current gap and left distance
-    // This helps ensure we properly constrain the gap increase
     const currentGapPx = state.boxGap * SCALE_FACTOR;
     const leftDistancePx = state.leftDistance * SCALE_FACTOR;
-    
-    // Calculate available width for boxes
     const availableWidth = screenWidth - leftDistancePx;
-    
-    // Calculate how many boxes fit in one row with current settings
-    // Use Math.max to avoid division by zero
-    const maxBoxesPerRow = Math.max(1, Math.floor(
-      (availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)
-    ));
-    
-    // Calculate rows needed for current box count
+    const maxBoxesPerRow = Math.max(1, Math.floor((availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)));
     const rowsNeeded = Math.ceil(boxCount / maxBoxesPerRow);
-    
-    // Calculate maximum bottom distance
     const totalRowHeight = (rowsNeeded * boxHeightPx) + ((rowsNeeded - 1) * currentGapPx);
     const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight) / SCALE_FACTOR);
-    
-    // For the maximum gap, we need to ensure all current boxes still fit
-    // First, calculate how much horizontal space is available
-    const usableWidth = screenWidth - leftDistancePx;
-    
-    // Calculate max gap that would still fit all boxes in the first row
-    // We take the minimum of boxCount and maxBoxesPerRow to consider only the boxes in the first row
     const boxesInFirstRow = Math.min(boxCount, maxBoxesPerRow);
-    
-    let maxBoxGap = state.boxGap; // Default to current value
+    let maxBoxGap = state.boxGap;
     
     if (boxesInFirstRow > 1) {
-      // Calculate available space between boxes
-      const availableGapSpace = usableWidth - (boxesInFirstRow * boxWidthPx);
-      
-      // Calculate maximum gap that allows all boxes to fit
+      const availableGapSpace = availableWidth - (boxesInFirstRow * boxWidthPx);
       const maxGapValue = availableGapSpace / (boxesInFirstRow - 1) / SCALE_FACTOR;
-      
       maxBoxGap = Math.max(0, maxGapValue);
     }
     
-    // For left distance, calculate the maximum that would still allow all boxes in the first row to fit
     const spaceNeededForBoxes = (boxesInFirstRow * boxWidthPx) + ((boxesInFirstRow - 1) * currentGapPx);
     const maxLeftDistance = Math.max(0, (screenWidth - spaceNeededForBoxes) / SCALE_FACTOR);
-    
-    // Calculate if we're at max values
-    const isAtMaxBottomDistance = state.bottomDistance >= maxBottomDistance - 0.1; // Add small tolerance
-    const isAtMaxLeftDistance = state.leftDistance >= maxLeftDistance - 0.1;
-    const isAtMaxBoxGap = state.boxGap >= maxBoxGap - 0.1;
     
     return {
       maxBottomDistance,
       maxLeftDistance,
       maxBoxGap,
-      isAtMaxBottomDistance,
-      isAtMaxLeftDistance,
-      isAtMaxBoxGap
+      isAtMaxBottomDistance: state.bottomDistance >= maxBottomDistance - 0.1,
+      isAtMaxLeftDistance: state.leftDistance >= maxLeftDistance - 0.1,
+      isAtMaxBoxGap: state.boxGap >= maxBoxGap - 0.1
     };
   },
-  
-  // Flags to indicate if we've reached maximum values
-  isAtMaxBottomDistance: false,
-  isAtMaxLeftDistance: false,  
-  isAtMaxBoxGap: false,
   
   // Set bottom distance with limit check
   setBottomDistance: (val) => set(state => {
     const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
-    
-    // Calculate max allowed value based on current configuration
-    const { maxBottomDistance, isAtMaxBottomDistance } = state.calculateMaxValues();
-    
-    // Use the smaller of the requested value or the maximum allowed
+    const { maxBottomDistance } = state.calculateMaxValues();
     const limitedValue = Math.min(newVal, maxBottomDistance);
-    
     return { 
       ...state, 
       bottomDistance: limitedValue,
@@ -186,13 +151,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   // Set left distance with limit check
   setLeftDistance: (val) => set(state => {
     const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
-    
-    // Calculate max allowed value based on current configuration
-    const { maxLeftDistance, isAtMaxLeftDistance } = state.calculateMaxValues();
-    
-    // Use the smaller of the requested value or the maximum allowed
+    const { maxLeftDistance } = state.calculateMaxValues();
     const limitedValue = Math.min(newVal, maxLeftDistance);
-    
     return { 
       ...state, 
       leftDistance: limitedValue,
@@ -203,13 +163,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   // Set box gap with limit check
   setBoxGap: (val) => set(state => {
     const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
-    
-    // Calculate max allowed value based on current configuration
-    const { maxBoxGap, isAtMaxBoxGap } = state.calculateMaxValues();
-    
-    // Use the smaller of the requested value or the maximum allowed
+    const { maxBoxGap } = state.calculateMaxValues();
     const limitedValue = Math.min(newVal, maxBoxGap);
-    
     return { 
       ...state, 
       boxGap: limitedValue,
@@ -217,17 +172,23 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     };
   }),
   
-  // Initialize with one box instead of empty array
-  receptacleBoxes: [], // Will be populated in initializer function
-  boxCount: 1, // Start with 1 box instead of 0
-  maxBoxesReached: false, // Flag to indicate if max boxes reached
-  activeBoxId: null,
-  startPoint: { x: 0, y: 0 },
-  startBoxPosition: { x: 0, y: 0 },
-  
-  // Box dimensions in inches (scaled to pixels in the diagram)
-  BOX_WIDTH: 6, // 6 inches wide
-  BOX_HEIGHT: 6, // 6 inches tall
+  // Set box count directly
+  setBoxCount: (value) => set(state => {
+    const newCount = Math.max(1, Math.floor(value));
+    const { positions } = state.calculateBoxPositions();
+    const maxBoxes = positions.length;
+    const limitedCount = Math.min(newCount, maxBoxes);
+    const updatedBoxes = positions.slice(0, limitedCount).map((position, index) => ({
+      id: state.receptacleBoxes[index]?.id || Date.now() + index,
+      ...position
+    }));
+    return {
+      ...state,
+      boxCount: limitedCount,
+      receptacleBoxes: updatedBoxes,
+      maxBoxesReached: limitedCount >= maxBoxes
+    };
+  }),
   
   // Boundary for dragging
   BOUNDARY: {
@@ -406,7 +367,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   
   // Remove the last box
   decrementBoxCount: () => set(state => {
-    if (state.boxCount <= 1) return state; // Changed from 0 to 1 to always keep at least one box
+    if (state.boxCount <= 1) return state;
     
     const newCount = state.boxCount - 1;
     return {
@@ -553,6 +514,4 @@ if (positions && positions.length > 0) {
   useSheetDataStore.setState({
     receptacleBoxes: [initialBox]
   });
-
-  
 }

@@ -13,6 +13,7 @@ import InfoTable from "./InfoTable";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import DownloadIcon from "@mui/icons-material/Download";
+import { hasValidSelections } from './Sidebar';
 
 // Calculate raw nicheDepth
 
@@ -191,17 +192,14 @@ const Canvas = ({ targetRef }) => {
 
   // Maximum dimensions for the screen in the SVG
   const MAX_SCREEN_WIDTH = 500;
-  const MAX_SCREEN_HEIGHT = 400; // Reduced from 800 to ensure it fits better
+  const MAX_SCREEN_HEIGHT = 400;
+
+  // Fixed floor line position from the top of the SVG
+  const FIXED_FLOOR_LINE_Y = 600; // This will be our fixed floor line position
 
   // Dynamic scaling factor based on screen size
-  // This will automatically scale down larger screens to fit
   const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
-  const heightScaleFactor = Math.min(
-    10,
-    MAX_SCREEN_HEIGHT / Math.max(height, 1)
-  );
-
-  // Use the smaller of the two scale factors to maintain aspect ratio
+  const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
   const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
 
   // Calculate screen dimensions in pixels with adaptive scaling
@@ -214,7 +212,8 @@ const Canvas = ({ targetRef }) => {
 
   // Calculate center positions - ensure we have enough margin on all sides
   const centerX = BASE_WIDTH / 2;
-  const centerY = 300; // Center position for the screen
+  // Adjust centerY to maintain proper distance from floor line
+  const centerY = FIXED_FLOOR_LINE_Y - 300; // Position screen relative to fixed floor line
 
   // Calculate screen position (centered)
   const screenX = centerX - screenWidthPx / 2;
@@ -232,10 +231,19 @@ const Canvas = ({ targetRef }) => {
   const woodBackingHeight = screenHeightPx - woodBackingMargin * 2;
 
   // Side view dimensions - scaled with the screen depth but with minimum and maximum
-  const sideViewX = screenX + screenWidthPx + 70; // Changed from 50 to 70 to move 20px more right
-  const sideViewY = screenY; // Changed from screenY - 7 to screenY to align with LED
+  const sideViewX = screenX + screenWidthPx + 70;
+  const sideViewY = screenY;
   const sideViewHeight = screenHeightPx;
   const sideViewDepth = Math.max(25, Math.min(50, depth * SCALE_FACTOR));
+
+  // Use FIXED_FLOOR_LINE_Y instead of calculating floorLineY
+  const floorLineY = FIXED_FLOOR_LINE_Y;
+
+  //sideview
+  const viewBoxWidth = Math.max(BASE_WIDTH, sideViewX + sideViewDepth + 60);
+  
+  // Set viewBoxHeight to be larger than FIXED_FLOOR_LINE_Y to ensure floor line is visible
+  const viewBoxHeight = Math.max(FIXED_FLOOR_LINE_Y + 100, 700);
 
   // Update draggable boundary based on screen dimensions
   const draggableBoundary = useMemo(() => {
@@ -249,20 +257,6 @@ const Canvas = ({ targetRef }) => {
 
   const MIN_FLOOR_DISTANCE = 5; // Minimum distance in inches
   const calculatedFloorDistance = Math.max(MIN_FLOOR_DISTANCE, floorDistance);
-  // Set a static position for the floor line - a bit lower than the LED
-  const floorLineY = screenY + screenHeightPx + 120; // 100px below the bottom of the LED
-
-  //sideview
-  const viewBoxWidth = Math.max(BASE_WIDTH, sideViewX + sideViewDepth + 60); // Ensure we have space for the side view
-
-  // Calculate dynamic viewBoxHeight based on floor distance with extra padding
-  // This ensures the diagram always fits within the viewport as floorDistance changes
-  const FLOOR_PADDING = 0; // Extra padding below floor line
-  const viewBoxHeight = Math.max(
-    600,
-    screenY + screenHeightPx + 200,
-    floorLineY + FLOOR_PADDING
-  );
 
   // Effect to update the boundary in the store when screen dimensions change
   useEffect(() => {
@@ -418,11 +412,13 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
   };
   //pdf--------------------------====================
 
+  const showSections = hasValidSelections(selectedScreen, selectedMount);
+
   return (
     <>
       <div
         onClick={exportToPDF}
-        className=" h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
+        className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
       >
         <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
           <div className="h-full flex justify-center flex-1 items-center">
@@ -433,24 +429,20 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
           </div>
         </button>
       </div>
-      {/* Zoom Buttons ----------------------------------------- */}
+      {/* Zoom Buttons */}
       <div className="fixed top-16 left-5 z-10 bg-white p-2 rounded shadow">
         <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">
           +
         </button>
-        <button
-          onClick={resetZoom}
-          className="px-3 py-1 bg-gray-200 rounded mx-2"
-        >
+        <button onClick={resetZoom} className="px-3 py-1 bg-gray-200 rounded mx-2">
           Reset
         </button>
         <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">
           -
         </button>
       </div>
-      {/* Zoom Buttons ----------------------------------------- */}
-      <div className=" overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0 bg-gray-200 relative">
-        {/* Main Drawing Container - */}
+      <div className="overflow-auto w-full h-screen pt-14 lg:pr-80 pr-0 top-0 bg-gray-200 relative">
+        {/* Main Drawing Container */}
         <div
           ref={containerRef}
           className="w-[1056px] border h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0"
@@ -459,731 +451,707 @@ toggleClassOnTableInputs("p_print", "pb-3" , true)
             position: "absolute",
             top: "52%",
             left: "50%",
-            "@media print": {
-              transform: "none",
-              position: "absolute",
-              top: "0",
-              left: "0",
-              margin: "0",
-              padding: "0",
-              width: "816px",
-              height: "1056px",
-            },
           }}
         >
-          {/* Upper Section --------------------------------------------------------------------*/}
-          <div className="flex-1 flex flex-row justify-between print:p-2">
-            <div className="flex justify-center flex-1 items-center">
-              {/* Main Content Area 111111111111111111111111 */}
-              <div className="flex justify-end relative bg-opacity-30 max-w-[1200px] max-h-[1200px] h-full">
-                {/* LED Video Wall Intended Position */}
+          {showSections ? (
+            <>
+              {/* Upper Section */}
+              <div className="flex-1 flex flex-row justify-between print:p-2">
+                <div className="flex justify-center flex-1 items-center">
+                  {/* Main Content Area 111111111111111111111111 */}
+                  <div className="flex justify-end relative bg-opacity-30 max-w-[1200px] max-h-[1200px] h-full">
+                    {/* LED Video Wall Intended Position */}
 
-                <svg
-                  ref={svgRef}
-                  width="100%"
-                  height="115%"
-                  viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  style={{ touchAction: "none" }}
-                >
-                  <title>LED Display Installation Diagram</title>
-                  <desc>
-                    Technical diagram showing LED display mounting
-                    specifications and measurements
-                  </desc>
-
-                  {/* Grid background */}
-                  <defs>
-                    <pattern
-                      id="grid"
-                      width="50"
-                      height="50"
-                      patternUnits="userSpaceOnUse"
+                    <svg
+                      ref={svgRef}
+                      width="100%"
+                      height="115%"
+                      viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
+                      preserveAspectRatio="xMidYMid meet"
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ touchAction: "none" }}
                     >
-                      <path
-                        d="M 50 0 L 0 0 0 50"
-                        fill="none"
-                        stroke="#CCCCCC"
-                        strokeWidth="0.5"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect
-                    width="100%"
-                    height="100%"
-                    fill="url(#grid)"
-                    opacity="0.1"
-                  />
+                      <title>LED Display Installation Diagram</title>
+                      <desc>
+                        Technical diagram showing LED display mounting
+                        specifications and measurements
+                      </desc>
 
-                  {/* Draggable boundary visualization (for debugging) */}
-                  {showBoundaryBox && (
-                    <rect
-                      x={draggableBoundary.x}
-                      y={draggableBoundary.y}
-                      width={draggableBoundary.width}
-                      height={draggableBoundary.height}
-                      fill="none"
-                      stroke="red"
-                      strokeWidth="1"
-                      strokeDasharray="5,5"
-                    />
-                  )}
-
-                  {/* Human figure for scale reference */}
-                  {/* <image 
-              href={humanLogo} 
-              x={humanX}
-              y={humanY}
-              height={humanHeight}
-              width={humanWidth}
-              preserveAspectRatio="xMidYMid meet"
-            /> */}
-
-                  {/* Niche (outer box) - only visible if isNiche is true */}
-                  {isNiche && (
-                    <>
-                      {/* Niche rectangle - dynamically sized */}
+                      {/* Grid background */}
+                      <defs>
+                        <pattern
+                          id="grid"
+                          width="50"
+                          height="50"
+                          patternUnits="userSpaceOnUse"
+                        >
+                          <path
+                            d="M 50 0 L 0 0 0 50"
+                            fill="none"
+                            stroke="#CCCCCC"
+                            strokeWidth="0.5"
+                          />
+                        </pattern>
+                      </defs>
                       <rect
-                        x={nicheX}
-                        y={nicheY}
-                        width={nicheWidthPx}
-                        height={nicheHeightPx}
-                        fill="none"
-                        stroke="black"
-                        strokeWidth="1"
+                        width="100%"
+                        height="100%"
+                        fill="url(#grid)"
+                        opacity="0.1"
                       />
 
-                      {/* Bottom measurement for niche */}
-                      <line
-                        x1={nicheX + 6}
-                        y1={nicheY + nicheHeightPx + 40}
-                        x2={nicheX + nicheWidthPx - 6}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth="1"
-                        markerStart="url(#arrowReversed)"
-                        markerEnd="url(#arrow)"
-                      />
-
-                      <line
-                        x1={nicheX}
-                        y1={nicheY + nicheHeightPx + 6}
-                        x2={nicheX}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-                      <line
-                        x1={nicheX + nicheWidthPx}
-                        y1={nicheY + nicheHeightPx + 5}
-                        x2={nicheX + nicheWidthPx}
-                        y2={nicheY + nicheHeightPx + 40}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-
-                      <text
-                        x="370"
-                        y={nicheY + nicheHeightPx + 70}
-                        textAnchor="middle"
-                        fontSize="12"
-                      >
-                        {DirnicheWidth.toFixed(1)}
-                      </text>
-
-                      {/* RIGHT measurement for niche height (NEW POSITION) */}
-                      <line
-                        x1={nicheX + nicheWidthPx}
-                        y1={nicheY}
-                        x2={sideViewX - 20}
-                        y2={nicheY}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-                      <line
-                        x1={nicheX + nicheWidthPx}
-                        y1={nicheY + nicheHeightPx}
-                        x2={sideViewX - 20}
-                        y2={nicheY + nicheHeightPx}
-                        stroke="black"
-                        strokeWidth=".5"
-                      />
-
-                      {/* Height label on right side */}
-                      <text
-                        x={sideViewX - 37}
-                        y={centerY}
-                        textAnchor="middle"
-                        fontSize="12"
-                        transform="rotate(270, sideViewX - 35, centerY)"
-                      >
-                        {DirnicheHeight.toFixed(1)}
-                        <tspan x={sideViewX - 37} dy="14">
-                          (Niche)
-                        </tspan>
-                      </text>
-                    </>
-                  )}
-
-                  {/* Side view - always visible */}
-                  {/* Gray background for side view */}
-                  <rect
-                    x={sideViewX}
-                    y={sideViewY}
-                    width={sideViewDepth + 6}
-                    height={sideViewHeight}
-                    fill="#CCCCCC"
-                    stroke="none"
-                    opacity="1"
-                  />
-                  <text
-                    x={sideViewX + sideViewDepth / 2}
-                    y={sideViewY + sideViewHeight + 63}
-                    textAnchor="middle"
-                    fontSize="12"
-                  >
-                    (Side View){nicheDepth.toFixed(2)}
-                  </text>
-                  {nicheDepth.toFixed(3)}
-                  <line
-                    x1={sideViewX}
-                    y1={sideViewY}
-                    x2={sideViewX}
-                    y2={sideViewY + sideViewHeight}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={sideViewX + sideViewDepth}
-                    y1={sideViewY}
-                    x2={sideViewX + sideViewDepth}
-                    y2={sideViewY + sideViewHeight}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={sideViewX + sideViewDepth + 6}
-                    y1={sideViewY}
-                    x2={sideViewX + sideViewDepth + 6}
-                    y2={sideViewY + sideViewHeight}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-
-                  {/* Top and bottom lines of side view */}
-                  <line
-                    x1={sideViewX}
-                    y1={sideViewY}
-                    x2={sideViewX + sideViewDepth}
-                    y2={sideViewY}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={sideViewX}
-                    y1={sideViewY + sideViewHeight}
-                    x2={sideViewX + sideViewDepth}
-                    y2={sideViewY + sideViewHeight}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={sideViewX + sideViewDepth}
-                    y1={sideViewY + sideViewHeight}
-                    x2={sideViewX + sideViewDepth + 6}
-                    y2={sideViewY + sideViewHeight}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-                  <line
-                    x1={sideViewX + sideViewDepth}
-                    y1={sideViewY}
-                    x2={sideViewX + sideViewDepth + 6}
-                    y2={sideViewY}
-                    stroke="black"
-                    strokeWidth="1"
-                  />
-
-                  <line
-                    x1={sideViewX - 15}
-                    y1={sideViewY + 2}
-                    x2={sideViewX - 15}
-                    y2={sideViewY + sideViewHeight - 2}
-                    stroke="black"
-                    strokeWidth="1"
-                    markerStart="url(#arrowReversed)"
-                    markerEnd="url(#arrow)"
-                  />
-
-                  {/* Side view dimension lines - always visible */}
-                  <line
-                    x1={sideViewX}
-                    y1={sideViewY + sideViewHeight + 5}
-                    x2={sideViewX}
-                    y2={sideViewY + sideViewHeight + 40}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
-                  <line
-                    x1={sideViewX + sideViewDepth + 7}
-                    y1={sideViewY + sideViewHeight + 5}
-                    x2={sideViewX + sideViewDepth + 7}
-                    y2={sideViewY + sideViewHeight + 40}
-                    stroke="black"
-                    strokeWidth=".5"
-                  />
-                  <line
-                    x1={sideViewX + 2}
-                    y1={sideViewY + sideViewHeight + 40}
-                    x2={sideViewX + sideViewDepth + 4}
-                    y2={sideViewY + sideViewHeight + 40}
-                    stroke="black"
-                    strokeWidth="1"
-                    markerStart="url(#arrowReversed)"
-                    markerEnd="url(#arrow)"
-                  />
-
-                  {/* Main Rectangle - Screen (dynamically sized) */}
-                  <rect
-                    x={screenX}
-                    y={screenY}
-                    width={screenWidthPx}
-                    height={screenHeightPx}
-                    fill="none"
-                    stroke="black"
-                    strokeWidth="2"
-                    opacity="1"
-                  />
-
-                  {/* Centerlines - only within screen boundaries */}
-                  {safeVisibility.centreLine && (
-                    <>
-                      {/* Vertical centerline - constrained to screen */}
-                      <line
-                        x1={centerX}
-                        y1={screenY}
-                        x2={centerX}
-                        y2={screenY + screenHeightPx}
-                        stroke="black"
-                        strokeWidth="1"
-                        strokeDasharray="5,5"
-                      />
-
-                      {/* Horizontal centerline - constrained to screen */}
-                      <line
-                        x1={screenX}
-                        y1={centerY}
-                        x2={screenX + screenWidthPx}
-                        y2={centerY}
-                        stroke="black"
-                        strokeWidth="1"
-                        strokeDasharray="4"
-                      />
-
-                      {/* Center point circle at intersection of centerlines */}
-                      <circle
-                        cx={centerX}
-                        cy={centerY}
-                        r="5"
-                        fill="none"
-                        stroke="black"
-                      />
-                      <circle
-                        cx={centerX}
-                        cy={centerY}
-                        r="3"
-                        fill="yellow"
-                        stroke="black"
-                      />
-
-                      {/* Label line */}
-                     {intendedPosition && (
-                      <>
- <line
- x1={centerX}
- y1={centerY}
- x2="435"
- y2="53"
- stroke="black"
- strokeWidth="1"
-/>
-<line
- x1="435"
- y1="53"
- x2="453"
- y2="53"
- stroke="black"
- strokeWidth="1"
-/>
-<text x="595" y="50" textAnchor="end" fontSize="12">
- Intended Screen Position
-</text>
-</>
-                     )}
-                     
-                    </>
-                  )}
-
-                  {/* Wood Backing - Inner rectangle (only if visible) */}
-                  {safeVisibility.woodBacking && (
-                    <rect
-                      x={woodBackingX}
-                      y={woodBackingY}
-                      width={woodBackingWidth}
-                      height={woodBackingHeight}
-                      fill="none"
-                      stroke="black"
-                      strokeDasharray="8,8"
-                      strokeWidth="1"
-                    />
-                  )}
-
-                  {/* Receptacle Boxes - NOT draggable */}
-                  {safeVisibility.receptacleBox &&
-                    receptacleBoxes.map((box, index) => (
-                      <g key={box.id}>
+                      {/* Draggable boundary visualization (for debugging) */}
+                      {showBoundaryBox && (
                         <rect
-                          x={box.x}
-                          y={box.y}
-                          width={box.width}
-                          height={box.height}
-                          fill={COLORS.background}
-                          stroke={COLORS.highlight}
-                          strokeWidth="1.5"
+                          x={draggableBoundary.x}
+                          y={draggableBoundary.y}
+                          width={draggableBoundary.width}
+                          height={draggableBoundary.height}
+                          fill="none"
+                          stroke="red"
+                          strokeWidth="1"
+                          strokeDasharray="5,5"
                         />
-                        <text
-                          x={box.x + box.width / 2}
-                          y={box.y - 5}
-                          textAnchor="middle"
-                          fontSize="10"
-                          fill={COLORS.highlight}
-                        >
-                          Box {index + 1}
-                        </text>
-                      </g>
-                    ))}
+                      )}
 
-                  {/* Circle Marker Definition */}
-                  <defs>
-                    <marker
-                      id="circle"
-                      markerWidth="10"
-                      markerHeight="10"
-                      refX="5"
-                      refY="5"
-                      orient="auto"
-                    >
-                      <circle cx="5" cy="5" r="3" fill="black" />
-                    </marker>
-                  </defs>
+                      {/* Human figure for scale reference */}
+                      {/* <image 
+                        href={humanLogo} 
+                        x={humanX}
+                        y={humanY}
+                        height={humanHeight}
+                        width={humanWidth}
+                        preserveAspectRatio="xMidYMid meet"
+                      /> */}
 
-                  {/* Top measurement for screen width */}
+                      {/* Niche (outer box) - only visible if isNiche is true */}
+                      {isNiche && (
+                        <>
+                          {/* Niche rectangle - dynamically sized */}
+                          <rect
+                            x={nicheX}
+                            y={nicheY}
+                            width={nicheWidthPx}
+                            height={nicheHeightPx}
+                            fill="none"
+                            stroke="black"
+                            strokeWidth="1"
+                          />
 
-                  {!isNiche && (
-                    <>
+                          {/* Bottom measurement for niche */}
+                          <line
+                            x1={nicheX + 6}
+                            y1={nicheY + nicheHeightPx + 40}
+                            x2={nicheX + nicheWidthPx - 6}
+                            y2={nicheY + nicheHeightPx + 40}
+                            stroke="black"
+                            strokeWidth="1"
+                            markerStart="url(#arrowReversed)"
+                            markerEnd="url(#arrow)"
+                          />
+
+                          <line
+                            x1={nicheX}
+                            y1={nicheY + nicheHeightPx + 6}
+                            x2={nicheX}
+                            y2={nicheY + nicheHeightPx + 40}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+                          <line
+                            x1={nicheX + nicheWidthPx}
+                            y1={nicheY + nicheHeightPx + 5}
+                            x2={nicheX + nicheWidthPx}
+                            y2={nicheY + nicheHeightPx + 40}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+
+                          <text
+                            x="370"
+                            y={nicheY + nicheHeightPx + 70}
+                            textAnchor="middle"
+                            fontSize="12"
+                          >
+                            {DirnicheWidth.toFixed(1)}
+                          </text>
+
+                          {/* RIGHT measurement for niche height (NEW POSITION) */}
+                          <line
+                            x1={nicheX + nicheWidthPx}
+                            y1={nicheY}
+                            x2={sideViewX - 20}
+                            y2={nicheY}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+                          <line
+                            x1={nicheX + nicheWidthPx}
+                            y1={nicheY + nicheHeightPx}
+                            x2={sideViewX - 20}
+                            y2={nicheY + nicheHeightPx}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+
+                          {/* Height label on right side */}
+                          <text
+                            x={sideViewX - 37}
+                            y={centerY}
+                            textAnchor="middle"
+                            fontSize="12"
+                            transform="rotate(270, sideViewX - 35, centerY)"
+                          >
+                            {DirnicheHeight.toFixed(1)}
+                            <tspan x={sideViewX - 37} dy="14">
+                              (Niche)
+                            </tspan>
+                          </text>
+                        </>
+                      )}
+
+                      {/* Side view - always visible */}
+                      {/* Gray background for side view */}
+                      <rect
+                        x={sideViewX}
+                        y={sideViewY}
+                        width={sideViewDepth + 6}
+                        height={sideViewHeight}
+                        fill="#CCCCCC"
+                        stroke="none"
+                        opacity="1"
+                      />
+                      <text
+                        x={sideViewX + sideViewDepth / 2}
+                        y={sideViewY + sideViewHeight + 63}
+                        textAnchor="middle"
+                        fontSize="12"
+                      >
+                        (Side View){nicheDepth.toFixed(2)}
+                      </text>
+                      {nicheDepth.toFixed(3)}
                       <line
-                        x1={screenX + 6}
-                        y1={screenY - 40}
-                        x2={screenX + screenWidthPx - 6}
-                        y2={screenY - 40}
+                        x1={sideViewX}
+                        y1={sideViewY}
+                        x2={sideViewX}
+                        y2={sideViewY + sideViewHeight}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1={sideViewX + sideViewDepth}
+                        y1={sideViewY}
+                        x2={sideViewX + sideViewDepth}
+                        y2={sideViewY + sideViewHeight}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1={sideViewX + sideViewDepth + 6}
+                        y1={sideViewY}
+                        x2={sideViewX + sideViewDepth + 6}
+                        y2={sideViewY + sideViewHeight}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+
+                      {/* Top and bottom lines of side view */}
+                      <line
+                        x1={sideViewX}
+                        y1={sideViewY}
+                        x2={sideViewX + sideViewDepth}
+                        y2={sideViewY}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1={sideViewX}
+                        y1={sideViewY + sideViewHeight}
+                        x2={sideViewX + sideViewDepth}
+                        y2={sideViewY + sideViewHeight}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1={sideViewX + sideViewDepth}
+                        y1={sideViewY + sideViewHeight}
+                        x2={sideViewX + sideViewDepth + 6}
+                        y2={sideViewY + sideViewHeight}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+                      <line
+                        x1={sideViewX + sideViewDepth}
+                        y1={sideViewY}
+                        x2={sideViewX + sideViewDepth + 6}
+                        y2={sideViewY}
+                        stroke="black"
+                        strokeWidth="1"
+                      />
+
+                      <line
+                        x1={sideViewX - 15}
+                        y1={sideViewY + 2}
+                        x2={sideViewX - 15}
+                        y2={sideViewY + sideViewHeight - 2}
                         stroke="black"
                         strokeWidth="1"
                         markerStart="url(#arrowReversed)"
                         markerEnd="url(#arrow)"
                       />
+
+                      {/* Side view dimension lines - always visible */}
                       <line
-                        x1={screenX}
-                        y1={screenY - 40}
-                        x2={screenX}
-                        y2={screenY - 12}
+                        x1={sideViewX}
+                        y1={sideViewY + sideViewHeight + 5}
+                        x2={sideViewX}
+                        y2={sideViewY + sideViewHeight + 40}
                         stroke="black"
                         strokeWidth=".5"
                       />
                       <line
-                        x1={screenX + screenWidthPx}
-                        y1={screenY - 40}
-                        x2={screenX + screenWidthPx}
-                        y2={screenY - 12}
+                        x1={sideViewX + sideViewDepth + 7}
+                        y1={sideViewY + sideViewHeight + 5}
+                        x2={sideViewX + sideViewDepth + 7}
+                        y2={sideViewY + sideViewHeight + 40}
                         stroke="black"
                         strokeWidth=".5"
                       />
-
-                      <text
-                        x={centerX - 50}
-                        y={screenY - 60}
-                        textAnchor="middle"
-                        fontSize="12"
-                      >
-                        {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
-                      </text>
-
-                      {/* LEFT side measurement for screen height (moved from right) */}
                       <line
-                        x1={screenX - 40}
-                        y1={screenY + 6}
-                        x2={screenX - 40}
-                        y2={screenY + screenHeightPx - 6}
+                        x1={sideViewX + 2}
+                        y1={sideViewY + sideViewHeight + 40}
+                        x2={sideViewX + sideViewDepth + 4}
+                        y2={sideViewY + sideViewHeight + 40}
                         stroke="black"
                         strokeWidth="1"
                         markerStart="url(#arrowReversed)"
                         markerEnd="url(#arrow)"
                       />
-                      <line
-                        x1={screenX - 40}
-                        y1={screenY}
-                        x2={screenX - 12}
-                        y2={screenY}
+
+                      {/* Main Rectangle - Screen (dynamically sized) */}
+                      <rect
+                        x={screenX}
+                        y={screenY}
+                        width={screenWidthPx}
+                        height={screenHeightPx}
+                        fill="none"
                         stroke="black"
-                        strokeWidth=".5"
-                      />
-                      <line
-                        x1={screenX - 40}
-                        y1={screenY + screenHeightPx}
-                        x2={screenX - 12}
-                        y2={screenY + screenHeightPx}
-                        stroke="black"
-                        strokeWidth=".5"
+                        strokeWidth="2"
+                        opacity="1"
                       />
 
-                      <text
-                        x={screenX - 87}
-                        y={centerY}
-                        textAnchor="middle"
-                        fontSize="12"
-                        transform="rotate(270, screenX - 75, centerY)"
-                      >
-                        {isHorizontal ? rawHeightValue : rawWidthValue}
-                        <tspan x={screenX - 87} dy="14">
-                          (Height)
-                        </tspan>
-                      </text>
-                    </>
-                  )}
-                 
+                      {/* Centerlines - only within screen boundaries */}
+                      {safeVisibility.centreLine && (
+                        <>
+                          {/* Vertical centerline - constrained to screen */}
+                          <line
+                            x1={centerX}
+                            y1={screenY}
+                            x2={centerX}
+                            y2={screenY + screenHeightPx}
+                            stroke="black"
+                            strokeWidth="1"
+                            strokeDasharray="5,5"
+                          />
 
-                  {/* Floor Line */}
-                  <line
-                    x1="90"
-                    y1={floorLineY}
-                    x2="700"
-                    y2={floorLineY}
-                    stroke={COLORS.floorLine}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
+                          {/* Horizontal centerline - constrained to screen */}
+                          <line
+                            x1={screenX}
+                            y1={centerY}
+                            x2={screenX + screenWidthPx}
+                            y2={centerY}
+                            stroke="black"
+                            strokeWidth="1"
+                            strokeDasharray="4"
+                          />
 
-                  {/* Floor Line Measurement */}
-                  {safeVisibility.floorLine && (
-                    <>
-                      {/* Measurement line with zigzag break - proper scaling for small screens */}
-                      {/* Top portion of line */}
-                      <line
-                        x1="90"
-                        y1={centerY + 7}
-                        x2="90"
-                        y2={centerY + 50}
-                        stroke={COLORS.measurement}
-                        strokeWidth="1.5"
-                        markerStart="url(#arrowReversed)"
-                      />
+                          {/* Center point circle at intersection of centerlines */}
+                          <circle
+                            cx={centerX}
+                            cy={centerY}
+                            r="5"
+                            fill="none"
+                            stroke="black"
+                          />
+                          <circle
+                            cx={centerX}
+                            cy={centerY}
+                            r="3"
+                            fill="yellow"
+                            stroke="black"
+                          />
 
-                      {/* Zigzag break in the middle - with dynamic spacing based on total distance */}
-                      <polyline
-                        points={`90,${centerY + 50} 
-                          80,${centerY + 60} 
-                          100,${centerY + 70} 
-                          80,${centerY + 80} 
-                          100,${centerY + 90} 
-                          `}
-                        stroke={COLORS.measurement}
-                        fill="transparent"
-                        strokeWidth="1.5"
-                      />
-
-                      {/* Bottom portion of line - connect directly to floor line */}
-                      <line
-                        x1="90"
-                        y1={centerY + 100}
-                        x2="90"
-                        y2={floorLineY - 3}
-                        stroke={COLORS.measurement}
-                        strokeWidth="1.5"
-                        markerEnd="url(#arrow)"
-                      />
-
-                      {/* Break symbol text - rotated 90 degrees */}
-                      <text
-                        x="-8"
-                        y={centerY + 142}
-                        fontSize="8"
-                        fill={COLORS.measurement}
-                        transform={`rotate(90, 105, ${centerY + 130})`}
-                      >
-                        Not to scale
-                      </text>
-
-                      {/* Distance measurement */}
-                      <g>
-                        {/* Measurement text */}
-                        <text
-                          x="69"
-                          y={(centerY + floorLineY) / 2 + 5}
-                          textAnchor="middle"
-                          fontSize="10"
-                          fontWeight="bold"
-                          fill={COLORS.measurement}
-                        >
-                          {floorDistance}
+                          {/* Label line */}
+                         {intendedPosition && (
+                          <>
+                        <line
+                          x1={centerX}
+                          y1={centerY}
+                          x2="435"
+                          y2="53"
+                          stroke="black"
+                          strokeWidth="1"
+                        />
+                        <line
+                          x1="435"
+                          y1="53"
+                          x2="453"
+                          y2="53"
+                          stroke="black"
+                          strokeWidth="1"
+                        />
+                        <text x="595" y="50" textAnchor="end" fontSize="12">
+                          Intended Screen Position
                         </text>
-                      </g>
+                        </>
+                         )}
+                         
+                        </>
+                      )}
 
-                      {/* Floor line label */}
-                      <text
-                        x="40"
-                        y={floorLineY}
-                        textAnchor="middle"
-                        fontSize="12"
-                        fontWeight="bold"
-                        fill={COLORS.floorLine}
-                      >
-                        Floor Line
-                      </text>
+                      {/* Wood Backing - Inner rectangle (only if visible) */}
+                      {safeVisibility.woodBacking && (
+                        <rect
+                          x={woodBackingX}
+                          y={woodBackingY}
+                          width={woodBackingWidth}
+                          height={woodBackingHeight}
+                          fill="none"
+                          stroke="black"
+                          strokeDasharray="8,8"
+                          strokeWidth="1"
+                        />
+                      )}
 
-                      {/* Visual indicator markers with animations */}
-                      <circle
-                        cx="90"
-                        cy={centerY}
-                        r="4"
-                        fill={COLORS.measurement}
-                      >
-                        <animate
-                          attributeName="r"
-                          values="3;5;3"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
-                      <circle
-                        cx="90"
-                        cy={floorLineY}
-                        r="4"
-                        fill={COLORS.measurement}
-                      >
-                        <animate
-                          attributeName="r"
-                          values="3;5;3"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
-                    </>
-                  )}
+                      {/* Receptacle Boxes - NOT draggable */}
+                      {safeVisibility.receptacleBox &&
+                        receptacleBoxes.map((box, index) => {
+                          // Ensure all values are valid numbers
+                          const boxX = parseFloat(box.x) || 0;
+                          const boxY = parseFloat(box.y) || 0;
+                          const boxWidth = parseFloat(box.width) || 0;
+                          const boxHeight = parseFloat(box.height) || 0;
+                          
+                          // Calculate text position
+                          const textX = boxX + (boxWidth / 2);
+                          const textY = Math.max(0, boxY - 5);
+                          
+                          return (
+                            <g key={box.id}>
+                              <rect
+                                x={boxX}
+                                y={boxY}
+                                width={boxWidth}
+                                height={boxHeight}
+                                fill={COLORS.background}
+                                stroke={COLORS.highlight}
+                                strokeWidth="1.5"
+                              />
+                              <text
+                                x={textX}
+                                y={textY}
+                                textAnchor="middle"
+                                fontSize="10"
+                                fill={COLORS.highlight}
+                              >
+                                Box {index + 1}
+                              </text>
+                            </g>
+                          );
+                        })}
 
-                  {/* Arrow Definitions */}
-                  <defs>
-                    <marker
-                      id="arrow"
-                      viewBox="0 0 10 10"
-                      refX="10"
-                      refY="5"
-                      markerWidth="5"
-                      markerHeight="5"
-                      orient="auto"
-                    >
-                      <path d="M0,0 L10,5 L0,10 z" fill="black" />
-                    </marker>
-                    <marker
-                      id="arrowReversed"
-                      viewBox="0 0 10 10"
-                      refX="0"
-                      refY="5"
-                      markerWidth="5"
-                      markerHeight="5"
-                      orient="auto"
-                    >
-                      <path d="M10,0 L0,5 L10,10 z" fill="black" />
-                    </marker>
-                  </defs>
-                </svg>
-                {/* Center line */}
-              </div>
-            </div>
-            {/* Dimension Boxes Area 22222222222222222222222*/}
-            {/* if (rawNicheDepth) //////////////////////////////////////////*/}
-            {rawNicheDepth && selectedScreen ? (
-              <div className=" m-0 w-1/6 p-1 max-w-72">
-                <div className="w-full flex flex-col space-y-4 ">
-                  <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
-                    <div className="font-bold text-sm">
-                      <DimensionGroup
-                        title="Screen Dimensions"
-                        className="w-full"
-                      >
-                        <DimensionItem
-                          label="Height"
-                          value={selectedScreen["Height"] || 0}
-                          className="flex flex-row items-center justify-between  border-black"
-                        />
-                        <DimensionItem
-                          label="Width"
-                          value={selectedScreen["Width"] || 0}
-                          className="flex flex-row items-center justify-between  border-black "
-                        />
-                        <DimensionItem
-                          label="Depth"
-                          value={selectedScreen["Depth"] || 0}
-                          className="flex flex-row items-center justify-between  border-black"
-                        />
-                      </DimensionGroup>
+                      {/* Circle Marker Definition */}
+                      <defs>
+                        <marker
+                          id="circle"
+                          markerWidth="10"
+                          markerHeight="10"
+                          refX="5"
+                          refY="5"
+                          orient="auto"
+                        >
+                          <circle cx="5" cy="5" r="3" fill="black" />
+                        </marker>
+                      </defs>
+
+                      {/* Top measurement for screen width */}
+
+                      {!isNiche && (
+                        <>
+                          <line
+                            x1={screenX + 6}
+                            y1={screenY - 40}
+                            x2={screenX + screenWidthPx - 6}
+                            y2={screenY - 40}
+                            stroke="black"
+                            strokeWidth="1"
+                            markerStart="url(#arrowReversed)"
+                            markerEnd="url(#arrow)"
+                          />
+                          <line
+                            x1={screenX}
+                            y1={screenY - 40}
+                            x2={screenX}
+                            y2={screenY - 12}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+                          <line
+                            x1={screenX + screenWidthPx}
+                            y1={screenY - 40}
+                            x2={screenX + screenWidthPx}
+                            y2={screenY - 12}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+
+                          <text
+                            x={centerX - 50}
+                            y={screenY - 60}
+                            textAnchor="middle"
+                            fontSize="12"
+                          >
+                            {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
+                          </text>
+
+                          {/* LEFT side measurement for screen height (moved from right) */}
+                          <line
+                            x1={screenX - 40}
+                            y1={screenY + 6}
+                            x2={screenX - 40}
+                            y2={screenY + screenHeightPx - 6}
+                            stroke="black"
+                            strokeWidth="1"
+                            markerStart="url(#arrowReversed)"
+                            markerEnd="url(#arrow)"
+                          />
+                          <line
+                            x1={screenX - 40}
+                            y1={screenY}
+                            x2={screenX - 12}
+                            y2={screenY}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+                          <line
+                            x1={screenX - 40}
+                            y1={screenY + screenHeightPx}
+                            x2={screenX - 12}
+                            y2={screenY + screenHeightPx}
+                            stroke="black"
+                            strokeWidth=".5"
+                          />
+
+                          <text
+                            x={screenX - 87}
+                            y={centerY}
+                            textAnchor="middle"
+                            fontSize="12"
+                            transform="rotate(270, screenX - 75, centerY)"
+                          >
+                            {isHorizontal ? rawHeightValue : rawWidthValue}
+                            <tspan x={screenX - 87} dy="14">
+                              (Height)
+                            </tspan>
+                          </text>
+                        </>
+                      )}
+                     
+
+                      {/* Floor Line */}
+                      <line
+                        x1="90"
+                        y1={FIXED_FLOOR_LINE_Y}
+                        x2="700"
+                        y2={FIXED_FLOOR_LINE_Y}
+                        stroke={COLORS.floorLine}
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+
+                      {/* Floor Line Measurement */}
+                      {safeVisibility.floorLine && (
+                        <>
+                          {/* Top portion of line */}
+                          <line
+                            x1="90"
+                            y1={centerY + 7}
+                            x2="90"
+                            y2={FIXED_FLOOR_LINE_Y - 3}
+                            stroke={COLORS.measurement}
+                            strokeWidth="1.5"
+                            markerStart="url(#arrowReversed)"
+                            markerEnd="url(#arrow)"
+                          />
+
+                          {/* Floor line label */}
+                          <text
+                            x="40"
+                            y={FIXED_FLOOR_LINE_Y - 5}
+                            textAnchor="middle"
+                            fontSize="12"
+                            fontWeight="bold"
+                            fill={COLORS.floorLine}
+                          >
+                            Floor Line
+                          </text>
+
+                          {/* Distance measurement */}
+                          <text
+                            x="69"
+                            y={(centerY + FIXED_FLOOR_LINE_Y) / 2}
+                            textAnchor="middle"
+                            fontSize="10"
+                            fontWeight="bold"
+                            fill={COLORS.measurement}
+                          >
+                            {floorDistance}
+                          </text>
+
+                          {/* Visual indicator markers */}
+                          <circle
+                            cx="90"
+                            cy={centerY}
+                            r="4"
+                            fill={COLORS.measurement}
+                          >
+                            <animate
+                              attributeName="r"
+                              values="3;5;3"
+                              dur="2s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                          <circle
+                            cx="90"
+                            cy={FIXED_FLOOR_LINE_Y}
+                            r="4"
+                            fill={COLORS.measurement}
+                          >
+                            <animate
+                              attributeName="r"
+                              values="3;5;3"
+                              dur="2s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                        </>
+                      )}
+
+                      {/* Arrow Definitions */}
+                      <defs>
+                        <marker
+                          id="arrow"
+                          viewBox="0 0 10 10"
+                          refX="10"
+                          refY="5"
+                          markerWidth="5"
+                          markerHeight="5"
+                          orient="auto"
+                        >
+                          <path d="M0,0 L10,5 L0,10 z" fill="black" />
+                        </marker>
+                        <marker
+                          id="arrowReversed"
+                          viewBox="0 0 10 10"
+                          refX="0"
+                          refY="5"
+                          markerWidth="5"
+                          markerHeight="5"
+                          orient="auto"
+                        >
+                          <path d="M10,0 L0,5 L10,10 z" fill="black" />
+                        </marker>
+                      </defs>
+                    </svg>
+                    {/* Center line */}
+                  </div>
+                </div>
+                {/* Dimension Boxes Area 22222222222222222222222*/}
+                {/* if (rawNicheDepth) //////////////////////////////////////////*/}
+                {rawNicheDepth && selectedScreen ? (
+                  <div className=" m-0 w-1/6 p-1 max-w-72">
+                    <div className="w-full flex flex-col space-y-4 ">
+                      <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
+                        <div className="font-bold text-sm">
+                          <DimensionGroup
+                            title="Screen Dimensions"
+                            className="w-full"
+                          >
+                            <DimensionItem
+                              label="Height"
+                              value={selectedScreen["Height"] || 0}
+                              className="flex flex-row items-center justify-between  border-black"
+                            />
+                            <DimensionItem
+                              label="Width"
+                              value={selectedScreen["Width"] || 0}
+                              className="flex flex-row items-center justify-between  border-black "
+                            />
+                            <DimensionItem
+                              label="Depth"
+                              value={selectedScreen["Depth"] || 0}
+                              className="flex flex-row items-center justify-between  border-black"
+                            />
+                          </DimensionGroup>
+                        </div>
+                      </div>
+
+                      {/* Niche Dimensions Box */}
+                      {isNiche && (
+                        <div className="border border-black p-1 bg-white bg-opacity-30 w-full ">
+                          <div className="font-bold text-sm">
+                            <DimensionGroup
+                              title="Niche Dimensions"
+                              className="w-full"
+                            >
+                              <DimensionItem
+                                label="Height"
+                                value={
+                                  selectedScreen?.["Screen Size"]
+                                    ? (
+                                        parseFloat(selectedScreen["Height"]) +
+                                        (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                      ).toFixed(2)
+                                    : 0
+                                }
+                                className="items-center text-center justify-between border-black h-8"
+                              />
+                              <DimensionItem
+                                label="Width"
+                                value={
+                                  selectedScreen?.["Screen Size"]
+                                    ? (
+                                        parseFloat(selectedScreen["Width"]) +
+                                        (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                      ).toFixed(2)
+                                    : 0
+                                }
+                                className="flex flex-row items-center justify-between  border-black h-8"
+                              />
+                              <DimensionItem
+                                label="Depth"
+                                value={nicheDepth.toFixed(3)}
+                                className="flex flex-row items-center justify-between border-black h-8"
+                              />
+                            </DimensionGroup>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  {/* Niche Dimensions Box */}
-                  {isNiche && (
-                    <div className="border border-black p-1 bg-white bg-opacity-30 w-full ">
-                      <div className="font-bold text-sm">
-                        <DimensionGroup
-                          title="Niche Dimensions"
-                          className="w-full"
-                        >
-                          <DimensionItem
-                            label="Height"
-                            value={
-                              selectedScreen?.["Screen Size"]
-                                ? (
-                                    parseFloat(selectedScreen["Height"]) +
-                                    (selectedScreen["Height"] < 55 ? 1.5 : 2)
-                                  ).toFixed(2)
-                                : 0
-                            }
-                            className="items-center text-center justify-between border-black h-8"
-                          />
-                          <DimensionItem
-                            label="Width"
-                            value={
-                              selectedScreen?.["Screen Size"]
-                                ? (
-                                    parseFloat(selectedScreen["Width"]) +
-                                    (selectedScreen["Height"] < 55 ? 1.5 : 2)
-                                  ).toFixed(2)
-                                : 0
-                            }
-                            className="flex flex-row items-center justify-between  border-black h-8"
-                          />
-                          <DimensionItem
-                            label="Depth"
-                            value={nicheDepth.toFixed(3)}
-                            className="flex flex-row items-center justify-between border-black h-8"
-                          />
-                        </DimensionGroup>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
+            </>
+          ) : (
+            // Show this when no valid selections are made
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
+                <p className="text-2xl font-semibold mb-4">Welcome to LED Technical Map</p>
+                <p className="text-lg">Please select both a Screen and Mount option to view the layout</p>
+              </div>
+            </div>
+          )}
 
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
           <div
