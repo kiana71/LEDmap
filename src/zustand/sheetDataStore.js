@@ -7,6 +7,17 @@ export const useSheetDataStore = create((set, get) => ({
   selectedMount: {},
   selectedReceptacleBox: {},
   
+  // Add helper function to check if download should be enabled
+  canDownload: () => {
+    const state = get();
+    return (
+      state.selectedScreen?.["Screen MFR"] && 
+      state.selectedScreen["Screen MFR"] !== "" &&
+      state.selectedMount?.["MFG. PART"] && 
+      state.selectedMount["MFG. PART"] !== ""
+    );
+  },
+
   setSelectedScreen: (value) =>
     set((old) => ({ ...old, selectedScreen: value })),
   setSelectedMediaPlayer: (value) =>

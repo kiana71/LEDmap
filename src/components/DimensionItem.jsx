@@ -14,7 +14,7 @@ const DimensionItem = ({ label, className, hasBorder = false, value, ...rest }) 
         type="text"
         readOnly
         value={value}
-        className={`text-center h-7 w-1/2 focus:outline-none focus:ring-2 ${borderStyle}  focus:ring-blue-400 bg-gray-50`}
+        className={`text-center h-7 w-1/2 focus:outline-none focus:ring-2 ${borderStyle}  focus:ring-blue-400 `}
         {...rest}
       />
     </div>

@@ -14,17 +14,7 @@ import {
   decrement,
 } from "../utils/incrementUtils";
 
-// Add this before the Sidebar component
-export const hasValidSelections = (selectedScreen, selectedMount) => {
-  return (
-    selectedScreen?.["Screen MFR"] && 
-    selectedScreen["Screen MFR"] !== "" && 
-    selectedMount?.["MFG. PART"] && 
-    selectedMount["MFG. PART"] !== ""
-  );
-};
-
-const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
+const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
   // Get all state and methods from the store
   const {
     selectedScreen,
@@ -43,6 +33,7 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
     setVariantDepth,
     setFloorDistance,
     floorDistance,
+    canDownload,
 
     // Receptacle box settings
     bottomDistance,
@@ -618,22 +609,29 @@ const Sidebar = ({ toPDF, isOpen, generatePDF }) => {
               </label>
             </div>
           </div> */}
-          {/* <div
+          <div
             onClick={(e) => {
               e.preventDefault();
-              generatePDF();
+              exportToPDF();
             }}
-            className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex "
+            className={`z-10 h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 ${
+              !canDownload() ? 'hidden' : ''
+            } lg:flex`}
           >
-            <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
+            <button 
+              className={`h-9 m-auto px-1 text-white ${
+                canDownload() ? 'bg-blue-700 hover:border-orange-600' : 'bg-gray-400 cursor-not-allowed'
+              } font-semibold border-2 border-transparent shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded`}
+              disabled={!canDownload()}
+            >
               <div className="h-full flex justify-center flex-1 items-center">
                 <span>Download</span>
               </div>
-              <div className="bg-blue-700 text-white flex h-full items-center">
+              <div className={`${canDownload() ? 'bg-blue-700' : 'bg-gray-400'} text-white flex h-full items-center`}>
                 <DownloadIcon />
               </div>
             </button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
