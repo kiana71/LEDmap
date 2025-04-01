@@ -167,7 +167,7 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
 
   return (
     <div
-      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none pb-14 ${
+      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none pb-12 ${
         isOpen ? "right-0" : "-right-80"
       }`}
     >
@@ -588,7 +588,7 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
               />
               </div>
               </div>
-            <div className="w-full pt-1 pb-90 px-3">
+            <div className="w-full pt-1 scroll-pb-96 pb-72 px-3">
               <ToggleOptionsMenu />
             </div>
           </form>
@@ -614,14 +614,14 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
               e.preventDefault();
               exportToPDF();
             }}
-            className={`z-10 h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 ${
+            className={`z-30  fixed right-0 bottom-0 justify-center items-center flex-row no-wrap  w-80 ${
               !canDownload() ? 'hidden' : ''
             } lg:flex`}
           >
             <button 
               className={`h-9 m-auto px-1 text-white ${
                 canDownload() ? 'bg-blue-700 hover:border-orange-600' : 'bg-gray-400 cursor-not-allowed'
-              } font-semibold border-2 border-transparent shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded`}
+              } font-semibold border-2 border-transparent shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between `}
               disabled={!canDownload()}
             >
               <div className="h-full flex justify-center flex-1 items-center">
