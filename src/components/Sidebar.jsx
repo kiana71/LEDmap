@@ -7,12 +7,14 @@ import { useSheetDataStore } from "../zustand/sheetDataStore";
 import useDescriptionDataStore from "../zustand/descriptionDataStore";
 import DownloadIcon from "@mui/icons-material/Download";
 import ToggleOptionsMenu from "./toggleMenu";
+import DataLoadSaveBtn from "./dataController/DataLoadSaveBtn";
 import {
   createIncrementHandler,
   createDecrementHandler,
   increment,
   decrement,
 } from "../utils/incrementUtils";
+
 
 const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
   // Get all state and methods from the store
@@ -173,6 +175,7 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
     >
       <div className="w-full p-2 gap-96">
         <div className="w-full lg:border ">
+        <DataLoadSaveBtn />
           <p className="pl-5 pt-4 text-start font-bold text-lg mb-2">
             Configuration
           </p>
