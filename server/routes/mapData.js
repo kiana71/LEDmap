@@ -62,6 +62,7 @@ router.post('/', async (req, res) => {
       // Save to database
       const newMapData = await mapData.save();
       res.status(201).json(newMapData);
+    
     } catch (error) {
       // Handle duplicate drawing number error (MongoDB error code 11000)
       if (error.code === 11000) {
@@ -128,5 +129,15 @@ router.delete('/:drawingNumber', async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   });
+
+// Add this route to get all drawings
+router.get('/', async (req, res) => {
+  try {
+    const drawings = await MapData.find({}, 'drawingNumber infoTable.name createdAt');
+    res.json(drawings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;
