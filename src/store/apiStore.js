@@ -31,8 +31,10 @@ const useApiStore = create((set) => ({
             savedDrawings: response.data,
             showDrawingsList: true 
           });
+          return response.data; // Return the data
         } catch (error) {
           set({ message: `Error fetching drawings: ${error.message}` });
+          return []; // Return empty array on error
         } finally {
           set({ isLoading: false });
         }
@@ -64,6 +66,14 @@ const useApiStore = create((set) => ({
         isHorizontal: sheetStore.isHorizontal ?? true,
         isNiche: sheetStore.isNiche ?? true,
         isEdgeToEdge: sheetStore.isEdgeToEdge ?? true,
+        isColumnLayout: sheetStore.isColumnLayout ?? false,
+        
+        // Toggle menu visibility states
+        floorLine: sheetStore.floorLine ?? true,
+        centreLine: sheetStore.centreLine ?? true,
+        woodBacking: sheetStore.woodBacking ?? true,
+        receptacleBox: sheetStore.receptacleBox ?? true,
+        intendedPosition: sheetStore.intendedPosition ?? true,
         
         // Numeric values with defaults and parsing
         variantDepth: parseFloat(sheetStore.variantDepth) || 0,
@@ -99,7 +109,7 @@ const useApiStore = create((set) => ({
     }
   },
 
-  loadDrawing: async (drawingNumber) => {
+  loadDrawing: async (drawingNumber, sheetData) => {
     set({ isLoading: true });
     try {
       const response = await api.get(`/api/mapdata/drawing/${drawingNumber}`);
@@ -119,25 +129,15 @@ const useApiStore = create((set) => ({
       // Update sheetDataStore with sidebar settings
       const sheetStore = useSheetDataStore.getState();
       if (sidebarSettings) {
-        // Get sheet data and ensure it's loaded
-        let sheetData = window.sheetData;
-        
-        // If sheet data is not available and we have a load function, try to load it
-        if (!sheetData?.sheet1 && typeof window.loadSheetData === 'function') {
-          set({ message: 'Loading sheet data...' });
-          await window.loadSheetData();
-          sheetData = window.sheetData;
-        }
-
         // Verify sheet data is available
-        if (!sheetData?.sheet1) {
-          throw new Error('Sheet data not available. Please refresh the page and try again.');
+        if (!sheetData?.sheet1 || !sheetData?.sheet2 || !sheetData?.sheet3 || !sheetData?.sheet4) {
+          throw new Error('Sheet data not available. Please try again.');
         }
         
         set({ message: 'Applying settings...' });
 
         // Set selections first since they affect dimensions
-        if (sidebarSettings.selectedScreen && sheetData?.sheet1) {
+        if (sidebarSettings.selectedScreen && sheetData.sheet1) {
           const fullScreen = sheetData.sheet1.find(
             item => item["Screen MFR"] === sidebarSettings.selectedScreen["Screen MFR"]
           );
@@ -146,7 +146,7 @@ const useApiStore = create((set) => ({
           }
         }
 
-        if (sidebarSettings.selectedMediaPlayer && sheetData?.sheet2) {
+        if (sidebarSettings.selectedMediaPlayer && sheetData.sheet2) {
           const fullMediaPlayer = sheetData.sheet2.find(
             item => item["MFG. PART"] === sidebarSettings.selectedMediaPlayer["MFG. PART"]
           );
@@ -155,7 +155,7 @@ const useApiStore = create((set) => ({
           }
         }
 
-        if (sidebarSettings.selectedMount && sheetData?.sheet3) {
+        if (sidebarSettings.selectedMount && sheetData.sheet3) {
           const fullMount = sheetData.sheet3.find(
             item => item["MFG. PART"] === sidebarSettings.selectedMount["MFG. PART"]
           );
@@ -164,7 +164,7 @@ const useApiStore = create((set) => ({
           }
         }
 
-        if (sidebarSettings.selectedReceptacleBox && sheetData?.sheet4) {
+        if (sidebarSettings.selectedReceptacleBox && sheetData.sheet4) {
           const fullReceptacleBox = sheetData.sheet4.find(
             item => item["MFG. PART"] === sidebarSettings.selectedReceptacleBox["MFG. PART"]
           );
@@ -183,9 +183,28 @@ const useApiStore = create((set) => ({
         if (sidebarSettings.isEdgeToEdge !== sheetStore.isEdgeToEdge) {
           sheetStore.toggleIsEdgeToEdge();
         }
+        if (sidebarSettings.isColumnLayout !== sheetStore.isColumnLayout) {
+          sheetStore.toggleIsColumnLayout();
+        }
+
+        // Set toggle menu visibility states
+        if (sidebarSettings.floorLine !== undefined) {
+          sheetStore.setFloorLine(sidebarSettings.floorLine);
+        }
+        if (sidebarSettings.centreLine !== undefined) {
+          sheetStore.setCentreLine(sidebarSettings.centreLine);
+        }
+        if (sidebarSettings.woodBacking !== undefined) {
+          sheetStore.setWoodBacking(sidebarSettings.woodBacking);
+        }
+        if (sidebarSettings.receptacleBox !== undefined) {
+          sheetStore.setReceptacleBox(sidebarSettings.receptacleBox);
+        }
+        if (sidebarSettings.intendedPosition !== undefined) {
+          sheetStore.setIntendedPosition(sidebarSettings.intendedPosition);
+        }
 
         // Set basic numeric values
-        
         sheetStore.setVariantDepth(sidebarSettings.variantDepth);
         sheetStore.setFloorDistance(sidebarSettings.floorDistance);
         sheetStore.setLeftDistance(sidebarSettings.leftDistance);
@@ -236,6 +255,7 @@ const useApiStore = create((set) => ({
     } catch (error) {
       console.error("Error loading drawing:", error);
       set({ message: `Error: ${error.message}` });
+      throw error; // Re-throw the error to be caught by the component
     } finally {
       set({ isLoading: false });
     }

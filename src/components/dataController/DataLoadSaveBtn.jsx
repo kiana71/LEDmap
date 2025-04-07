@@ -1,43 +1,130 @@
-
-
-
-
+import React, { useState, useEffect } from 'react';
+import useApiStore from '../../store/apiStore';
+import useExcelData from '../../hook/formData';
+import { format } from 'date-fns';
 
 const DataLoadSaveBtn = () => {
+  const [searchDrawingNo, setSearchDrawingNo] = useState('');
+  const [showList, setShowList] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const apiStore = useApiStore();
+  const { sheetData, loading: sheetLoading } = useExcelData(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQH7Uju3LbhqpO7joSwpTvCmAQMK79pspbH_Qnc1pNgMUUk-jFzvE1DSOBedsYc5l21It8bsE7yX3X6/pub?output=xlsx"
+  );
+
+  useEffect(() => {
+    // Fetch drawings when component mounts
+    apiStore.fetchSavedDrawings();
+  }, []);
+
+  const handleLoad = async (drawingNumber) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      if (!drawingNumber) {
+        setError('Please enter a drawing number');
+        return;
+      }
+
+      // Check if the drawing exists in the saved drawings
+      const drawingExists = apiStore.savedDrawings.some(
+        drawing => drawing.drawingNumber === drawingNumber
+      );
+
+      if (!drawingExists) {
+        setError('Drawing not found');
+        return;
+      }
+
+      // Check if sheet data is loaded
+      if (sheetLoading) {
+        setError('Loading sheet data...');
+        return;
+      }
+
+      if (!sheetData?.sheet1 || !sheetData?.sheet2 || !sheetData?.sheet3 || !sheetData?.sheet4) {
+        setError('Sheet data not available. Please try again.');
+        return;
+      }
+
+      // Load the drawing with sheet data
+      await apiStore.loadDrawing(drawingNumber, sheetData);
+      setShowList(false);
+    } catch (err) {
+      console.error('Error loading drawing:', err);
+      setError(err.message || 'Error loading drawing');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSelectDrawing = (drawingNumber) => {
+    setSearchDrawingNo(drawingNumber);
+    setShowList(false);
+  };
 
   return (
     <div className="px-4 py-3 border-b">
-    <div className="text-sm mb-2 font-semibold">Search Drawing Number</div>
-    <div className="flex gap-2">
-      <input
-        type="text"
-        // value={searchDrawingNo}
-        // onChange={(e) => setSearchDrawingNo(e.target.value)}
-        placeholder="Enter SC-XXXX"
-        className="flex-1 px-3 py-2 border rounded text-sm focus:outline-none focus:border-blue-500"
-      />
-      <button
-        // onClick={handleLoad}
-        className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
-      >
-        Load
-      </button>
+      <div className="text-sm mb-2 font-semibold">Search Drawing Number</div>
+      <div className="flex gap-2 relative">
+        <input
+          type="text"
+          value={searchDrawingNo}
+          onChange={(e) => setSearchDrawingNo(e.target.value)}
+          onFocus={() => {
+            setShowList(true);
+            apiStore.fetchSavedDrawings();
+          }}
+          placeholder="Enter SC-XXXX"
+          className="flex-1 px-3 py-2 border rounded text-sm focus:outline-none focus:border-blue-500"
+          disabled={isLoading || sheetLoading}
+        />
+        <button
+          onClick={() => handleLoad(searchDrawingNo)}
+          className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+          disabled={isLoading || sheetLoading}
+        >
+          {isLoading ? 'Loading...' : 'Load'}
+        </button>
+        
+        {showList && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50 max-h-60 overflow-y-auto">
+            {apiStore.isLoading ? (
+              <div className="p-2 text-sm text-gray-500">Loading...</div>
+            ) : !apiStore.savedDrawings || apiStore.savedDrawings.length === 0 ? (
+              <div className="p-2 text-sm text-gray-500">No saved drawings</div>
+            ) : (
+              apiStore.savedDrawings
+                .filter(drawing => drawing && drawing.drawingNumber)
+                .map((drawing) => (
+                  <div
+                    key={drawing._id}
+                    className="p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                    onClick={() => handleSelectDrawing(drawing.drawingNumber)}
+                  >
+                    <div className="font-medium text-sm">
+                      {drawing.drawingNumber}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {drawing.createdAt && format(new Date(drawing.createdAt), 'MMM d, yyyy')}
+                    </div>
+                  </div>
+                ))
+            )}
+          </div>
+        )}
+      </div>
+      
+      {error && (
+        <div className="mt-2 text-red-500 text-sm">
+          {error}
+        </div>
+      )}
     </div>
-    
-    {/* Save Configuration Button */}
-    <div className="mt-3">
-      <button
-        // onClick={handleSave}  // Empty function for now
-        className="w-full py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-        </svg>
-        Save Configuration
-      </button>
-    </div>
-  </div>
-  )
-}
+  );
+};
 
 export default DataLoadSaveBtn;

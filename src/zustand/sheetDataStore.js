@@ -108,6 +108,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   isAtMaxBoxGap: false,
   BOX_WIDTH: 6,
   BOX_HEIGHT: 6,
+  isColumnLayout: false,
   
   // Calculate maximum allowed values for box parameters
   calculateMaxValues: () => {
@@ -317,20 +318,12 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
           const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
           const y = BOUNDARY.y + row * (boxHeightPx + boxGapPx);
           
-          // Verify the box is completely within bounds
-          if (
-            x >= BOUNDARY.x && 
-            y >= BOUNDARY.y && 
-            x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
-            y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
-          ) {
-            positions.push({
-              x: x,
-              y: y,
-              width: boxWidthPx,
-              height: boxHeightPx
-            });
-          }
+          positions.push({
+            x: x,
+            y: y,
+            width: boxWidthPx,
+            height: boxHeightPx
+          });
         }
       }
     } else {
@@ -342,20 +335,12 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
           const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
           const y = (BOUNDARY.y + BOUNDARY.height) - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
           
-          // Verify the box is completely within bounds
-          if (
-            x >= BOUNDARY.x && 
-            y >= BOUNDARY.y && 
-            x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
-            y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
-          ) {
-            positions.push({
-              x: x,
-              y: y,
-              width: boxWidthPx,
-              height: boxHeightPx
-            });
-          }
+          positions.push({
+            x: x,
+            y: y,
+            width: boxWidthPx,
+            height: boxHeightPx
+          });
         }
       }
     }
@@ -528,11 +513,17 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     activeBoxId: null
   })),
 
-  isColumnLayout: false,
+  // Toggle column layout and update box positions
   toggleIsColumnLayout: () => set((state) => {
     const newState = { ...state, isColumnLayout: !state.isColumnLayout };
     const { positions } = state.calculateBoxPositions();
-    newState.receptacleBoxes = positions;
+    
+    // Update receptacle boxes with new positions while preserving IDs
+    newState.receptacleBoxes = positions.map((position, index) => ({
+      id: state.receptacleBoxes[index]?.id || Date.now() + index,
+      ...position
+    }));
+    
     return newState;
   })
 }));
