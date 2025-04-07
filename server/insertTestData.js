@@ -11,7 +11,7 @@ const MapData = require('./models/MapData');
 
 // Create test data
 const testData = {
-  drawingNumber: "SC-8370",
+  drawingNumber: "SC-8371",
   infoTable: {
     drawn: "John Doe",
     date: "2024-03-20",
@@ -28,30 +28,30 @@ const testData = {
   sidebarSettings: {
     // Only save identifying fields for selections
     selectedScreen: {
-      "Screen MFR": "TD3207"
+      "Screen MFR": "Test"
     },
     selectedMount: {
-      "MFG. PART": "RLXT3"
+      "MFG. PART": "XSM1U"
     },
     selectedMediaPlayer: {
-      "MFG. PART": "NS02AV2"
+      "MFG. PART": "11DT00FFUS"
     },
     selectedReceptacleBox: {
-      "MFG. PART": "Box2"
+      "MFG. PART": "TVBU505GC"
     },
 
     // Boolean values with defaults
-    isHorizontal: false,
+    isHorizontal: true,
     isNiche: false,
-    isEdgeToEdge: false,
+    isEdgeToEdge: true,
 
     // Numeric values with defaults
-    variantDepth: 4,
-    floorDistance: 4,
-    bottomDistance: 4,
-    leftDistance: 0.1,
-    boxGap: 4,
-    boxCount: 4
+    variantDepth: 3,
+    floorDistance: 3,
+    bottomDistance: 3,
+    leftDistance: 0.2,
+    boxGap: 2,
+    boxCount: 3
   },
   noteArea: "Test notes for SC-8359",
   userId: "default_user",
