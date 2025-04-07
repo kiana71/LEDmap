@@ -68,7 +68,9 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
   const { sheetData, loading, error } = useExcelData(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQH7Uju3LbhqpO7joSwpTvCmAQMK79pspbH_Qnc1pNgMUUk-jFzvE1DSOBedsYc5l21It8bsE7yX3X6/pub?output=xlsx"
   );
-
+useEffect(() => {
+  console.log('boxCount:', boxCount);
+}, [boxCount]);
   // Getting data right when rendered
   useEffect(() => {
     if (sheetData) {
@@ -264,7 +266,7 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
                   const selectedBox = sheetData.sheet4.find(
                     (q) => q["MFG. PART"] === selectedValue
                   );
-                  console.log('Selected Box Data:', selectedBox);
+                  
                   setSelectedReceptacleBox(selectedBox);
                 }
               }}
@@ -298,6 +300,8 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
                   <input
                     type="number"
                     value={boxCount}
+                    disabled
+                    //khob in value az database nemiad. man ino dasti az sidbar ziad mikonam. afarin.
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
@@ -428,6 +432,7 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
 
                   <input
                     type="number"
+                    disabled
                     value={boxGap}
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);

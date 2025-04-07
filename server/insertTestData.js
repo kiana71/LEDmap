@@ -52,6 +52,7 @@ const testData = {
     leftDistance: 0.2,
     boxGap: 2,
     boxCount: 3
+  
   },
   noteArea: "Test notes for SC-8359",
   userId: "default_user",

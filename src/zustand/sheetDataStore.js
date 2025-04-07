@@ -179,13 +179,14 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const limitedValue = Math.min(newVal, maxBoxGap);
     return { 
       ...state, 
-      boxGap: limitedValue,
+      boxGap: val,
       isAtMaxBoxGap: limitedValue >= maxBoxGap
     };
   }),
   
   // Set box count directly
   setBoxCount: (value) => set(state => {
+    
     const newCount = Math.max(1, Math.floor(value));
     const { positions } = state.calculateBoxPositions();
     const maxBoxes = positions.length;
@@ -194,9 +195,12 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       id: state.receptacleBoxes[index]?.id || Date.now() + index,
       ...position
     }));
+   //are meghdare ebtedayi 1 hast. vaghti ziad mikonam set mishan
+    
     return {
       ...state,
-      boxCount: limitedCount,
+      boxCount: value,
+  
       receptacleBoxes: updatedBoxes,
       maxBoxesReached: limitedCount >= maxBoxes
     };
@@ -355,7 +359,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   incrementBoxCount: () => set(state => {
     const { boxCount, receptacleBoxes } = state;
     const { positions, maxBoxes } = state.calculateBoxPositions();
-    
+   
     // Check if we've reached the maximum number of boxes
     if (boxCount >= maxBoxes) {
       return {
@@ -456,6 +460,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       
       updatedBoxes.push({
         ...existingBox,
+        name: i === 0 ? 'Box 1' : undefined, // Only first box gets a name
         x: position.x,
         y: position.y,
         width: position.width,
@@ -537,6 +542,7 @@ if (positions && positions.length > 0) {
   const firstPosition = positions[0];
   const initialBox = {
     id: Date.now(),
+    name: 'Box 1',
     ...firstPosition
   };
   

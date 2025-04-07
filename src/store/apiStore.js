@@ -26,7 +26,7 @@ const useApiStore = create((set) => ({
         set({ isLoading: true });
         try {
           const response = await api.get('/api/mapdata');
-          console.log('Received drawings:', response.data);
+          // consolloe.log('Received drawings:', response.data);
           set({ 
             savedDrawings: response.data,
             showDrawingsList: true 
@@ -43,6 +43,8 @@ const useApiStore = create((set) => ({
  saveDrawing: async (data) => {
     set({ isLoading: true });
     try {
+   
+      //che konam? error darim
       // Get current state from sheetDataStore
       const sheetStore = useSheetDataStore.getState();
       
@@ -112,10 +114,11 @@ const useApiStore = create((set) => ({
   loadDrawing: async (drawingNumber, sheetData) => {
     set({ isLoading: true });
     try {
+
       const response = await api.get(`/api/mapdata/drawing/${drawingNumber}`);
       const { sidebarSettings } = response.data;
       
-      console.log('Loaded sidebarSettings:', sidebarSettings);
+      // console.log('Loaded sidebarSettings:', sidebarSettings);
 
       // Update apiStore state
       set({
@@ -217,9 +220,10 @@ const useApiStore = create((set) => ({
         const boxGap = parseFloat(sidebarSettings.boxGap);
         const boxCount = parseInt(sidebarSettings.boxCount, 10);
 
-        console.log('Setting box gap:', boxGap);
-        console.log('Setting box count:', boxCount);
-
+        // console.log('Setting box gap:', boxGap);
+        // console.log('Setting box count:', boxCount);
+        //inas ke moheme va nemiad/////////
+///////////////////////////////
         // Set box gap first
         sheetStore.setBoxGap(boxGap);
 
@@ -234,6 +238,7 @@ const useApiStore = create((set) => ({
 
         // Finally set box count
         sheetStore.setBoxCount(boxCount);
+// console.log('boxCount:', boxCount);
 
         // Wait for box count to be applied
         await new Promise(resolve => setTimeout(resolve, 50));
@@ -246,10 +251,12 @@ const useApiStore = create((set) => ({
         // sheetStore.updateBoundary(currentBoundary);
 
         // Log the final state
-        console.log('Final box gap:', sheetStore.boxGap);
-        console.log('Final box count:', sheetStore.boxCount);
-        console.log('Final receptacle boxes:', sheetStore.receptacleBoxes);
+        // console.log('Final box gap:', sheetStore.boxGap);
+        // console.log('Final box count:', sheetStore.boxCount);
+        // console.log('Final receptacle boxes:', sheetStore.receptacleBoxes);
       }
+      //inam hamoon 2 ta hastan
+      //dataye in 2 ta update nemishe vaghti load mizanam
       
       set({ message: 'Drawing loaded successfully' });
     } catch (error) {
