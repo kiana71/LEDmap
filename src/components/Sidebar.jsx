@@ -58,6 +58,8 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
     isAtMaxBoxGap,
     toggleIsEdgeToEdge,
     isEdgeToEdge,
+    isColumnLayout,
+    toggleIsColumnLayout,
   } = useSheetDataStore();
 
   // Description form states
@@ -448,6 +450,44 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
                     <span className="text-xl font-bold">+</span>
                   </button>
                 </div>
+              </div>
+
+              {/* Box Layout Direction */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Box Layout Direction:</div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleIsColumnLayout();
+                    }}
+                    className={`flex-1 px-3 py-2 text-sm rounded ${
+                      isColumnLayout
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                    Column
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleIsColumnLayout();
+                    }}
+                    className={`flex-1 px-3 py-2 text-sm rounded ${
+                      !isColumnLayout
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                    Row
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {isColumnLayout
+                    ? 'Boxes will fill down each column first'
+                    : 'Boxes will fill right across each row first'}
+                </p>
               </div>
 
               {maxBoxesReached && (

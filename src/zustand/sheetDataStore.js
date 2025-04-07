@@ -268,12 +268,17 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   // Calculate possible box positions based on current settings
   calculateBoxPositions: () => {
     const state = get();
-    const { 
-      BOUNDARY, BOX_WIDTH, BOX_HEIGHT, 
-      leftDistance, bottomDistance, boxGap,
-      boxCount 
+    const {
+      BOUNDARY,
+      BOX_WIDTH,
+      BOX_HEIGHT,
+      leftDistance,
+      bottomDistance,
+      boxGap,
+      boxCount,
+      isColumnLayout
     } = state;
-    
+
     // Convert inches to pixels based on diagram scale
     const SCALE_FACTOR = 10; // Assuming 10px = 1 inch
     
@@ -282,11 +287,11 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const leftDistancePx = leftDistance * SCALE_FACTOR;
     const bottomDistancePx = bottomDistance * SCALE_FACTOR;
     const boxGapPx = boxGap * SCALE_FACTOR;
-    
+
     // Calculate usable dimensions
     const usableWidth = BOUNDARY.width - leftDistancePx;
     const usableHeight = BOUNDARY.height - bottomDistancePx;
-    
+
     // Calculate how many boxes can fit per row with current gap
     const boxesPerRow = Math.max(1, Math.floor(
       (usableWidth + boxGapPx) / (boxWidthPx + boxGapPx)
@@ -296,51 +301,65 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const maxRows = Math.max(1, Math.floor(
       (usableHeight + boxGapPx) / (boxHeightPx + boxGapPx)
     ));
-    
+
     // Maximum possible boxes
     const maxBoxes = boxesPerRow * maxRows;
     
     // Create array of positions
     const positions = [];
     
-    // Calculate how many rows we actually need based on current box count
-    const rowsNeeded = Math.ceil(Math.min(boxCount, maxBoxes) / boxesPerRow);
-    
-    for (let row = 0; row < maxRows; row++) {
-      for (let col = 0; col < boxesPerRow; col++) {
-        // Calculate position (x, y is top-left corner)
-        const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
-        
-        // Y starts from bottom and goes up
-        const y = (BOUNDARY.y + BOUNDARY.height) - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
-        
-        // Verify the box is completely within bounds
-        if (
-          x >= BOUNDARY.x && 
-          y >= BOUNDARY.y && 
-          x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
-          y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
-        ) {
-          positions.push({
-            x: x,
-            y: y,
-            width: boxWidthPx,
-            height: boxHeightPx
-          });
+    if (isColumnLayout) {
+      // Column-based layout: fill down each column first
+      const columnsNeeded = Math.ceil(boxCount / maxRows);
+      for (let col = 0; col < columnsNeeded; col++) {
+        const boxesInThisColumn = Math.min(boxCount - (col * maxRows), maxRows);
+        for (let row = 0; row < boxesInThisColumn; row++) {
+          const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
+          const y = BOUNDARY.y + row * (boxHeightPx + boxGapPx);
           
-          // If we have enough positions for the current box count, we can stop
-          if (positions.length >= boxCount) {
-            break;
+          // Verify the box is completely within bounds
+          if (
+            x >= BOUNDARY.x && 
+            y >= BOUNDARY.y && 
+            x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
+            y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
+          ) {
+            positions.push({
+              x: x,
+              y: y,
+              width: boxWidthPx,
+              height: boxHeightPx
+            });
           }
         }
       }
-      
-      // Check if we have enough positions
-      if (positions.length >= boxCount) {
-        break;
+    } else {
+      // Original layout: fill right across rows
+      const rowsNeeded = Math.ceil(boxCount / boxesPerRow);
+      for (let row = 0; row < rowsNeeded; row++) {
+        const boxesInThisRow = Math.min(boxCount - (row * boxesPerRow), boxesPerRow);
+        for (let col = 0; col < boxesInThisRow; col++) {
+          const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
+          const y = (BOUNDARY.y + BOUNDARY.height) - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
+          
+          // Verify the box is completely within bounds
+          if (
+            x >= BOUNDARY.x && 
+            y >= BOUNDARY.y && 
+            x + boxWidthPx <= BOUNDARY.x + BOUNDARY.width && 
+            y + boxHeightPx <= BOUNDARY.y + BOUNDARY.height
+          ) {
+            positions.push({
+              x: x,
+              y: y,
+              width: boxWidthPx,
+              height: boxHeightPx
+            });
+          }
+        }
       }
     }
-    
+
     return {
       positions: positions,
       maxBoxes: maxBoxes
@@ -507,7 +526,15 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   endDrag: () => set(state => ({
     ...state,
     activeBoxId: null
-  }))
+  })),
+
+  isColumnLayout: false,
+  toggleIsColumnLayout: () => set((state) => {
+    const newState = { ...state, isColumnLayout: !state.isColumnLayout };
+    const { positions } = state.calculateBoxPositions();
+    newState.receptacleBoxes = positions;
+    return newState;
+  })
 }));
 
 // Initialize the store with one box
