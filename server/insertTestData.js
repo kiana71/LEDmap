@@ -11,7 +11,7 @@ const MapData = require('./models/MapData');
 
 // Create test data
 const testData = {
-  drawingNumber: "SC-8371",
+  drawingNumber: "SC-8384",
   infoTable: {
     drawn: "John Doe",
     date: "2024-03-20",
@@ -28,7 +28,7 @@ const testData = {
   sidebarSettings: {
     // Only save identifying fields for selections
     selectedScreen: {
-      "Screen MFR": "Test"
+      "Screen MFR": "43UM5N-E"
     },
     selectedMount: {
       "MFG. PART": "XSM1U"
@@ -41,18 +41,23 @@ const testData = {
     },
 
     // Boolean values with defaults
-    isHorizontal: true,
-    isNiche: false,
-    isEdgeToEdge: true,
-
+    isHorizontal: false,
+    isNiche: true,
+    isEdgeToEdge: false,
+//toggle options value vith default
+floorLine:false,
+centreLine:false,
+woodBacking:false,
+receptacleBox:false,
+intendedPosition:true,
     // Numeric values with defaults
-    variantDepth: 3,
-    floorDistance: 3,
-    bottomDistance: 3,
+    variantDepth: 2,
+    floorDistance: 2,
+    bottomDistance: 2,
     leftDistance: 0.2,
     boxGap: 2,
-    boxCount: 3
-  
+    boxCount: 2,
+    isColumnLayout: true
   },
   noteArea: "Test notes for SC-8359",
   userId: "default_user",
@@ -65,7 +70,7 @@ async function insertTestData() {
   try {
     // First, delete any existing drawing with the same number
     await MapData.deleteOne({ drawingNumber: testData.drawingNumber });
-    
+
     // Then insert the new data
     const result = await MapData.create(testData);
     console.log('Test data inserted successfully:', result);
@@ -77,3 +82,4 @@ async function insertTestData() {
 }
 
 insertTestData(); 
+
