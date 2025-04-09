@@ -1,4 +1,5 @@
 import React, { useState, useEffect, createContext, useContext, useRef } from 'react';
+import { useSheetDataStore } from '../zustand/sheetDataStore';
 
 // Create a context with default values for visibility
 export const VisibilityContext = createContext({
@@ -17,46 +18,42 @@ export const useVisibility = () => useContext(VisibilityContext);
 
 // Separate visibility provider that can wrap the entire app
 export const VisibilityProvider = ({ children }) => {
-  // Start with all options active
-  const [options, setOptions] = useState([
-    { id: 'floorLine', label: 'Floor Line', isActive: true },
-    { id: 'centreLine', label: 'Centre Line', isActive: true },
-    { id: 'woodBacking', label: 'Wood Backing', isActive: true },
-    { id: 'receptacleBox', label: 'Receptacle Box', isActive: true },
-    { id: 'intendedPosition', label: 'Intended', isActive: true },
-  ]);
-
+  const sheetStore = useSheetDataStore();
   
-  // Initialize visibleElements with default values
-  const [visibleElements, setVisibleElements] = useState({
-    floorLine: true,
-    centreLine: true,
-    woodBacking: true,
-    receptacleBox: true,
-    intendedPosition: true,
-  });
+  // Get visibility states from sheetDataStore
+  const visibleElements = {
+    floorLine: sheetStore.floorLine,
+    centreLine: sheetStore.centreLine,
+    woodBacking: sheetStore.woodBacking,
+    receptacleBox: sheetStore.receptacleBox,
+    intendedPosition: sheetStore.intendedPosition,
+  };
 
-  // Update visibility object whenever options change
-  useEffect(() => {
-    const visibilityObj = options.reduce((acc, option) => {
-      acc[option.id] = option.isActive;
-      return acc;
-    }, {});
-    setVisibleElements(visibilityObj);
-  }, [options]);
-
-  // Toggle option handler
-  const toggleOption = (id) => {
-    setOptions(options.map(option => {
-      if (option.id === id) {
-        return { ...option, isActive: !option.isActive };
-      }
-      return option;
-    }));
+  // Toggle option handler that updates sheetDataStore
+  const toggleVisibility = (id) => {
+    switch (id) {
+      case 'floorLine':
+        sheetStore.setFloorLine(!visibleElements.floorLine);
+        break;
+      case 'centreLine':
+        sheetStore.setCentreLine(!visibleElements.centreLine);
+        break;
+      case 'woodBacking':
+        sheetStore.setWoodBacking(!visibleElements.woodBacking);
+        break;
+      case 'receptacleBox':
+        sheetStore.setReceptacleBox(!visibleElements.receptacleBox);
+        break;
+      case 'intendedPosition':
+        sheetStore.setIntendedPosition(!visibleElements.intendedPosition);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
-    <VisibilityContext.Provider value={{ visibleElements, toggleVisibility: toggleOption }}>
+    <VisibilityContext.Provider value={{ visibleElements, toggleVisibility }}>
       {children}
     </VisibilityContext.Provider>
   );

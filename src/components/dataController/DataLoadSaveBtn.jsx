@@ -8,6 +8,7 @@ const DataLoadSaveBtn = () => {
   const [showList, setShowList] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const apiStore = useApiStore();
   const { sheetData, loading: sheetLoading } = useExcelData(
@@ -66,56 +67,84 @@ const DataLoadSaveBtn = () => {
     setShowList(false);
   };
 
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      if (!sheetData?.sheet1 || !sheetData?.sheet2 || !sheetData?.sheet3 || !sheetData?.sheet4) {
+        setError('Sheet data not available. Please try again.');
+        return;
+      }
+
+      await apiStore.saveDrawing(sheetData);
+      setShowList(false);
+    } catch (err) {
+      console.error('Error saving drawing:', err);
+      setError(err.message || 'Error saving drawing');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="px-4 py-3 border-b">
       <div className="text-sm mb-2 font-semibold">Search Drawing Number</div>
-      <div className="flex gap-2 relative">
-        <input
-          type="text"
-          value={searchDrawingNo}
-          onChange={(e) => setSearchDrawingNo(e.target.value)}
-          onFocus={() => {
-            setShowList(true);
-            apiStore.fetchSavedDrawings();
-          }}
-          placeholder="Enter SC-XXXX"
-          className="flex-1 px-3 py-2 border rounded text-sm focus:outline-none focus:border-blue-500"
-          disabled={isLoading || sheetLoading}
-        />
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 relative">
+          <input
+            type="text"
+            value={searchDrawingNo}
+            onChange={(e) => setSearchDrawingNo(e.target.value)}
+            onFocus={() => {
+              setShowList(true);
+              apiStore.fetchSavedDrawings();
+            }}
+            placeholder="Enter SC-XXXX"
+            className="flex-1 px-3 py-2 border rounded text-sm focus:outline-none focus:border-blue-500"
+            disabled={isLoading || sheetLoading}
+          />
+          <button
+            onClick={() => handleLoad(searchDrawingNo)}
+            className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors disabled:bg-gray-400"
+            disabled={isLoading || sheetLoading}
+          >
+            {isLoading ? 'Loading...' : 'Load'}
+          </button>
+          {showList && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50 max-h-60 overflow-y-auto">
+              {apiStore.isLoading ? (
+                <div className="p-2 text-sm text-gray-500">Loading...</div>
+              ) : !apiStore.savedDrawings || apiStore.savedDrawings.length === 0 ? (
+                <div className="p-2 text-sm text-gray-500">No saved drawings</div>
+              ) : (
+                apiStore.savedDrawings
+                  .filter(drawing => drawing && drawing.drawingNumber)
+                  .map((drawing) => (
+                    <div
+                      key={drawing._id}
+                      className="p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                      onClick={() => handleSelectDrawing(drawing.drawingNumber)}
+                    >
+                      <div className="font-medium text-sm">
+                        {drawing.drawingNumber}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {drawing.createdAt && format(new Date(drawing.createdAt), 'MMM d, yyyy')}
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
+          )}
+        </div>
         <button
-          onClick={() => handleLoad(searchDrawingNo)}
-          className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors disabled:bg-gray-400"
-          disabled={isLoading || sheetLoading}
+          onClick={handleSave}
+          className="w-full px-3 py-2 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors disabled:bg-gray-400"
+          disabled={isLoading || sheetLoading || isSaving}
         >
-          {isLoading ? 'Loading...' : 'Load'}
+          {isSaving ? 'Saving...' : 'Save'}
         </button>
-        
-        {showList && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded shadow-lg z-50 max-h-60 overflow-y-auto">
-            {apiStore.isLoading ? (
-              <div className="p-2 text-sm text-gray-500">Loading...</div>
-            ) : !apiStore.savedDrawings || apiStore.savedDrawings.length === 0 ? (
-              <div className="p-2 text-sm text-gray-500">No saved drawings</div>
-            ) : (
-              apiStore.savedDrawings
-                .filter(drawing => drawing && drawing.drawingNumber)
-                .map((drawing) => (
-                  <div
-                    key={drawing._id}
-                    className="p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
-                    onClick={() => handleSelectDrawing(drawing.drawingNumber)}
-                  >
-                    <div className="font-medium text-sm">
-                      {drawing.drawingNumber}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {drawing.createdAt && format(new Date(drawing.createdAt), 'MMM d, yyyy')}
-                    </div>
-                  </div>
-                ))
-            )}
-          </div>
-        )}
       </div>
       
       {error && (

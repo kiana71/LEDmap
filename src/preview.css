@@ -1,0 +1,11 @@
+.preview-content #bottom_container table {
+    margin-bottom: 0 !important;
+  }
+  
+  .preview-content #bottom_container td {
+    padding-bottom: 0 !important;
+  }
+  
+  .preview-content #bottom_container .table_input {
+    margin-bottom: 0 !important;
+  }

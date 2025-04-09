@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../img/Logo_signcast_big-1080x322.png";
 import mapIcon from "../img/mao icon-1080x322.png";
+import useApiStore from "../store/apiStore";
 
 const InfoTable = () => {
+  const apiStore = useApiStore();
+  
   // Local state for form inputs with empty initial values
   const [tableData, setTableData] = useState({
     drawn: "",
@@ -10,13 +13,36 @@ const InfoTable = () => {
     sheet: "",
     revision: "",
     department: "",
-    drawingNo: "",
+    drawingNumber: "",
     screen: "",
     mount: "",
     mediaPlayer: "",
     mountingInOn: "",
     orientation: ""
   });
+
+  // Sync with apiStore when it changes
+  useEffect(() => {
+    if (apiStore.infoTableData) {
+      console.log('InfoTable data updated:', apiStore.infoTableData);
+      // Update local state with the complete infoTable data
+      setTableData(prev => ({
+        ...prev,
+        ...apiStore.infoTableData
+      }));
+    }
+  }, [apiStore.infoTableData]);
+
+  // Initialize with apiStore data when component mounts
+  useEffect(() => {
+    if (apiStore.infoTableData) {
+      console.log('Initial InfoTable data:', apiStore.infoTableData);
+      setTableData(prev => ({
+        ...prev,
+        ...apiStore.infoTableData
+      }));
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   // Fixed content that's not editable
   const fixedContent = {
@@ -26,10 +52,14 @@ const InfoTable = () => {
 
   // Update field handler that will be called on blur
   const updateField = (field, value) => {
-    setTableData({
+    console.log('Updating field:', field, 'with value:', value);
+    const newData = {
       ...tableData,
       [field]: value
-    });
+    };
+    setTableData(newData);
+    // Update apiStore with the new data
+    apiStore.setInfoTableData(newData);
   };
 
   // StyledInput component with CSS styling applied directly
@@ -96,14 +126,14 @@ const InfoTable = () => {
             {/* Row 2 - Values for Drawn / Mounting / Orientation */}
             <tr className="h-[22px] print:h-4">
               <td className="border border-gray-300 border-l-0 text-center p-0 print:p-0">
-                <TransparentInput/>
+                <TransparentInput field="drawn" onUpdate={updateField}/>
               </td>
               {/* Dimensions cell is handled in the rowspan above */}
               <td className="border border-gray-300 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="dimensions" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 border-r-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="mountingInOn" onUpdate={updateField}/>
               </td>
             </tr>
             
@@ -126,16 +156,16 @@ const InfoTable = () => {
             {/* Row 4 - Values for Date / Screen / Mount / Media Player */}
             <tr className="h-[22px] print:h-4">
               <td className="border border-gray-300 border-l-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="date" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="screen" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="mount" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 border-r-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="mediaPlayer" onUpdate={updateField}/>
               </td>
             </tr>
             
@@ -158,16 +188,16 @@ const InfoTable = () => {
             {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
             <tr className="h-[22px] print:h-4">
               <td className="border border-gray-300 border-l-0 border-b-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="sheet" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 border-b-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="revision" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 border-b-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="department" onUpdate={updateField}/>
               </td>
               <td className="border border-gray-300 border-b-0 border-r-0 text-center p-0 print:p-0">
-              <TransparentInput/>
+                <TransparentInput field="drawingNumber" onUpdate={updateField}/>
               </td>
             </tr>
           </tbody>
@@ -180,21 +210,26 @@ const InfoTable = () => {
 export default InfoTable;
 
 
-const TransparentInput = () => {
-  const [inputValue, setInputValue] = useState("");
+const TransparentInput = ({ field, onUpdate }) => {
+  const apiStore = useApiStore();
+  const value = apiStore.infoTableData[field] || '';
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    onUpdate(field, newValue);
+  };
 
   return (
     <div className="relative w-full h-full">
       {/* Display div that shows the text */}
       <div className="absolute inset-0 flex items-center justify-center text-center text-black pointer-events-none table_input">
-        {inputValue}
+        {value}
       </div>
-
       {/* Transparent input that captures text */}
       <input
         type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        value={value}
+        onChange={handleChange}
         className="bg-transparent w-full h-full outline-none border-none text-center text-transparent"
         style={{ caretColor: "black" }} // Makes cursor visible while text is transparent
       />

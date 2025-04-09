@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import { useVisibility } from "./toggleMenu";
+import  useApiStore  from "../store/apiStore";
 //For dimention
 import { findMax } from "../utils/numberUtils";
 //
@@ -9,10 +10,12 @@ import { useToolbar } from "../hook/ToolbarContext";
 import DimensionGroup from "./DimensionGroup";
 import DimensionItem from "./DimensionItem";
 import InfoTable from "./InfoTable";
+import { toggleClassOnTableInputs } from '../utils/printUtils';
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import DownloadIcon from "@mui/icons-material/Download";
+import PreviewIcon from "@mui/icons-material/Preview";
 
 // Calculate raw nicheDepth
 
@@ -120,7 +123,11 @@ const Canvas = ({containerRef}) => {
     isEdgeToEdge,
     canDownload,
   } = useSheetDataStore();
-  //Dimension related
+
+  // Add these lines to get the apiStore functionality
+  const { setNoteArea, noteArea } = useApiStore();
+  
+  // Dimension related
   // Calculate raw nicheDepth
   const rawNicheDepth =
     parseFloat(selectedScreen?.Depth || 0) +
@@ -326,7 +333,7 @@ const Canvas = ({containerRef}) => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
-
+//bebin reverse dare :D ajibe. hala ino veelsh mikonim felan , ta haminja ke data load mishe push mikonam. na akhe load mishe 
   // Draw the boundary box for debugging (comment out in production)
   const showBoundaryBox = false; // Set to true to see the boundary
 
@@ -413,6 +420,187 @@ const Canvas = ({containerRef}) => {
   //pdf--------------------------====================
 
   const showSections = canDownload();
+
+  const handleFullScreenPreview = async () => {
+    try {
+      const bc = document.getElementById("bottom_container");
+      
+      // Apply print-specific styles
+      toggleClassOnTableInputs("table_input", "bottom-3", true);
+      toggleClassOnTableInputs("table_input_td", "pb-3", true);
+      toggleClassOnTableInputs("p_print", "pb-3", true);
+      bc.classList.remove("h-40");
+      bc.classList.add("h-64");
+      bc.classList.remove("mb-1");
+      bc.classList.add("mb-3");
+      containerRef.current.classList.add("pb-8");
+
+      if (!containerRef.current) {
+        throw new Error("Container element not found");
+      }
+
+      // Create a new window for full-screen preview
+      const previewWindow = window.open('', '_blank');
+      previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Drawing Preview</title>
+            <style>
+              @media screen {
+                body {
+                  margin: 0;
+                  padding: 0;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  min-height: 100vh;
+                  background-color: #f0f0f0;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-container {
+                  position: relative;
+                  width: 100%;
+                  max-width: 1200px;
+                  height: 100vh;
+                  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                  background: white;
+                  padding: 20px;
+                  box-sizing: border-box;
+                  overflow: auto;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content {
+                  width: 100%;
+                  height: 100%;
+                  position: relative;
+                  background: white;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content svg {
+                  width: 100%;
+                  height: auto;
+                  max-height: 70vh;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content * {
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content input,
+                .preview-content textarea {
+                  -webkit-user-select: text;
+                  user-select: text;
+                  pointer-events: auto;
+                }
+                .preview-content [contenteditable="true"] {
+                  -webkit-user-select: text;
+                  user-select: text;
+                  pointer-events: auto;
+                }
+              }
+              
+              @media print {
+                body {
+                  margin: 0;
+                  padding: 0;
+                  background: white;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-container {
+                  width: 100%;
+                  height: auto;
+                  box-shadow: none;
+                  background: white;
+                  padding: 0;
+                  margin: 0;
+                  overflow: visible;
+                  page-break-after: avoid;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content {
+                  width: 100%;
+                  height: auto;
+                  position: static;
+                  background: white;
+                  display: block;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content svg {
+                  width: 100%;
+                  height: auto;
+                  max-height: none;
+                  page-break-inside: avoid;
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+                .preview-content * {
+                  -webkit-user-select: text;
+                  user-select: text;
+                }
+              }
+              ${Array.from(document.styleSheets)
+                .map(sheet => {
+                  try {
+                    return Array.from(sheet.cssRules)
+                      .map(rule => rule.cssText)
+                      .join('\n');
+                  } catch (e) {
+                    return '';
+                  }
+                })
+                .join('\n')}
+            </style>
+          </head>
+          <body>
+            <div class="preview-container">
+              <div class="preview-content">
+                ${containerRef.current.outerHTML}
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+      previewWindow.document.close();
+
+    } catch (error) {
+      console.error("Error generating preview:", error);
+    } finally {
+      // Reset styles
+      const bc = document.getElementById("bottom_container");
+      if (bc) {
+        toggleClassOnTableInputs("table_input", "bottom-3", false);
+        toggleClassOnTableInputs("table_input_td", "pb-3", false);
+        toggleClassOnTableInputs("p_print", "pb-3", false);
+        bc.classList.remove("h-64");
+        bc.classList.add("h-40");
+        bc.classList.remove("mb-3");
+        bc.classList.add("mb-1");
+        containerRef.current.classList.remove("pb-8");
+      }
+    }
+  };
+
+  // Add this function to handle note changes
+  const handleNoteChange = (event) => {
+    const newNotes = event.target.innerHTML;
+    setNoteArea(newNotes);
+  };
+
+  // Add this useEffect to load notes when component mounts or when noteArea changes
+  useEffect(() => {
+    const notesEditor = document.querySelector('.notes-editor');
+    if (notesEditor && noteArea) {
+      notesEditor.innerHTML = noteArea;
+    }
+  }, [noteArea]);
 
   return (
     <>
@@ -1175,6 +1363,7 @@ const Canvas = ({containerRef}) => {
       wordBreak: "break-word"
     }}
     data-toolbar-enabled={notesComponentId}
+    onInput={handleNoteChange}
   >
   </div>
 </div>

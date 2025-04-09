@@ -530,7 +530,20 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     }));
     
     return newState;
-  })
+  }),
+
+  // Add visibility toggles
+  floorLine: true,
+  centreLine: true,
+  woodBacking: true,
+  receptacleBox: true,
+  intendedPosition: true,
+
+  setFloorLine: (value) => set(state => ({ ...state, floorLine: value })),
+  setCentreLine: (value) => set(state => ({ ...state, centreLine: value })),
+  setWoodBacking: (value) => set(state => ({ ...state, woodBacking: value })),
+  setReceptacleBox: (value) => set(state => ({ ...state, receptacleBox: value })),
+  setIntendedPosition: (value) => set(state => ({ ...state, intendedPosition: value })),
 }));
 
 // Initialize the store with one box
