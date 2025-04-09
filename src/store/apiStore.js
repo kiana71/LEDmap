@@ -2,8 +2,12 @@ import axios from "axios";
 import { create } from "zustand";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 
+
+const offlineApiUrl = 'http://localhost:5000';
+const onlineApiUrl = 'https://kiana-led-server-iz6c.vercel.app';
+
 const api = axios.create({
-    baseURL: process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000',
+    baseURL: onlineApiUrl,
     headers: {
         'Content-Type': 'application/json'
     }

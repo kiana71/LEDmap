@@ -357,10 +357,10 @@ const Canvas = ({containerRef}) => {
   const zoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.5));
   const resetZoom = () => setScale(1);
   // Zoom Buttons -----------------------------------------
-
+//na code ro check karadm ok bud
   //pdf--------------------------====================
 //   const containerRef = useRef(null);
-
+//ye lahze check konam bebinam canvas update shode roo git ya nashodeare. are vali filesh update nemishe!
 //   const exportToPDF = async () => {
 //     const bc = document.getElementById("bottom_container");
 //     toggleClassOnTableInputs("table_input","bottom-3", true)
