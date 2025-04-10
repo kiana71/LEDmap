@@ -170,12 +170,6 @@ const FloatingToolbar = ({ enabledComponents }) => {
             return;
           }
           
-          // Initialize editable area if needed
-          if (editableParent.getAttribute("contenteditable") === "true" && 
-              (!editableParent.innerHTML || editableParent.innerHTML.trim() === '')) {
-            editableParent.innerHTML = '<p><br></p>';
-          }
-          
           // Store the selection for later use
           setSelection(selection);
           
@@ -185,16 +179,19 @@ const FloatingToolbar = ({ enabledComponents }) => {
           
           // Get viewport dimensions
           const viewportWidth = window.innerWidth;
+          const viewportHeight = window.innerHeight;
           
-          // Start with positioning above the selection
-          let top = rect.top - toolbarHeight - 10 + window.scrollY;
+          // Calculate initial position above the selection
+          let top = rect.top - toolbarHeight - 80 + window.scrollY;
+          let left = rect.left + (rect.width / 2) - (toolbarWidth / 2) + 180;
           
-          // Calculate left position and ensure it stays on screen
-          let left = Math.max(20 + (toolbarWidth / 2), rect.left + (rect.width / 2));
+          // Ensure toolbar stays within viewport bounds
+          left = Math.max(20, Math.min(left, viewportWidth - toolbarWidth - 20));
           
-          // Make sure it doesn't go off the right edge
-          const maxLeft = viewportWidth - 20 - (toolbarWidth / 2);
-          left = Math.min(left, maxLeft);
+          // If toolbar would go off the top, position it below the selection
+          if (top < window.scrollY + 20) {
+            top = rect.bottom + 40 + window.scrollY;
+          }
           
           setPosition({
             top: top,

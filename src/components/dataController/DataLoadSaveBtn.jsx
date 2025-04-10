@@ -87,13 +87,20 @@ const DataLoadSaveBtn = () => {
     }
   };
 
+  const handleDelete = (drawingNumber) => {
+    apiStore.deleteDrawing(drawingNumber);
+
+
+  };
+
+  console.log(apiStore);
   return (
     <div className="px-4 py-3 border-b">
       <div className="text-sm mb-2 font-semibold">Search Drawing Number</div>
       <div className="flex flex-col gap-2">
         <div className="flex gap-2 relative">
           <input
-            type="text"
+       // fahmidam, vafgti dlete mikone , bayad fetchdrawing store dobare seda zade beshge
             value={searchDrawingNo}
             onChange={(e) => setSearchDrawingNo(e.target.value)}
             onFocus={() => {
@@ -116,27 +123,53 @@ const DataLoadSaveBtn = () => {
               {apiStore.isLoading ? (
                 <div className="p-2 text-sm text-gray-500">Loading...</div>
               ) : !apiStore.savedDrawings || apiStore.savedDrawings.length === 0 ? (
-                <div className="p-2 text-sm text-gray-500">No saved drawings</div>
+                <div className="flex items-centerp-2 text-sm text-gray-500">No saved drawings</div>
               ) : (
                 apiStore.savedDrawings
                   .filter(drawing => drawing && drawing.drawingNumber)
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((drawing) => (
                     <div
                       key={drawing._id}
-                      className="p-2 hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                      className="p-4 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 flex justify-between items-center"
                       onClick={() => handleSelectDrawing(drawing.drawingNumber)}
                     >
-                      <div className="font-medium text-sm">
-                        {drawing.drawingNumber}
+                      <div className='flex flex-col items-center justify-center text-center'>
+                        <div className="font-medium text-sm text-center">
+                          {drawing.drawingNumber}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {drawing.createdAt && format(new Date(drawing.createdAt), 'MMM d, yyyy')}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {drawing.createdAt && format(new Date(drawing.createdAt), 'MMM d, yyyy')}
-                      </div>
+                      <button
+                        className="text-red-500 hover:text-red-700 px-2 py-1 text-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(drawing.drawingNumber);
+                        }}
+                      >
+                        <svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-5 w-5" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                        >
+                          <path 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                            strokeWidth={2} 
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                          />
+                        </svg>
+                      </button>
                     </div>
                   ))
               )}
             </div>
           )}
+          
         </div>
         <button
           onClick={handleSave}

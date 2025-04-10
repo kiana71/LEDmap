@@ -10,13 +10,13 @@ router.get('/drawings', async (req, res) => {
       // Find all active configurations
       // Select only necessary fields for the dropdown (drawing number, name, dates)
       // Sort by last modified date (newest first)
-      const drawings = await MapData.find({ isActive: true })
-        .select('drawingNumber name createdAt lastModifiedAt')
-        .sort({ lastModifiedAt: -1 });
+      const drawings = await MapData.find({ isActive: true });
+      console.log(drawings);
       res.json(drawings);
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
+    //drawing/99
   });
 
 // GET /api/mapdata/drawing/:drawingNumber
@@ -111,8 +111,10 @@ router.delete('/:drawingNumber', async (req, res) => {
       // Find configuration by drawing number
       const configuration = await MapData.findOne({ 
         drawingNumber: req.params.drawingNumber,
-        isActive: true 
+        // isActive: true 
       });
+
+      console.log(configuration);
       if (!configuration) {
         return res.status(404).json({ message: 'Configuration not found' });
       }
@@ -129,11 +131,12 @@ router.delete('/:drawingNumber', async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   });
+/
 
 // Add this route to get all drawings
 router.get('/', async (req, res) => {
   try {
-    const drawings = await MapData.find({}, 'drawingNumber infoTable.name createdAt');
+    const drawings = await MapData.find({isActive: true});
     res.json(drawings);
   } catch (error) {
     res.status(500).json({ message: error.message });

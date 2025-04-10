@@ -2,7 +2,6 @@ import axios from "axios";
 import { create } from "zustand";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 
-
 const offlineApiUrl = 'http://localhost:5000';
 const onlineApiUrl = 'https://kiana-led-server-iz6c.vercel.app';
 
@@ -11,8 +10,7 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json'
     }
-});
-
+})
 // Create a store that accepts visibility functions
 const createApiStore = (visibilityFunctions) => create((set, get) => ({
     isLoading: false,
@@ -24,12 +22,15 @@ const createApiStore = (visibilityFunctions) => create((set, get) => ({
     DEFAULT_USER_ID: "default_user",
     savedDrawings: [], // New state for saved drawings list
     showDrawingsList: false,
+    showDeleteModal: false,
+    drawingToDelete: null,
 
     // New function to fetch all drawings
     fetchSavedDrawings: async () => {
         set({ isLoading: true });
         try {
             const response = await api.get('/api/mapdata');
+            console.log('Fetched drawings:', response.data);
             set({ 
                 savedDrawings: response.data,
                 showDrawingsList: true 
@@ -266,6 +267,48 @@ const createApiStore = (visibilityFunctions) => create((set, get) => ({
         });
         // Use the store's own loadDrawing method
         await state.loadDrawing(drawing.drawingNumber);
+    },
+
+    // Add deleteDrawing function
+    deleteDrawing: async (drawingNumber) => {
+        set({ 
+            showDeleteModal: true,
+            drawingToDelete: drawingNumber
+        });
+    },
+
+    confirmDelete: async () => {
+        const { drawingToDelete } = get();
+        set({ isLoading: true });
+        try {
+            // Encode the drawing number to handle special characters
+            const encodedDrawingNumber = encodeURIComponent(drawingToDelete);
+            await api.delete(`/api/mapdata/${encodedDrawingNumber}`, {
+                data: {
+                    userId: get().DEFAULT_USER_ID
+                }
+            });
+            // Refresh the drawings list after deletion
+            await get().fetchSavedDrawings();
+            set({ 
+                message: 'Drawing deleted successfully',
+                showDeleteModal: false,
+                drawingToDelete: null
+            });
+        } catch (error) {
+            console.error("Error deleting drawing:", error);
+            set({ message: `Error: ${error.message}` });
+            throw error;
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+
+    cancelDelete: () => {
+        set({ 
+            showDeleteModal: false,
+            drawingToDelete: null
+        });
     },
 
     // Sidebar setters

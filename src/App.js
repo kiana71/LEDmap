@@ -12,10 +12,19 @@ import './print.css';
 import { VisibilityProvider } from "./components/toggleMenu";
 import { toggleClassOnTableInputs } from './utils/printUtils';
 import C2S from './utils/canvas2svg';
+import  useApiStore  from './store/apiStore';
+import Modal from './components/Modal';
 
 function App() {
   const containerRef = useRef(null);
   const [isPrinting, setIsPrinting] = useState(false);
+
+  const { 
+    showDeleteModal, 
+    drawingToDelete, 
+    confirmDelete, 
+    cancelDelete 
+  } = useApiStore();
 
   // Add keyboard shortcut handler for print preview
   useEffect(() => {
@@ -622,6 +631,30 @@ function App() {
                 <Canvas containerRef={containerRef} />
               </div>
             </div>
+
+            <Modal
+              isOpen={showDeleteModal}
+              onClose={cancelDelete}
+              title="Confirm Delete"
+              actions={
+                <>
+                  <button
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                    onClick={confirmDelete}
+                  >
+                    Yes, Delete
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                    onClick={cancelDelete}
+                  >
+                    Cancel
+                  </button>
+                </>
+              }
+            >
+              <p>Are you sure you want to delete drawing {drawingToDelete}? This action cannot be undone.</p>
+            </Modal>
           </div>
         </VisibilityProvider>
       </ToolbarProvider>

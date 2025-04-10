@@ -590,7 +590,7 @@ const Canvas = ({containerRef}) => {
 
   // Add this function to handle note changes
   const handleNoteChange = (event) => {
-    const newNotes = event.target.innerHTML;
+    const newNotes = event.target.textContent;
     setNoteArea(newNotes);
   };
 
@@ -598,7 +598,7 @@ const Canvas = ({containerRef}) => {
   useEffect(() => {
     const notesEditor = document.querySelector('.notes-editor');
     if (notesEditor && noteArea) {
-      notesEditor.innerHTML = noteArea;
+      notesEditor.textContent = noteArea;
     }
   }, [noteArea]);
 
@@ -1363,10 +1363,11 @@ const Canvas = ({containerRef}) => {
       wordBreak: "break-word"
     }}
     data-toolbar-enabled={notesComponentId}
+   
+    
     onInput={handleNoteChange}
-  >
-  </div>
-</div>
+  ></div>
+            </div>
             </div>
             <div className="flex-1 bg-opacity-30">
               <InfoTable/>
@@ -1379,7 +1380,6 @@ const Canvas = ({containerRef}) => {
 };
 
 export default Canvas;
-
 
 // /**
 //  * Toggles a specific class on all elements with the className "table_input"
@@ -1401,3 +1401,4 @@ export default Canvas;
 //     }
 //   });
 // }
+
