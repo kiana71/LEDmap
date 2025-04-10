@@ -131,7 +131,6 @@ router.delete('/:drawingNumber', async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   });
-/
 
 // Add this route to get all drawings
 router.get('/', async (req, res) => {
