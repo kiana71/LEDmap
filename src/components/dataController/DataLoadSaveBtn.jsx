@@ -77,11 +77,34 @@ const DataLoadSaveBtn = () => {
         return;
       }
 
+      // Check if the drawing number already exists
+      const drawingExists = apiStore.savedDrawings.some(
+        drawing => drawing.drawingNumber === sheetData.sheet1[0]?.drawingNumber
+      );
+
+      if (drawingExists) {
+        setError('This drawing number already exists. Enter a different number.');
+        return;
+      }
+
       await apiStore.saveDrawing(sheetData);
       setShowList(false);
     } catch (err) {
       console.error('Error saving drawing:', err);
-      setError(err.message || 'Error saving drawing');
+      if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response:', err.response.data);
+        setError(`Error saving drawing: ${err.response.data.message || 'Server error'}`);
+      } else if (err.request) {
+        // The request was made but no response was received
+        console.error('No response received:', err.request);
+        setError('No response from server. Please try again.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error setting up request:', err.message);
+        setError(`Error: ${err.message}`);
+      }
     } finally {
       setIsSaving(false);
     }

@@ -1244,7 +1244,7 @@ const Canvas = ({containerRef}) => {
           >
             {/* Notes Section - REPLACED with NotesEditor component */}
             <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
-              <NotesEditor componentId={notesComponentId} />
+              <NotesEditor componentId={notesComponentId}/>
             </div>
             <div className="flex-1 bg-opacity-30">
               <InfoTable/>
