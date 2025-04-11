@@ -8,41 +8,37 @@ import { ToolbarProvider } from "./hook/ToolbarContext";
 import Canvas from "./components/Canvas";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import './print.css';
+import "./print.css";
 import { VisibilityProvider } from "./components/toggleMenu";
-import { toggleClassOnTableInputs } from './utils/printUtils';
-import C2S from './utils/canvas2svg';
-import  useApiStore  from './store/apiStore';
-import Modal from './components/Modal';
+import { toggleClassOnTableInputs } from "./utils/printUtils";
+import C2S from "./utils/canvas2svg";
+import useApiStore from "./store/apiStore";
+import Modal from "./components/Modal";
 
 function App() {
   const containerRef = useRef(null);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const { 
-    showDeleteModal, 
-    drawingToDelete, 
-    confirmDelete, 
-    cancelDelete 
-  } = useApiStore();
+  const { showDeleteModal, drawingToDelete, confirmDelete, cancelDelete } =
+    useApiStore();
 
   // Add keyboard shortcut handler for print preview
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "p") {
         e.preventDefault();
         handlePrintPreview();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
   const handlePrintPreview = async () => {
     try {
       setIsPrinting(true);
       const bc = document.getElementById("bottom_container");
-      
+
       // Apply print-specific styles
       toggleClassOnTableInputs("table_input", "bottom-3", true);
       toggleClassOnTableInputs("table_input_td", "pb-3", true);
@@ -58,24 +54,26 @@ function App() {
       }
 
       // Create a new window for preview
-      const previewWindow = window.open('', '_blank', 'width=1200,height=800');
-      
+      const previewWindow = window.open("", "_blank", "width=1200,height=800");
+
       // First, let's manually include all link tags from the current document
-      const linkTags = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-        .map(link => link.outerHTML);
-        
+      const linkTags = Array.from(
+        document.querySelectorAll('link[rel="stylesheet"]')
+      ).map((link) => link.outerHTML);
+
       // Get all style tags from the document
-      const styleTags = Array.from(document.querySelectorAll('style'))
-        .map(style => style.outerHTML);
-      
+      const styleTags = Array.from(document.querySelectorAll("style")).map(
+        (style) => style.outerHTML
+      );
+
       // Create basic HTML structure for the preview
       previewWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
             <title>Technical Drawing</title>
-            ${linkTags.join('\n')}
-            ${styleTags.join('\n')}
+            ${linkTags.join("\n")}
+            ${styleTags.join("\n")}
             <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
             <style>
               /* Basic container styles */
@@ -350,9 +348,10 @@ function App() {
       setTimeout(() => {
         try {
           // Get the iframe element
-          const iframe = previewWindow.document.getElementById('contentFrame');
-          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-          
+          const iframe = previewWindow.document.getElementById("contentFrame");
+          const iframeDoc =
+            iframe.contentDocument || iframe.contentWindow.document;
+
           // Create a complete HTML document for the iframe with all necessary styles
           iframeDoc.open();
           iframeDoc.write(`
@@ -360,8 +359,8 @@ function App() {
             <html>
               <head>
                 <title>Drawing Content</title>
-                ${linkTags.join('\n')}
-                ${styleTags.join('\n')}
+                ${linkTags.join("\n")}
+                ${styleTags.join("\n")}
                 <style>
                   /* Reset body styles */
                   body {
@@ -499,15 +498,13 @@ function App() {
             </html>
           `);
           iframeDoc.close();
-          
         } catch (error) {
           console.error("Error setting up iframe:", error);
         }
       }, 200);
-      
+
       // Close the document to finish loading
       previewWindow.document.close();
-
     } catch (error) {
       console.error("Error generating preview:", error);
       alert("Error creating preview: " + error.message);
@@ -532,7 +529,7 @@ function App() {
     try {
       setIsPrinting(true);
       const bc = document.getElementById("bottom_container");
-      
+
       // Apply print-specific styles
       toggleClassOnTableInputs("table_input", "bottom-3", true);
       toggleClassOnTableInputs("table_input_td", "pb-3", true);
@@ -563,36 +560,36 @@ function App() {
         width: containerWidth,
         height: containerHeight,
         windowWidth: containerWidth * scale,
-        windowHeight: containerHeight * scale
+        windowHeight: containerHeight * scale,
       });
 
       const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
       // Convert pixels to mm
       const pxToMm = 0.264583333;
-      const widthMm = (containerWidth * scale) * pxToMm;
-      const heightMm = (containerHeight * scale) * pxToMm;
+      const widthMm = containerWidth * scale * pxToMm;
+      const heightMm = containerHeight * scale * pxToMm;
 
       const pdf = new jsPDF({
         orientation: widthMm > heightMm ? "landscape" : "portrait",
         unit: "mm",
         format: [widthMm, heightMm],
         compress: true,
-        precision: 4
+        precision: 4,
       });
 
       pdf.setProperties({
-        title: 'Technical Drawing',
-        creator: 'SignCast Technical Map',
-        printQuality: dpi
+        title: "Technical Drawing",
+        creator: "SignCast Technical Map",
+        printQuality: dpi,
       });
 
       pdf.addImage(imgData, "JPEG", 0, 0, widthMm, heightMm, "", "FAST");
-//ye lahze push begiram..
+      //ye lahze push begiram..
       // Generate filename with timestamp and download
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       pdf.save(`technical-drawing-${timestamp}.pdf`);
-// khob che konam?
+      // khob che konam?
     } catch (error) {
       console.error("Error generating PDF:", error);
     } finally {
@@ -614,7 +611,7 @@ function App() {
 
   //sidebar menu state
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
@@ -624,14 +621,13 @@ function App() {
       <ToolbarProvider>
         <VisibilityProvider>
           <div className="App">
-            <Header />
             <div className="flex">
-              <Sidebar exportToPDF={exportToPDF}/>
+              <Sidebar exportToPDF={exportToPDF} />
               <div className="flex-1">
                 <Canvas containerRef={containerRef} />
               </div>
             </div>
-
+           
             <Modal
               isOpen={showDeleteModal}
               onClose={cancelDelete}
@@ -653,8 +649,12 @@ function App() {
                 </>
               }
             >
-              <p>Are you sure you want to delete drawing {drawingToDelete}? This action cannot be undone.</p>
+              <p>
+                Are you sure you want to delete drawing {drawingToDelete}? This
+                action cannot be undone.
+              </p>
             </Modal>
+            <Header />
           </div>
         </VisibilityProvider>
       </ToolbarProvider>

@@ -31,8 +31,8 @@ export const useSheetDataStore = create((set, get) => ({
       console.log('Object keys:', Object.keys(value || {}));
       
       // Get dimensions from the correct property names
-      const width = value && value['Width (in)'] ? parseFloat(value['Width (in)']) : 6;
-      const height = value && value['Height (in)'] ? parseFloat(value['Height (in)']) : 6;
+      const width = value && value['Width (in)'] ? parseFloat(value['Width (in)']) : 0;
+      const height = value && value['Height (in)'] ? parseFloat(value['Height (in)']) : 0;
       
       console.log('Found dimensions:', { width, height });
       const newdimenhhs = {
@@ -106,8 +106,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   isAtMaxBottomDistance: false,
   isAtMaxLeftDistance: false,
   isAtMaxBoxGap: false,
-  BOX_WIDTH: 6,
-  BOX_HEIGHT: 6,
+  BOX_WIDTH: 0,
+  BOX_HEIGHT: 0,
   isColumnLayout: false,
   
   // Calculate maximum allowed values for box parameters
@@ -373,6 +373,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     
     const newBox = {
       id: Date.now(),
+      name: boxCount === 0 ? 'Box 1' : undefined, // Only first box gets a name
       ...newPos
     };
     
@@ -555,7 +556,6 @@ if (positions && positions.length > 0) {
   const firstPosition = positions[0];
   const initialBox = {
     id: Date.now(),
-    name: 'Box 1',
     ...firstPosition
   };
   

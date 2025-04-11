@@ -81,8 +81,8 @@ const createApiStore = (visibilityFunctions) => create((set, get) => ({
                 leftDistance: parseFloat(sheetStore.leftDistance) || 0,
                 boxGap: parseFloat(sheetStore.boxGap) || 0,
                 
-                BOX_WIDTH: parseFloat(sheetStore.BOX_WIDTH) || 6,
-                BOX_HEIGHT: parseFloat(sheetStore.BOX_HEIGHT) || 6,
+                BOX_WIDTH: parseFloat(sheetStore.BOX_WIDTH) || 0,
+                BOX_HEIGHT: parseFloat(sheetStore.BOX_HEIGHT) || 0,
                 boxCount: parseInt(sheetStore.boxCount) || 1,
                 receptacleBoxes: Array.isArray(sheetStore.receptacleBoxes) ? sheetStore.receptacleBoxes : []
             };

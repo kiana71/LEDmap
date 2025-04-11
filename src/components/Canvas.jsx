@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useMemo, useState } from "react";
 import { useSheetDataStore } from "../zustand/sheetDataStore";
 import { useVisibility } from "./toggleMenu";
-import  useApiStore  from "../store/apiStore";
+import useApiStore from "../store/apiStore";
 //For dimention
 import { findMax } from "../utils/numberUtils";
 //
@@ -11,6 +11,7 @@ import DimensionGroup from "./DimensionGroup";
 import DimensionItem from "./DimensionItem";
 import InfoTable from "./InfoTable";
 import { toggleClassOnTableInputs } from '../utils/printUtils';
+import NotesEditor from "./NotesEditor"; // Import the new NotesEditor component
 
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -333,7 +334,7 @@ const Canvas = ({containerRef}) => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
-//bebin reverse dare :D ajibe. hala ino veelsh mikonim felan , ta haminja ke data load mishe push mikonam. na akhe load mishe 
+  
   // Draw the boundary box for debugging (comment out in production)
   const showBoundaryBox = false; // Set to true to see the boundary
 
@@ -357,67 +358,6 @@ const Canvas = ({containerRef}) => {
   const zoomOut = () => setScale((prev) => Math.max(prev - 0.1, 0.5));
   const resetZoom = () => setScale(1);
   // Zoom Buttons -----------------------------------------
-//na code ro check karadm ok bud
-  //pdf--------------------------====================
-//   const containerRef = useRef(null);
-//ye lahze check konam bebinam canvas update shode roo git ya nashodeare. are vali filesh update nemishe!
-//   const exportToPDF = async () => {
-//     const bc = document.getElementById("bottom_container");
-//     toggleClassOnTableInputs("table_input","bottom-3", true)
-//     toggleClassOnTableInputs("table_input_td","pb-3", true)
-// toggleClassOnTableInputs("p_print", "pb-3" , true)
-//     bc.classList.remove("h-40");
-//     bc.classList.add("h-64");
-//     bc.classList.remove("mb-1");
-//     bc.classList.add("mb-3");
-//     containerRef.current.classList.add("pb-8");
-
-//     if (!containerRef.current) return;
-
-//     // Configure for high quality
-//     const scale = 4; // Higher scale = better quality
-
-//     const canvas = await html2canvas(containerRef.current, {
-//       scale: scale,
-//       useCORS: true,
-//       logging: false,
-//       backgroundColor: "#f3f4f6", // Match your bg-gray-200
-//     });
-
-//     const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
-//     // Create PDF with custom dimensions to match your element's aspect ratio
-//     // Convert pixels to mm (assuming 96 DPI)
-//     const pxToMm = 0.264583333;
-//     const widthMm = 3300 * pxToMm;
-//     const heightMm = 2550 * pxToMm;
-
-//     const pdf = new jsPDF({
-//       orientation: widthMm > heightMm ? "landscape" : "portrait",
-//       unit: "mm",
-//       format: [widthMm, heightMm],
-//       compress: true, // Optional: reduces file size
-//       precision: 4 
-//     });
-// // Optional: Set PDF print quality
-//     pdf.setProperties({
-//       title: 'High Resolution Print',
-//       creator: 'Your Application Name',
-//       printQuality: 300 // Explicitly set print quality
-//     });
-//     // Add image to perfectly fit the page
-//     pdf.addImage(imgData, "JPEG", 0, 0, widthMm, heightMm, "", "FAST");
-
-//     pdf.save("container-export.pdf");
-//     toggleClassOnTableInputs("table_input","bottom-3", false)
-//     toggleClassOnTableInputs("table_input_td","pb-3", false)
-//     toggleClassOnTableInputs("p_print", "pb-3" , false)
-//     bc.classList.remove("h-64");
-//     bc.classList.add("h-40");
-//     bc.classList.remove("mb-3")
-//     containerRef.current.classList.remove("pb-8");
-//   };
-  //pdf--------------------------====================
 
   const showSections = canDownload();
 
@@ -588,35 +528,8 @@ const Canvas = ({containerRef}) => {
     }
   };
 
-  // Add this function to handle note changes
-  const handleNoteChange = (event) => {
-    const newNotes = event.target.textContent;
-    setNoteArea(newNotes);
-  };
-
-  // Add this useEffect to load notes when component mounts or when noteArea changes
-  useEffect(() => {
-    const notesEditor = document.querySelector('.notes-editor');
-    if (notesEditor && noteArea) {
-      notesEditor.textContent = noteArea;
-    }
-  }, [noteArea]);
-
   return (
     <>
-      {/* <div
-        onClick={exportToPDF}
-        className="h-16 fixed right-0 bottom-0 justify-center items-center flex-row no-wrap px-4 w-80 hidden lg:flex z-40"
-      >
-        <button className="h-9 m-auto px-1 text-white bg-blue-700 font-semibold border-2 border-transparent hover:border-orange-600 shadow-md hover:shadow-lg transition-all duration-300 ease-in-out w-full flex items-center justify-between rounded">
-          <div className="h-full flex justify-center flex-1 items-center">
-            <span>Download</span>
-          </div>
-          <div className="bg-blue-700 text-white flex h-full items-center">
-            <DownloadIcon />
-          </div>
-        </button>
-      </div> */}
       {/* Zoom Buttons */}
       <div className="fixed top-16 left-5 z-10 bg-white p-2 rounded shadow">
         <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">
@@ -952,13 +865,6 @@ const Canvas = ({containerRef}) => {
                             strokeWidth="1"
                             strokeDasharray="4"
                           />
-                          
-                          {/* Center point circle at intersection of centerlines */}
-                        
-
-                          {/* Label line */}
-                       
-                         
                         </>
                       )}
   {intendedPosition && (
@@ -1022,10 +928,6 @@ const Canvas = ({containerRef}) => {
                           const boxWidth = parseFloat(box.width) || 0;
                           const boxHeight = parseFloat(box.height) || 0;
                           
-                          // Calculate text position
-                          const textX = boxX + (boxWidth / 2);
-                          const textY = Math.max(0, boxY - 5);
-                          
                           return (
                             <g key={box.id}>
                               <rect
@@ -1037,15 +939,6 @@ const Canvas = ({containerRef}) => {
                                 stroke={COLORS.highlight}
                                 strokeWidth="1.5"
                               />
-                              <text
-                                x={textX}
-                                y={textY}
-                                textAnchor="middle"
-                                fontSize="10"
-                                fill={COLORS.highlight}
-                              >
-                                Box {index + 1}
-                              </text>
                             </g>
                           );
                         })}
@@ -1115,6 +1008,7 @@ const Canvas = ({containerRef}) => {
                             markerStart="url(#arrowReversed)"
                             markerEnd="url(#arrow)"
                           />
+                          
                           <line
                             x1={screenX - 40}
                             y1={screenY}
@@ -1348,26 +1242,9 @@ const Canvas = ({containerRef}) => {
             className="flex space-x-6 h-40 print:h-44 print:mx-2 print:mb-2"
             id="bottom_container"
           >
-            {/* Notes Section 33333333333333333333333*/}
+            {/* Notes Section - REPLACED with NotesEditor component */}
             <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
-            <div className="h-[140px] p-4  flex-col relative mb-3">
-  <p className="absolute left-3 top-3 text-md font-light underline mb-2">NOTES:</p>
-  <div
-    className="absolute top-10 left-3 right-3 bottom-3 overflow-auto notes-editor"
-    contentEditable="true"
-    style={{ 
-      outline: "none", 
-      maxHeight: "100%", 
-      overflowY: "auto",
-      wordWrap: "break-word",
-      wordBreak: "break-word"
-    }}
-    data-toolbar-enabled={notesComponentId}
-   
-    
-    onInput={handleNoteChange}
-  ></div>
-            </div>
+              <NotesEditor componentId={notesComponentId} />
             </div>
             <div className="flex-1 bg-opacity-30">
               <InfoTable/>
@@ -1380,25 +1257,3 @@ const Canvas = ({containerRef}) => {
 };
 
 export default Canvas;
-
-// /**
-//  * Toggles a specific class on all elements with the className "table_input"
-//  * @param {string} className - The class to add or remove
-//  * @param {boolean} shouldAdd - True to add the class, false to remove it
-//  */
-// function toggleClassOnTableInputs(targetClass, className, shouldAdd) {
-//   // Get all elements with the className "table_input"
-//   const tableInputs = document.querySelectorAll('.'+targetClass);
-  
-//   // Loop through each element
-//   tableInputs.forEach(element => {
-//     if (shouldAdd) {
-//       // Add the class if it doesn't exist
-//       element.classList.add(className);
-//     } else {
-//       // Remove the class if it exists
-//       element.classList.remove(className);
-//     }
-//   });
-// }
-

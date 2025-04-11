@@ -4,9 +4,9 @@ import Hamburger from "./Hamburger";
 import { AiOutlineMenu } from "react-icons/ai";
 const Header = ({ toggleSidebar, isOpen }) => {
   return (
-    <div className="z-100 bg-white fixed top-0 w-full left-0 h-14 border-b">
-      <div className="fixed left-5 top-4">
-        <img className="w-36" src={logo} alt="logo" />
+    <div className="z-100 bg-white fixed top-0 w-full left-0 h-14 border-b z-50 ">
+      <div className="fixed left-5 top-3">
+        <img className="w-28" src={logo} alt="logo" />
       </div>
       <div
         className="text-menu_item_on absolute right-6 z-50 top-3 lg:hidden"
@@ -17,12 +17,12 @@ const Header = ({ toggleSidebar, isOpen }) => {
         />
       </div>
 
-      <div className="items-center flex flex-row absolute lg:right-4 right-16 top-1">
+      <div className="items-center flex flex-row absolute lg:right-4 right-16 top-2 z-50 justify-center">
         <div className="text-black">
-          <p>User</p>
-          <p className="text-gray-600">Admin</p>
+          <p className="text-sm">User</p>
+          <p className="text-gray-600 text-sm">Admin</p>
         </div>
-        <div className="flex-shrink-0 flex justify-center items-center rounded-full w-14 h-14 bg-blue-100">
+        <div className="flex-shrink-0 flex justify-center items-center rounded-full w-10 h-10 bg-blue-100">
         <svg
             className="w-5 h-5 text-blue-500 "
             xmlns="http://www.w3.org/2000/svg"

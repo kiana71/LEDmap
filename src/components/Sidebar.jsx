@@ -173,7 +173,7 @@ useEffect(() => {
 
   return (
     <div
-      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none pb-12 z-40 ${
+      className={`overflow-y-auto h-full fixed w-80 lg:right-0 transition-all bg-white top-0 pt-14 shadow-xl lg:shadow-none pb-12 z-10 ${
         isOpen ? "right-0" : "-right-80"
       }`}
     >
