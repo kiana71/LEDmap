@@ -105,7 +105,7 @@ const InfoTable = () => {
         <table className="w-full  text-[11px] print:text-[9px] print:w-full ">
           <tbody className="!border-r-red">
             {/* Row 1 - Drawn / Dimensions / Mounting/ Orientation Headers */}
-            <tr className="h-[22px] print:h-4">
+            <tr className="h-[22px] print:h-4 font-bold">
               <td className="border-t-0 border border-gray-300 border-l-0 bg-white w-1/4 text-center p-0 print:p-0 table_input_td">
                 Drawn
               </td>
@@ -138,7 +138,7 @@ const InfoTable = () => {
             </tr>
             
             {/* Row 3 - Headers for Date / Screen / Mount / Media Player */}
-            <tr className="h-[22px] print:h-4">
+            <tr className="h-[22px] print:h-4 font-bold">
               <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0 table_input_td">
                 Date
               </td>
@@ -170,7 +170,7 @@ const InfoTable = () => {
             </tr>
             
             {/* Row 5 - Headers for Sheet / Revision / Department / Drawing No */}
-            <tr className="h-[22px] print:h-4">
+            <tr className="h-[22px] print:h-4 font-bold">
               <td className="border border-gray-300 border-l-0 bg-white text-center p-0 print:p-0 table_input_td">
                 Sheet
               </td>
@@ -186,7 +186,7 @@ const InfoTable = () => {
             </tr>
             
             {/* Row 6 - Values for Sheet / Revision / Department / Drawing No */}
-            <tr className="h-[22px] print:h-4">
+            <tr className="h-[22px] print:h-4 ">
               <td className="border border-gray-300 border-l-0 border-b-0 text-center p-0 print:p-0">
                 <TransparentInput field="sheet" onUpdate={updateField}/>
               </td>

@@ -301,7 +301,7 @@ useEffect(() => {
                     type="number"
                     value={boxCount}
                     disabled
-                    //khob in value az database nemiad. man ino dasti az sidbar ziad mikonam. afarin.
+                  
                     onChange={(e) => {
                       const value = parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
@@ -346,16 +346,16 @@ useEffect(() => {
 
                   <input
                     type="number"
-                    value={bottomDistance}
+                    value={bottomDistance.toFixed(2)}
                     onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                      const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setBottomDistance(value);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
-                    step="0.5"
+                    step="0.01"
                   />
 
                   <button
@@ -389,16 +389,16 @@ useEffect(() => {
 
                   <input
                     type="number"
-                    value={leftDistance}
+                    value={leftDistance.toFixed(2)}
                     onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                      const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setLeftDistance(value);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
-                    step="0.5"
+                    step="0.01"
                   />
 
                   <button
@@ -432,17 +432,16 @@ useEffect(() => {
 
                   <input
                     type="number"
-                    disabled
-                    value={boxGap}
+                    value={boxGap.toFixed(2)}
                     onChange={(e) => {
-                      const value = parseFloat(e.target.value);
+                      const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setBoxGap(value);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     min="0"
-                    step="0.5"
+                    step="0.01"
                   />
 
                   <button

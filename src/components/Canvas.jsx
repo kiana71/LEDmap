@@ -104,7 +104,6 @@ const Canvas = ({containerRef}) => {
   // Get all state and methods from the store
   const {
     isHorizontal,
-
     boxCount,
     activeBoxId,
     setStartDragInfo,
@@ -123,6 +122,7 @@ const Canvas = ({containerRef}) => {
     variantDepth,
     isEdgeToEdge,
     canDownload,
+    setLedScaleFactor
   } = useSheetDataStore();
 
   // Add these lines to get the apiStore functionality
@@ -194,38 +194,43 @@ const Canvas = ({containerRef}) => {
   const DirnicheWidth = isHorizontal ? nicheWidth : nicheHeight;
   const DirnicheHeight = isHorizontal ? nicheHeight : nicheWidth;
 
-  // Base dimensions for the diagram area
-  const BASE_WIDTH = 800;
-  const BASE_HEIGHT = 800;
-
-  // Maximum dimensions for the screen in the SVG
-  const MAX_SCREEN_WIDTH = 500;
-  const MAX_SCREEN_HEIGHT = 400;
-
-  // Fixed floor line position from the top of the SVG
-  const FIXED_FLOOR_LINE_Y = 600; // This will be our fixed floor line position
-
-  // Dynamic scaling factor based on screen size
-  const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
-  const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
-  const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
-
-  // Calculate screen dimensions in pixels with adaptive scaling
-  const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
-  const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
-
-  // Calculate niche dimensions in pixels
-  const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
-  const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
-
-  // Calculate center positions - ensure we have enough margin on all sides
-  const centerX = BASE_WIDTH / 2;
-  // Adjust centerY to maintain proper distance from floor line
-  const centerY = FIXED_FLOOR_LINE_Y - 300; // Position screen relative to fixed floor line
-
-  // Calculate screen position (centered)
-  const screenX = centerX - screenWidthPx / 2;
-  const screenY = centerY - screenHeightPx / 2;
+   // Base dimensions for the diagram area
+   const BASE_WIDTH = 800;
+   const BASE_HEIGHT = 800;
+ 
+   // Maximum dimensions for the screen in the SVG
+   const MAX_SCREEN_WIDTH = 500;
+   const MAX_SCREEN_HEIGHT = 400;
+ 
+   // Fixed floor line position from the top of the SVG
+   const FIXED_FLOOR_LINE_Y = 600; // This will be our fixed floor line position
+ 
+   // Dynamic scaling factor based on screen size
+   const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
+   const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
+   const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
+ 
+   // Update the store's scale factor whenever it changes
+   useEffect(() => {
+     setLedScaleFactor(SCALE_FACTOR);
+   }, [SCALE_FACTOR, setLedScaleFactor]);
+ 
+   // Calculate screen dimensions in pixels with adaptive scaling
+   const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
+   const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
+ 
+   // Calculate niche dimensions in pixels
+   const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
+   const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
+ 
+   // Calculate center positions - ensure we have enough margin on all sides
+   const centerX = BASE_WIDTH / 2;
+   // Adjust centerY to maintain proper distance from floor line
+   const centerY = FIXED_FLOOR_LINE_Y - 300; // Position screen relative to fixed floor line
+ 
+   // Calculate screen position (centered)
+   const screenX = centerX - screenWidthPx / 2;
+   const screenY = centerY - screenHeightPx / 2;
 
   // Calculate niche position (centered around screen)
   const nicheX = centerX - nicheWidthPx / 2;
@@ -334,7 +339,7 @@ const Canvas = ({containerRef}) => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
-  
+
   // Draw the boundary box for debugging (comment out in production)
   const showBoundaryBox = false; // Set to true to see the boundary
 
@@ -1027,14 +1032,14 @@ const Canvas = ({containerRef}) => {
                           />
 
                           <text
-                            x={screenX - 87}
-                            y={centerY}
+                            x={screenX - 70}
+                            y={centerY - 80}
                             textAnchor="middle"
                             fontSize="12"
                             transform="rotate(270, screenX - 75, centerY)"
                           >
                             {isHorizontal ? rawHeightValue : rawWidthValue}
-                            <tspan x={screenX - 87} dy="14">
+                            <tspan x={screenX - 70} dy="14">
                               (Height)
                             </tspan>
                           </text>
@@ -1156,8 +1161,8 @@ const Canvas = ({containerRef}) => {
                 {rawNicheDepth && selectedScreen ? (
                   <div className=" m-0 w-1/6 p-1 max-w-72">
                     <div className="w-full flex flex-col space-y-4 ">
-                      <div className="border border-black p-2 bg-white bg-opacity-30 w-full ">
-                        <div className="font-bold text-sm">
+                      <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-26">
+                        <div className="font-bold text-sm h-26 pb-2">
                           <DimensionGroup
                             title="Screen Dimensions"
                             className="w-full"
@@ -1165,17 +1170,17 @@ const Canvas = ({containerRef}) => {
                             <DimensionItem
                               label="Height"
                               value={selectedScreen["Height"] || 0}
-                              className="flex flex-row items-center justify-between  border-black"
+                              className="flex flex-row items-center justify-between  border-black h-5"
                             />
                             <DimensionItem
                               label="Width"
                               value={selectedScreen["Width"] || 0}
-                              className="flex flex-row items-center justify-between  border-black "
+                              className="flex flex-row items-center justify-between  border-black h-5"
                             />
                             <DimensionItem
                               label="Depth"
                               value={selectedScreen["Depth"] || 0}
-                              className="flex flex-row items-center justify-between  border-black"
+                              className="flex flex-row items-center justify-between  border-black h-5"
                             />
                           </DimensionGroup>
                         </div>
@@ -1183,8 +1188,8 @@ const Canvas = ({containerRef}) => {
 
                       {/* Niche Dimensions Box */}
                       {isNiche && (
-                        <div className="border border-black p-1 bg-white bg-opacity-30 w-full ">
-                          <div className="font-bold text-sm">
+                        <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-26">
+                          <div className="font-bold text-sm h-26 pb-2">
                             <DimensionGroup
                               title="Niche Dimensions"
                               className="w-full"
@@ -1199,7 +1204,7 @@ const Canvas = ({containerRef}) => {
                                       ).toFixed(2)
                                     : 0
                                 }
-                                className="items-center text-center justify-between border-black h-8"
+                                className="items-center text-center justify-between border-black h-5"
                               />
                               <DimensionItem
                                 label="Width"
@@ -1211,12 +1216,12 @@ const Canvas = ({containerRef}) => {
                                       ).toFixed(2)
                                     : 0
                                 }
-                                className="flex flex-row items-center justify-between  border-black h-8"
+                                className="flex flex-row items-center justify-between  border-black h-5"
                               />
                               <DimensionItem
                                 label="Depth"
                                 value={nicheDepth.toFixed(3)}
-                                className="flex flex-row items-center justify-between border-black h-8"
+                                className="flex flex-row items-center justify-between border-black h-5"
                               />
                             </DimensionGroup>
                           </div>

@@ -6,6 +6,7 @@ export const useSheetDataStore = create((set, get) => ({
   selectedMediaPlayer: {},
   selectedMount: {},
   selectedReceptacleBox: {},
+  ledScaleFactor: 10, // Default value, will be updated from Canvas
   
   // Add helper function to check if download should be enabled
   canDownload: () => {
@@ -113,30 +114,29 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   // Calculate maximum allowed values for box parameters
   calculateMaxValues: () => {
     const state = get();
-    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT, boxCount } = state;
-    const SCALE_FACTOR = 10;
-    const boxWidthPx = BOX_WIDTH * SCALE_FACTOR;
-    const boxHeightPx = BOX_HEIGHT * SCALE_FACTOR;
+    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT, boxCount, ledScaleFactor } = state;
+    const boxWidthPx = BOX_WIDTH * ledScaleFactor;
+    const boxHeightPx = BOX_HEIGHT * ledScaleFactor;
     const screenWidth = BOUNDARY.width;
     const screenHeight = BOUNDARY.height;
-    const currentGapPx = state.boxGap * SCALE_FACTOR;
-    const leftDistancePx = state.leftDistance * SCALE_FACTOR;
+    const currentGapPx = state.boxGap * ledScaleFactor;
+    const leftDistancePx = state.leftDistance * ledScaleFactor;
     const availableWidth = screenWidth - leftDistancePx;
     const maxBoxesPerRow = Math.max(1, Math.floor((availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)));
     const rowsNeeded = Math.ceil(boxCount / maxBoxesPerRow);
     const totalRowHeight = (rowsNeeded * boxHeightPx) + ((rowsNeeded - 1) * currentGapPx);
-    const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight) / SCALE_FACTOR);
+    const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight) / ledScaleFactor);
     const boxesInFirstRow = Math.min(boxCount, maxBoxesPerRow);
     let maxBoxGap = state.boxGap;
     
     if (boxesInFirstRow > 1) {
       const availableGapSpace = availableWidth - (boxesInFirstRow * boxWidthPx);
-      const maxGapValue = availableGapSpace / (boxesInFirstRow - 1) / SCALE_FACTOR;
+      const maxGapValue = availableGapSpace / (boxesInFirstRow - 1) / ledScaleFactor;
       maxBoxGap = Math.max(0, maxGapValue);
     }
     
     const spaceNeededForBoxes = (boxesInFirstRow * boxWidthPx) + ((boxesInFirstRow - 1) * currentGapPx);
-    const maxLeftDistance = Math.max(0, (screenWidth - spaceNeededForBoxes) / SCALE_FACTOR);
+    const maxLeftDistance = Math.max(0, (screenWidth - spaceNeededForBoxes) / ledScaleFactor);
     
     return {
       maxBottomDistance,
@@ -186,7 +186,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   
   // Set box count directly
   setBoxCount: (value) => set(state => {
-    
+
     const newCount = Math.max(1, Math.floor(value));
     const { positions } = state.calculateBoxPositions();
     const maxBoxes = positions.length;
@@ -281,17 +281,16 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       bottomDistance,
       boxGap,
       boxCount,
-      isColumnLayout
+      isColumnLayout,
+      ledScaleFactor
     } = state;
 
     // Convert inches to pixels based on diagram scale
-    const SCALE_FACTOR = 10; // Assuming 10px = 1 inch
-    
-    const boxWidthPx = BOX_WIDTH * SCALE_FACTOR;
-    const boxHeightPx = BOX_HEIGHT * SCALE_FACTOR;
-    const leftDistancePx = leftDistance * SCALE_FACTOR;
-    const bottomDistancePx = bottomDistance * SCALE_FACTOR;
-    const boxGapPx = boxGap * SCALE_FACTOR;
+    const boxWidthPx = BOX_WIDTH * ledScaleFactor;
+    const boxHeightPx = BOX_HEIGHT * ledScaleFactor;
+    const leftDistancePx = leftDistance * ledScaleFactor;
+    const bottomDistancePx = bottomDistance * ledScaleFactor;
+    const boxGapPx = boxGap * ledScaleFactor;
 
     // Calculate usable dimensions
     const usableWidth = BOUNDARY.width - leftDistancePx;
@@ -408,7 +407,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       BOX_HEIGHT,
       leftDistance,
       bottomDistance,
-      boxGap
+      boxGap,
+      ledScaleFactor
     } = state;
     
     // First get positions based on current settings
@@ -418,9 +418,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     // settings to maintain the current box count
     if (boxCount > positions.length && boxCount > 0) {
       // We have more boxes than positions - try to adjust settings
-      const SCALE_FACTOR = 10;
-      const boxWidthPx = BOX_WIDTH * SCALE_FACTOR;
-      const boxHeightPx = BOX_HEIGHT * SCALE_FACTOR;
+      const boxWidthPx = BOX_WIDTH * ledScaleFactor;
+      const boxHeightPx = BOX_HEIGHT * ledScaleFactor;
       
       // Calculate how many boxes should fit per row to accommodate all boxes
       const screenWidth = BOUNDARY.width;
@@ -431,9 +430,9 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       const idealRows = Math.ceil(boxCount / idealCols);
       
       // Calculate maximum viable settings
-      const adjustedGap = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - (leftDistance * SCALE_FACTOR)) / Math.max(1, idealCols - 1) / SCALE_FACTOR);
-      const adjustedBottomDistance = Math.max(0, (screenHeight - (idealRows * boxHeightPx) - ((idealRows - 1) * boxGap * SCALE_FACTOR)) / SCALE_FACTOR);
-      const adjustedLeftDistance = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - ((idealCols - 1) * boxGap * SCALE_FACTOR)) / SCALE_FACTOR);
+      const adjustedGap = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - (leftDistance * ledScaleFactor)) / Math.max(1, idealCols - 1) / ledScaleFactor);
+      const adjustedBottomDistance = Math.max(0, (screenHeight - (idealRows * boxHeightPx) - ((idealRows - 1) * boxGap * ledScaleFactor)) / ledScaleFactor);
+      const adjustedLeftDistance = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - ((idealCols - 1) * boxGap * ledScaleFactor)) / ledScaleFactor);
       
       // Update settings with adjusted values to maintain box count
       // (This will trigger another updateBoxPositions call)
@@ -496,8 +495,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     let newY = state.startBoxPosition.y + deltaY;
     
     // Constrain to boundary
-    newX = Math.max(state.BOUNDARY.x, Math.min(state.BOUNDARY.x + state.BOUNDARY.width - state.BOX_WIDTH * 10, newX));
-    newY = Math.max(state.BOUNDARY.y, Math.min(state.BOUNDARY.y + state.BOUNDARY.height - state.BOX_HEIGHT * 10, newY));
+    newX = Math.max(state.BOUNDARY.x, Math.min(state.BOUNDARY.x + state.BOUNDARY.width - state.BOX_WIDTH * state.ledScaleFactor, newX));
+    newY = Math.max(state.BOUNDARY.y, Math.min(state.BOUNDARY.y + state.BOUNDARY.height - state.BOX_HEIGHT * state.ledScaleFactor, newY));
     
     return {
       ...state,
@@ -545,6 +544,8 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   setWoodBacking: (value) => set(state => ({ ...state, woodBacking: value })),
   setReceptacleBox: (value) => set(state => ({ ...state, receptacleBox: value })),
   setIntendedPosition: (value) => set(state => ({ ...state, intendedPosition: value })),
+
+  setLedScaleFactor: (value) => set(state => ({ ...state, ledScaleFactor: value })),
 }));
 
 // Initialize the store with one box
