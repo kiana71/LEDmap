@@ -14,6 +14,7 @@ import { toggleClassOnTableInputs } from "./utils/printUtils";
 import C2S from "./utils/canvas2svg";
 import useApiStore from "./store/apiStore";
 import Modal from "./components/Modal";
+import PreviewIcon from '@mui/icons-material/Preview';
 
 function App() {
   const containerRef = useRef(null);
@@ -22,23 +23,24 @@ function App() {
   const { showDeleteModal, drawingToDelete, confirmDelete, cancelDelete } =
     useApiStore();
 
-  // Add keyboard shortcut handler for print preview
+  // Add keyboard shortcut handler for browser's native print preview
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "p") {
-        e.preventDefault();
-        handlePrintPreview();
+      if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
+        // Let the browser handle the native print preview
+        return;
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
   const handlePrintPreview = async () => {
     try {
       setIsPrinting(true);
       const bc = document.getElementById("bottom_container");
-
+      
       // Apply print-specific styles
       toggleClassOnTableInputs("table_input", "bottom-3", true);
       toggleClassOnTableInputs("table_input_td", "pb-3", true);
@@ -54,127 +56,106 @@ function App() {
       }
 
       // Create a new window for preview
-      const previewWindow = window.open("", "_blank", "width=1200,height=800");
-
-      // First, let's manually include all link tags from the current document
-      const linkTags = Array.from(
-        document.querySelectorAll('link[rel="stylesheet"]')
-      ).map((link) => link.outerHTML);
-
-      // Get all style tags from the document
-      const styleTags = Array.from(document.querySelectorAll("style")).map(
-        (style) => style.outerHTML
-      );
-
+      const previewWindow = window.open('', '_blank');
+      
+      // Add key stylesheets directly - more reliable than trying to extract all rules
+      const cssLinks = [
+        '/index.css',  // Assuming main CSS is here - adjust path as needed
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', // Common font
+      ];
+      
       // Create basic HTML structure for the preview
       previewWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
             <title>Technical Drawing</title>
-            ${linkTags.join("\n")}
-            ${styleTags.join("\n")}
-            <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+            ${cssLinks.map(link => `<link rel="stylesheet" href="${link}">`).join('')}
             <style>
-              /* Basic container styles */
+              /* Essential styles for the preview */
               body {
                 margin: 0;
                 padding: 20px;
                 background: white;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
               }
               
+              /* Container styles */
+              .preview-container {
+                width: 816px;
+                height: 1056px;
+                margin: 0 auto;
+                padding: 20px;
+                background: white;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                position: relative;
+                overflow: hidden;
+              }
+              
+              /* Button area */
               .btn-container {
-                display: flex;
-                justify-content: center;
-                gap: 10px;
+                text-align: center;
                 margin: 20px 0;
-                padding: 10px;
               }
               
               .btn {
-                padding: 10px 20px;
+                padding: 8px 16px;
                 background-color: #4a90e2;
                 color: white;
                 border: none;
                 border-radius: 4px;
                 font-size: 14px;
-                font-weight: 500;
                 cursor: pointer;
-                transition: background-color 0.2s;
+                margin: 0 10px;
               }
               
               .btn:hover {
                 background-color: #3a80d2;
               }
-
-              .btn-export {
-                background-color: #10b981;
-              }
-
-              .btn-export:hover {
-                background-color: #059669;
+              
+              /* Make SVG properly sized */
+              svg {
+                max-width: 100%;
+                height: auto;
               }
               
-              /* Container for the content */
-              .preview-container {
-                margin: 0 auto;
-                width: fit-content;
+              /* Make notes content selectable */
+              [contenteditable="true"] {
+                -webkit-user-select: text;
+                user-select: text;
               }
               
-              /* Iframe styles */
-              .content-iframe {
-                border: none;
-                width: 1056px;
-                height: 816px;
-                margin: 0 auto;
-                display: block;
-                background: white;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+              /* Table styles */
+              table {
+                width: 100%;
+                border-collapse: collapse;
               }
               
-              /* For the second (hidden) iframe used for printing */
-              .print-iframe {
-                position: fixed;
-                top: -9999px;
-                left: -9999px;
-                width: 1056px;
-                height: 816px;
-                border: none;
+              td, th {
+                border: 1px solid #ddd;
+                padding: 8px;
               }
               
+              /* Print-specific styles */
               @media print {
-                @page {
-                  size: landscape;
+                body {
+                  padding: 0;
                   margin: 0;
                 }
                 
-                body {
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  background: white !important;
+                .preview-container {
+                  box-shadow: none;
+                  padding: 0;
+                  width: 100%;
+                  height: auto;
                 }
                 
-                * {
-                  -webkit-print-color-adjust: exact !important;
-                  print-color-adjust: exact !important;
+                .btn-container {
+                  display: none;
                 }
                 
-                .btn-container, .preview-container {
-                  display: none !important;
-                }
-                
-                .print-container {
-                  display: block !important;
-                  margin: 0 !important;
-                  padding: 0 !important;
-                }
-                
-                .print-iframe {
-                  position: static !important;
-                  width: 100% !important;
-                  height: auto !important;
-                  border: none !important;
+                .preview-content * {
+                  break-inside: avoid;
                 }
               }
             </style>
@@ -182,329 +163,116 @@ function App() {
           <body>
             <div class="btn-container">
               <button class="btn" id="printBtn">Print Document</button>
-              <button class="btn btn-export" id="svgBtn">Export SVG</button>
+              <button class="btn" id="saveAsPdfBtn">Save as PDF</button>
             </div>
-            
-            <!-- Main preview iframe -->
             <div class="preview-container">
-              <iframe id="contentFrame" class="content-iframe" frameborder="0"></iframe>
-            </div>
-            
-            <!-- Hidden container that becomes visible only when printing -->
-            <div class="print-container" style="display: none;">
-              <!-- This iframe is only used for printing purposes -->
-              <iframe id="printFrame" class="print-iframe" frameborder="0"></iframe>
+              <div class="preview-content">
+                <!-- Content will be injected here by script -->
+              </div>
             </div>
             
             <script>
-              // Handle print button
+              // Handle the print button
               document.getElementById('printBtn').addEventListener('click', function() {
-                // Get the main iframe content
-                const iframe = document.getElementById('contentFrame');
-                const iframeContent = iframe.contentDocument.documentElement.outerHTML;
-                
-                // Setup the print iframe with the same content
-                const printFrame = document.getElementById('printFrame');
-                const printDoc = printFrame.contentDocument || printFrame.contentWindow.document;
-                printDoc.open();
-                printDoc.write(iframeContent);
-                
-                // Add additional print styles directly to the print iframe
-                const printStyle = printDoc.createElement('style');
-                printStyle.textContent = \`
-                  @page { size: landscape; margin: 0; }
-                  body { margin: 0 !important; padding: 0 !important; background: white !important; }
-                  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                  
-                  /* Make all text selectable */
-                  * {
-                    user-select: text !important;
-                    -webkit-user-select: text !important;
-                  }
-                  
-                  #drawing-container {
-                    transform: none !important;
-                    position: static !important;
-                    top: auto !important;
-                    left: auto !important;
-                    width: 100% !important;
-                    margin: 0 auto !important;
-                  }
-                  
-                  /* If there are any dialogs or UI elements in the iframe, hide them */
-                  .dialog, .modal, .popup { display: none !important; }
-                \`;
-                printDoc.head.appendChild(printStyle);
-                
-                // Close the document and make print container visible for printing
-                printDoc.close();
-                
-                // Wait a bit for the content to be fully loaded
-                setTimeout(function() {
-                  // Show the print container and hide the preview
-                  document.querySelector('.preview-container').style.display = 'none';
-                  document.querySelector('.print-container').style.display = 'block';
-                  
-                  // Trigger print
-                  window.print();
-                  
-                  // After printing, revert back to preview mode
-                  setTimeout(function() {
-                    document.querySelector('.preview-container').style.display = 'block';
-                    document.querySelector('.print-container').style.display = 'none';
-                  }, 1000);
-                }, 500);
+                window.print();
               });
               
-              // Handle SVG export button
-              document.getElementById('svgBtn').addEventListener('click', async function() {
-                const iframe = document.getElementById('contentFrame');
-                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                const drawingContainer = iframeDoc.getElementById('drawing-container');
+              // Handle save as PDF button - uses browser's built-in print-to-PDF
+              document.getElementById('saveAsPdfBtn').addEventListener('click', function() {
+                // Hide buttons for cleaner PDF
+                document.querySelector('.btn-container').style.display = 'none';
                 
-                if (drawingContainer) {
-                  try {
-                    // Create a canvas from the container
-                    const canvas = await html2canvas(drawingContainer, {
-                      scale: 2,
-                      useCORS: true,
-                      logging: false,
-                      backgroundColor: "#ffffff"
-                    });
-
-                    // Get canvas dimensions
-                    const canvasWidth = canvas.width;
-                    const canvasHeight = canvas.height;
-
-                    // Create SVG element
-                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    svg.setAttribute('width', canvasWidth);
-                    svg.setAttribute('height', canvasHeight);
-                    svg.setAttribute('viewBox', '0 0 ' + canvasWidth + ' ' + canvasHeight);
-                    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-                    // Create image element
-                    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-                    image.setAttribute('width', canvasWidth);
-                    image.setAttribute('height', canvasHeight);
-                    image.setAttribute('href', canvas.toDataURL('image/png'));
-
-                    // Add image to SVG
-                    svg.appendChild(image);
-
-                    // Add styles to ensure text is selectable
-                    const style = document.createElement('style');
-                    style.textContent = \`
-                      text {
-                        user-select: text;
-                        -webkit-user-select: text;
-                        pointer-events: auto;
-                      }
-                      tspan {
-                        user-select: text;
-                        -webkit-user-select: text;
-                        pointer-events: auto;
-                      }
-                      #drawing-container {
-                        width: 100%;
-                        height: 100%;
-                      }
-                      svg {
-                        width: 100%;
-                        height: 100%;
-                      }
-                    \`;
-                    svg.appendChild(style);
-
-                    // Get the SVG content
-                    const svgData = new XMLSerializer().serializeToString(svg);
-
-                    // Create a blob with the SVG data
-                    const blob = new Blob([svgData], { type: 'image/svg+xml' });
-
-                    // Create a download link
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = 'drawing.svg';
-
-                    // Trigger the download
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  } catch (error) {
-                    console.error('Error exporting to SVG:', error);
-                    alert('Error exporting to SVG. Please try again.');
-                  }
-                } else {
-                  console.error('Drawing container not found');
-                }
+                // Use timeout to allow DOM update before printing
+                setTimeout(function() {
+                  window.print();
+                  
+                  // Show buttons again after print dialog
+                  setTimeout(function() {
+                    document.querySelector('.btn-container').style.display = 'block';
+                  }, 1000);
+                }, 100);
               });
             </script>
           </body>
         </html>
       `);
-
-      // Wait for preview window to be ready
-      setTimeout(() => {
-        try {
-          // Get the iframe element
-          const iframe = previewWindow.document.getElementById("contentFrame");
-          const iframeDoc =
-            iframe.contentDocument || iframe.contentWindow.document;
-
-          // Create a complete HTML document for the iframe with all necessary styles
-          iframeDoc.open();
-          iframeDoc.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>Drawing Content</title>
-                ${linkTags.join("\n")}
-                ${styleTags.join("\n")}
-                <style>
-                  /* Reset body styles */
-                  body {
-                    margin: 0;
-                    padding: 0;
-                    background: white;
-                    overflow: auto;
-                  }
-                  
-                  /* Make all text selectable */
-                  * {
-                    user-select: text !important;
-                    -webkit-user-select: text !important;
-                  }
-                  
-                  /* Make form elements interactive */
-                  input, textarea, [contenteditable="true"] {
-                    pointer-events: auto !important;
-                  }
-                  
-                  /* Fix container size and positioning */
-                  #drawing-container {
-                    transform: none !important;
-                    position: static !important;
-                    top: auto !important;
-                    left: auto !important;
-                    width: 1056px !important;
-                    height: auto !important;
-                    margin: 0 auto !important;
-                  }
-                  
-                  /* Fix SVG size to be full size */
-                  svg {
-                    display: block;
-                    width: 100% !important;
-                    height: auto !important;
-                    max-width: 100% !important;
-                    max-height: 100% !important;
-                  }
-                  
-                  /* Bottom section fixes */
-                  #bottom_container {
-                    height: auto !important;
-                    min-height: 160px !important;
-                  }
-                  
-                  @media print {
-                    @page {
-                      size: landscape;
-                      margin: 0;
-                    }
-                    
-                    body {
-                      margin: 0 !important;
-                      padding: 0 !important;
-                      background: white !important;
-                    }
-                    
-                    * {
-                      -webkit-print-color-adjust: exact !important;
-                      print-color-adjust: exact !important;
-                    }
-                    
-                    #drawing-container {
-                      width: 100% !important;
-                      margin: 0 !important;
-                      padding: 0 !important;
-                    }
-                  }
-                </style>
-              </head>
-              <body>
-                <div id="drawing-container">
-                  ${containerRef.current.outerHTML}
-                </div>
-                <script>
-                  // Run this after everything is loaded
-                  window.onload = function() {
-                    // Fix SVG viewBox and dimensions
-                    document.querySelectorAll('svg').forEach(function(svg) {
-                      // Get the viewBox
-                      const viewBox = svg.getAttribute('viewBox');
-                      
-                      // Get original width/height if they exist
-                      const originalWidth = svg.getAttribute('width');
-                      const originalHeight = svg.getAttribute('height');
-                      
-                      // Remove width/height attributes to allow CSS to control sizing
-                      svg.removeAttribute('width');
-                      svg.removeAttribute('height');
-                      
-                      // Keep the viewBox to maintain aspect ratio
-                      if (viewBox) {
-                        svg.setAttribute('viewBox', viewBox);
-                      }
-                      
-                      // Make the SVG full-size
-                      svg.style.width = '100%';
-                      svg.style.height = 'auto';
-                      
-                      // Set preserveAspectRatio for consistent rendering
-                      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-                      
-                      // Remove any scaling transforms on the SVG itself
-                      svg.style.transform = 'none';
-                    });
-                    
-                    // Reset transform on container
-                    const container = document.getElementById('drawing-container');
-                    if (container) {
-                      const mainContent = container.firstElementChild;
-                      if (mainContent) {
-                        mainContent.style.transform = 'none';
-                        mainContent.style.position = 'static';
-                        mainContent.style.top = 'auto';
-                        mainContent.style.left = 'auto';
-                      }
-                    }
-                    
-                    // Enable text selection and form elements
-                    document.querySelectorAll('*').forEach(function(el) {
-                      el.style.userSelect = 'text';
-                      el.style.webkitUserSelect = 'text';
-                    });
-                    
-                    document.querySelectorAll('input, textarea, [contenteditable="true"]').forEach(function(el) {
-                      el.style.pointerEvents = 'auto';
-                      if (el.hasAttribute('contenteditable')) {
-                        el.setAttribute('contenteditable', 'true');
-                      }
-                    });
-                  };
-                </script>
-              </body>
-            </html>
-          `);
-          iframeDoc.close();
-        } catch (error) {
-          console.error("Error setting up iframe:", error);
+      
+      // Get the container where we'll inject content
+      const contentContainer = previewWindow.document.querySelector('.preview-content');
+      
+      // Create a clone of the original content
+      const contentClone = containerRef.current.cloneNode(true);
+      
+      // Fix SVG viewBox issues that can happen during cloning
+      const svgElements = contentClone.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        // Ensure viewBox is properly set to preserve aspect ratio
+        if (!svg.getAttribute('viewBox') && svg.width && svg.height) {
+          svg.setAttribute('viewBox', `0 0 ${svg.width.baseVal.value} ${svg.height.baseVal.value}`);
         }
-      }, 200);
-
+        
+        // Set preserveAspectRatio to ensure proper scaling
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        
+        // Make sure SVGs have proper dimensions
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+      });
+      
+      // Make content selectable
+      const allElements = contentClone.querySelectorAll('*');
+      allElements.forEach(el => {
+        // Make text selectable
+        el.style.userSelect = 'text';
+        el.style.webkitUserSelect = 'text';
+        
+        // Fix any position:absolute that might cause layout issues
+        if (window.getComputedStyle(el).position === 'absolute') {
+          el.style.position = 'relative';
+        }
+      });
+      
+      // Make sure form elements are interactive
+      const formElements = contentClone.querySelectorAll('input, textarea, [contenteditable="true"]');
+      formElements.forEach(el => {
+        el.style.pointerEvents = 'auto';
+        
+        // If it's a contenteditable element, make sure it remains editable
+        if (el.hasAttribute('contenteditable')) {
+          el.setAttribute('contenteditable', 'true');
+        }
+      });
+      
+      // Fix table spacing issues
+      const tableCells = contentClone.querySelectorAll('td');
+      tableCells.forEach(cell => {
+        cell.style.paddingBottom = '0';
+      });
+      
+      // Fix table input positioning
+      const tableInputs = contentClone.querySelectorAll('.table_input');
+      tableInputs.forEach(input => {
+        input.style.marginBottom = '0';
+        input.style.bottom = '0';
+      });
+      
+      // Remove any transform scaling that might break layout
+      contentClone.style.transform = 'none';
+      contentClone.style.position = 'static';
+      contentClone.style.top = 'auto';
+      contentClone.style.left = 'auto';
+      
+      // Adjust size for print
+      contentClone.style.width = '100%';
+      contentClone.style.height = 'auto';
+      contentClone.style.padding = '0';
+      
+      // Add the cloned content to the preview window
+      contentContainer.appendChild(contentClone);
+      
       // Close the document to finish loading
       previewWindow.document.close();
+
     } catch (error) {
       console.error("Error generating preview:", error);
       alert("Error creating preview: " + error.message);
@@ -620,42 +388,32 @@ function App() {
     <ErrorBoundary fallback={<Fallback />}>
       <ToolbarProvider>
         <VisibilityProvider>
-          <div className="App">
-            <div className="flex">
-              <Sidebar exportToPDF={exportToPDF} />
-              <div className="flex-1">
+          <div className="flex h-screen">
+            <Sidebar exportToPDF={exportToPDF}/>
+            <div className="flex-1 flex flex-col">
+              <Header />
+              <div className="flex-1 overflow-auto relative">
+                <div className="fixed top-32 left-4 z-50">
+                  <button
+                    onClick={handlePrintPreview}
+                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors"
+                  >
+                    <PreviewIcon />
+                    Preview
+                  </button>
+                </div>
                 <Canvas containerRef={containerRef} />
               </div>
             </div>
-           
-            <Modal
-              isOpen={showDeleteModal}
-              onClose={cancelDelete}
-              title="Confirm Delete"
-              actions={
-                <>
-                  <button
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-                    onClick={confirmDelete}
-                  >
-                    Yes, Delete
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-                    onClick={cancelDelete}
-                  >
-                    Cancel
-                  </button>
-                </>
-              }
-            >
-              <p>
-                Are you sure you want to delete drawing {drawingToDelete}? This
-                action cannot be undone.
-              </p>
-            </Modal>
-            <Header />
           </div>
+          {showDeleteModal && (
+            <Modal
+              title="Delete Drawing"
+              message={`Are you sure you want to delete "${drawingToDelete?.name}"?`}
+              onConfirm={confirmDelete}
+              onCancel={cancelDelete}
+            />
+          )}
         </VisibilityProvider>
       </ToolbarProvider>
     </ErrorBoundary>

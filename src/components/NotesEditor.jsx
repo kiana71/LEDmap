@@ -10,17 +10,17 @@ const NotesEditor = ({ componentId }) => {
   const lastHTMLRef = useRef('');
   const [hasFocus, setHasFocus] = useState(false);
   
-  // Initialize toolbar
+  // Initialize toolbar - only run once when component mounts
   useEffect(() => {
     toolbar.enable();
     return () => toolbar.disable();
-  }, [toolbar]);
+  }, [componentId]); // Only depend on componentId
 
   // Handle initial loading of notes
   useEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && !hasFocus) {
       // Only update content if we're not currently editing and content has changed
-      if (noteArea && noteArea !== lastHTMLRef.current && !hasFocus) {
+      if (noteArea && noteArea !== lastHTMLRef.current) {
         editorRef.current.innerHTML = noteArea;
         lastHTMLRef.current = noteArea;
       }
@@ -30,18 +30,14 @@ const NotesEditor = ({ componentId }) => {
         editorRef.current.innerHTML = '<p><br></p>';
       }
     }
-  }, [noteArea, hasFocus]);
+  }, [noteArea]); // Only depend on noteArea
 
   // Handle content changes - update the store when content changes
   const handleInput = (e) => {
     const newHTML = e.currentTarget.innerHTML;
     if (newHTML !== lastHTMLRef.current) {
       lastHTMLRef.current = newHTML;
-      
-      // Use setTimeout to avoid conflicts with React's event system
-      setTimeout(() => {
-        setNoteArea(newHTML);
-      }, 0);
+      setNoteArea(newHTML);
     }
   };
 
@@ -49,12 +45,12 @@ const NotesEditor = ({ componentId }) => {
   const handleFocus = () => setHasFocus(true);
   const handleBlur = () => {
     setHasFocus(false);
-    // Save content on blur as an extra safety measure
+    // Ensure content is saved on blur
     if (editorRef.current) {
-      const finalHTML = editorRef.current.innerHTML;
-      if (finalHTML !== lastHTMLRef.current) {
-        lastHTMLRef.current = finalHTML;
-        setNoteArea(finalHTML);
+      const currentHTML = editorRef.current.innerHTML;
+      if (currentHTML !== lastHTMLRef.current) {
+        lastHTMLRef.current = currentHTML;
+        setNoteArea(currentHTML);
       }
     }
   };

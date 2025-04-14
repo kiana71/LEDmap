@@ -170,6 +170,7 @@ useEffect(() => {
       setBoxGap(boxGap - 0.5);
     }
   };
+console.log(selectedReceptacleBox);
 
   return (
     <div
@@ -272,7 +273,8 @@ useEffect(() => {
               }}
             />
             {/* Receptacle Box Count Control */}
-            <div className="flex flex-col items-center mb-1 w-full px-4 ">
+
+            <div className={`flex flex-col items-center mb-1 w-full px-4 ${!selectedReceptacleBox ? 'opacity-50 pointer-events-none' : ''}`}>
               <div className="mb-2 text-center font-semibold">
                 Receptacle Box Settings
               </div>
