@@ -496,7 +496,7 @@ useEffect(() => {
 
               {maxBoxesReached && (
                 <div className="text-red-500 text-sm text-center mb-2">
-                  Maximum box limit reached for this LED size
+                  Maximum box limit reached for this Led size
                 </div>
               )}
 

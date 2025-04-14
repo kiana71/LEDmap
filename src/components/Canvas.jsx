@@ -1244,7 +1244,7 @@ const Canvas = ({containerRef}) => {
 
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
           <div
-            className="flex space-x-6 h-40 print:h-44 print:mx-2 print:mb-2"
+            className="flex space-x-6  print:h-44 print:mx-2 print:mb-2"
             id="bottom_container"
           >
             {/* Notes Section - REPLACED with NotesEditor component */}
