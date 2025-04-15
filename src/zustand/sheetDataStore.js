@@ -116,7 +116,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
   // Calculate maximum allowed values for box parameters
   calculateMaxValues: () => {
     const state = get();
-    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT, boxCount, ledScaleFactor } = state;
+    const { BOUNDARY, BOX_WIDTH, BOX_HEIGHT, boxCount, ledScaleFactor, isColumnLayout } = state;
     const boxWidthPx = BOX_WIDTH * ledScaleFactor;
     const boxHeightPx = BOX_HEIGHT * ledScaleFactor;
     const screenWidth = BOUNDARY.width;
@@ -124,15 +124,38 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const currentGapPx = state.boxGap * ledScaleFactor;
     const leftDistancePx = state.leftDistance * ledScaleFactor;
     const availableWidth = screenWidth - leftDistancePx;
-    const maxBoxesPerRow = Math.max(1, Math.floor((availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)));
-    const rowsNeeded = Math.ceil(boxCount / maxBoxesPerRow);
+    const availableHeight = screenHeight - (state.topDistance + state.bottomDistance) * ledScaleFactor;
+
+    // Calculate boxes per row/column based on layout
+    const boxesPerRow = Math.max(1, Math.floor((availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)));
+    const boxesPerColumn = Math.max(1, Math.floor((availableHeight + currentGapPx) / (boxHeightPx + currentGapPx)));
+    
+    // Calculate rows/columns needed based on layout
+    const rowsNeeded = Math.ceil(boxCount / boxesPerRow);
+    const columnsNeeded = Math.ceil(boxCount / boxesPerColumn);
+    
+    // Calculate total height/width needed based on layout
     const totalRowHeight = (rowsNeeded * boxHeightPx) + ((rowsNeeded - 1) * currentGapPx);
+    const totalColumnWidth = (columnsNeeded * boxWidthPx) + ((columnsNeeded - 1) * currentGapPx);
     
     // Calculate maximum distances considering both top and bottom
     const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight - state.topDistance * ledScaleFactor) / ledScaleFactor);
     const maxTopDistance = Math.max(0, (screenHeight - totalRowHeight - state.bottomDistance * ledScaleFactor) / ledScaleFactor);
     
-    const boxesInFirstRow = Math.min(boxCount, maxBoxesPerRow);
+    // Calculate max left distance based on layout
+    let maxLeftDistance;
+    if (isColumnLayout) {
+      // For column layout, calculate based on total column width
+      maxLeftDistance = Math.max(0, (screenWidth - totalColumnWidth) / ledScaleFactor);
+    } else {
+      // For row layout, calculate based on first row width
+      const boxesInFirstRow = Math.min(boxCount, boxesPerRow);
+      const spaceNeededForBoxes = (boxesInFirstRow * boxWidthPx) + ((boxesInFirstRow - 1) * currentGapPx);
+      maxLeftDistance = Math.max(0, (screenWidth - spaceNeededForBoxes) / ledScaleFactor);
+    }
+    
+    // Calculate max box gap
+    const boxesInFirstRow = Math.min(boxCount, boxesPerRow);
     let maxBoxGap = state.boxGap;
     
     if (boxesInFirstRow > 1) {
@@ -140,9 +163,6 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       const maxGapValue = availableGapSpace / (boxesInFirstRow - 1) / ledScaleFactor;
       maxBoxGap = Math.max(0, maxGapValue);
     }
-    
-    const spaceNeededForBoxes = (boxesInFirstRow * boxWidthPx) + ((boxesInFirstRow - 1) * currentGapPx);
-    const maxLeftDistance = Math.max(0, (screenWidth - spaceNeededForBoxes) / ledScaleFactor);
     
     return {
       maxBottomDistance,
@@ -319,29 +339,31 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const usableWidth = BOUNDARY.width - leftDistancePx;
     const usableHeight = BOUNDARY.height - bottomDistancePx - topDistancePx;
 
-    // Calculate how many boxes can fit per row with current gap
+    // Calculate how many boxes can fit per row/column with current gap
     const boxesPerRow = Math.max(1, Math.floor(
       (usableWidth + boxGapPx) / (boxWidthPx + boxGapPx)
     ));
     
-    // Calculate how many rows can fit
-    const maxRows = Math.max(1, Math.floor(
+    const boxesPerColumn = Math.max(1, Math.floor(
       (usableHeight + boxGapPx) / (boxHeightPx + boxGapPx)
     ));
 
     // Maximum possible boxes
-    const maxBoxes = boxesPerRow * maxRows;
+    const maxBoxes = boxesPerRow * boxesPerColumn;
     
     // Create array of positions
     const positions = [];
     
     if (isColumnLayout) {
       // Column-based layout: fill down each column first
-      const columnsNeeded = Math.ceil(boxCount / maxRows);
-      for (let col = 0; col < columnsNeeded; col++) {
-        const boxesInThisColumn = Math.min(boxCount - (col * maxRows), maxRows);
+      const columnsNeeded = Math.ceil(boxCount / boxesPerColumn);
+      const maxColumns = Math.floor(usableWidth / (boxWidthPx + boxGapPx));
+      const actualColumns = Math.min(columnsNeeded, maxColumns);
+      
+      for (let col = 0; col < actualColumns; col++) {
+        const boxesInThisColumn = Math.min(boxCount - (col * boxesPerColumn), boxesPerColumn);
         for (let row = 0; row < boxesInThisColumn; row++) {
-          const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
+          const x = BOUNDARY.x + leftDistancePx + (col * (boxWidthPx + boxGapPx));
           const y = BOUNDARY.y + topDistancePx + row * (boxHeightPx + boxGapPx);
           
           positions.push({

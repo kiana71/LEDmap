@@ -104,6 +104,7 @@ useEffect(() => {
     bottomDistance,
     leftDistance,
     boxGap,
+    
     updateBoxPositions,
     boxCount,
     topDistance
@@ -142,51 +143,51 @@ useEffect(() => {
   // Bottom distance handlers
   const incrementBottomDistance = (e) => {
     e.preventDefault();
-    setBottomDistance(bottomDistance + 0.5);
+    setBottomDistance(bottomDistance + 0.1);
   };
 
   const decrementBottomDistance = (e) => {
     e.preventDefault();
     if (bottomDistance > 0) {
-      setBottomDistance(bottomDistance - 0.5);
+      setBottomDistance(bottomDistance - 0.1);
     }
   };
 
   // Left distance handlers
   const incrementLeftDistance = (e) => {
     e.preventDefault();
-    setLeftDistance(leftDistance + 0.5);
+    setLeftDistance(leftDistance + 0.1);
   };
 
   const decrementLeftDistance = (e) => {
     e.preventDefault();
     if (leftDistance > 0) {
-      setLeftDistance(leftDistance - 0.5);
+      setLeftDistance(leftDistance - 0.1);
     }
   };
 
   // Box gap handlers
   const incrementBoxGap = (e) => {
     e.preventDefault();
-    setBoxGap(boxGap + 0.5);
+    setBoxGap(boxGap + 0.1);
   };
 
   const decrementBoxGap = (e) => {
     e.preventDefault();
     if (boxGap > 0) {
-      setBoxGap(boxGap - 0.5);
+      setBoxGap(boxGap - 0.1);
     }
   };
 
   const incrementTopDistance = () => {
-    const newValue = topDistance + 0.25;
+    const newValue = topDistance + 0.1;
     if (newValue <= calculateMaxValues().maxTopDistance) {
       setTopDistance(newValue);
     }
   };
 
   const decrementTopDistance = () => {
-    const newValue = Math.max(0, topDistance - 0.25);
+    const newValue = Math.max(0, topDistance - 0.1);
     setTopDistance(newValue);
   };
 console.log(selectedReceptacleBox);
@@ -368,10 +369,15 @@ console.log(selectedReceptacleBox);
                   <input
                     type="number"
                     value={bottomDistance.toFixed(2)}
-                    onChange={(e) => {
+                    onInput={(e) => {
                       const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setBottomDistance(value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        setBottomDistance(0);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -411,10 +417,15 @@ console.log(selectedReceptacleBox);
                   <input
                     type="number"
                     value={topDistance.toFixed(2)}
-                    onChange={(e) => {
+                    onInput={(e) => {
                       const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setTopDistance(value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        setTopDistance(0);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -454,10 +465,15 @@ console.log(selectedReceptacleBox);
                   <input
                     type="number"
                     value={leftDistance.toFixed(2)}
-                    onChange={(e) => {
+                    onInput={(e) => {
                       const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
                       if (!isNaN(value) && value >= 0) {
                         setLeftDistance(value);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (e.target.value === '') {
+                        setLeftDistance(0);
                       }
                     }}
                     className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -564,9 +580,9 @@ console.log(selectedReceptacleBox);
                 </div>
               )}
 
-              <div className="text-sm text-gray-600 mb-2">
+              {/* <div className="text-sm text-gray-600 mb-2">
                 Boxes will be placed starting from bottom-left
-              </div>
+              </div> */}
             </div>
 
             <div className="flex flex-col items-center  w-full px-4">
@@ -739,7 +755,7 @@ console.log(selectedReceptacleBox);
                 <span>Download</span>
               </div>
               <div className={`${canDownload() ? 'bg-blue-700' : 'bg-gray-400'} text-white flex h-full items-center`}>
-                <DownloadIcon />
+                <DownloadIcon/>
               </div>
             </button>
           </div>

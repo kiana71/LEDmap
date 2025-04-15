@@ -20,7 +20,6 @@ const InfoTable = () => {
     mountingInOn: "",
     orientation: ""
   });
-
   // Sync with apiStore when it changes
   useEffect(() => {
     if (apiStore.infoTableData) {
@@ -92,7 +91,7 @@ const InfoTable = () => {
         {/* Header with Logo and Address */}
         <div className="flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
           <div className="w-1/3">
-            <img className="h-8 print:h-6" src={Logo} alt="Signcast Media" />
+            <img className="h-8 print:h-6  v-logo" src={Logo} alt="Signcast Media" />
           </div>
           <div className="w-2/3 text-right text-[11px] leading-[14px]">
             <div className="text-right w-full">{fixedContent.address}</div>
