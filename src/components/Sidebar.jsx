@@ -59,7 +59,12 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
     toggleIsEdgeToEdge,
     isEdgeToEdge,
     isColumnLayout,
+    
     toggleIsColumnLayout,
+    topDistance,
+    setTopDistance,
+    isAtMaxTopDistance,
+    calculateMaxValues,
   } = useSheetDataStore();
 
   // Description form states
@@ -93,6 +98,7 @@ useEffect(() => {
       updateBoxPositions();
     }
   }, [
+    isColumnLayout,
     selectedScreen,
     isHorizontal,
     bottomDistance,
@@ -100,6 +106,7 @@ useEffect(() => {
     boxGap,
     updateBoxPositions,
     boxCount,
+    topDistance
   ]);
 
   // if (!selectedScreen) return null;
@@ -169,6 +176,18 @@ useEffect(() => {
     if (boxGap > 0) {
       setBoxGap(boxGap - 0.5);
     }
+  };
+
+  const incrementTopDistance = () => {
+    const newValue = topDistance + 0.25;
+    if (newValue <= calculateMaxValues().maxTopDistance) {
+      setTopDistance(newValue);
+    }
+  };
+
+  const decrementTopDistance = () => {
+    const newValue = Math.max(0, topDistance - 0.25);
+    setTopDistance(newValue);
   };
 console.log(selectedReceptacleBox);
 
@@ -364,6 +383,49 @@ console.log(selectedReceptacleBox);
                     type="button"
                     onClick={incrementBottomDistance}
                     disabled={isAtMaxBottomDistance}
+                    className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderLeft: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">+</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Top Distance */}
+              <div className="w-full mb-3">
+                <div className="text-sm mb-1">Top Distance (in):</div>
+                <div
+                  className="flex items-center border border-gray-300 overflow-hidden rounded-md"
+                  style={{ height: "40px", width: "100%" }}
+                >
+                  <button
+                    type="button"
+                    onClick={decrementTopDistance}
+                    disabled={topDistance <= 0}
+                    className="ml-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
+                    style={{ borderRight: "1px solid #e5e7eb" }}
+                  >
+                    <span className="text-xl font-bold">−</span>
+                  </button>
+
+                  <input
+                    type="number"
+                    value={topDistance.toFixed(2)}
+                    onChange={(e) => {
+                      const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                      if (!isNaN(value) && value >= 0) {
+                        setTopDistance(value);
+                      }
+                    }}
+                    className="h-full flex-grow text-center focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    min="0"
+                    step="0.01"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={incrementTopDistance}
+                    disabled={isAtMaxTopDistance}
                     className="mr-1 h-8 w-9 flex items-center justify-center bg-blue-400 text-white rounded-md disabled:bg-gray-400"
                     style={{ borderLeft: "1px solid #e5e7eb" }}
                   >

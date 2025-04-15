@@ -78,6 +78,8 @@ const createApiStore = (visibilityFunctions) => create((set, get) => ({
                 variantDepth: parseFloat(sheetStore.variantDepth) || 0,
                 floorDistance: parseFloat(sheetStore.floorDistance) || 20,
                 bottomDistance: parseFloat(sheetStore.bottomDistance) || 0,
+             
+                topDistance: parseFloat(sheetStore.topDistance) || 0,
                 leftDistance: parseFloat(sheetStore.leftDistance) || 0,
                 boxGap: parseFloat(sheetStore.boxGap) || 0,
                 
@@ -213,6 +215,7 @@ const createApiStore = (visibilityFunctions) => create((set, get) => ({
             sheetStore.setFloorDistance(sidebarSettings.floorDistance);
             sheetStore.setLeftDistance(sidebarSettings.leftDistance);
             sheetStore.setBottomDistance(sidebarSettings.bottomDistance);
+            sheetStore.setTopDistance(sidebarSettings.topDistance);
 
             // Wait for a moment to ensure all previous updates are processed
             await new Promise(resolve => setTimeout(resolve, 50));

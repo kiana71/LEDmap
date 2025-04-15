@@ -99,12 +99,14 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
 
   // Receptacle box settings and controls
   bottomDistance: 0,
+  topDistance: 0,
   leftDistance: 0,
   boxGap: 0,
   boxCount: 1,
   receptacleBoxes: [],
   maxBoxesReached: false,
   isAtMaxBottomDistance: false,
+  isAtMaxTopDistance: false,
   isAtMaxLeftDistance: false,
   isAtMaxBoxGap: false,
   BOX_WIDTH: 0,
@@ -125,7 +127,11 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const maxBoxesPerRow = Math.max(1, Math.floor((availableWidth + currentGapPx) / (boxWidthPx + currentGapPx)));
     const rowsNeeded = Math.ceil(boxCount / maxBoxesPerRow);
     const totalRowHeight = (rowsNeeded * boxHeightPx) + ((rowsNeeded - 1) * currentGapPx);
-    const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight) / ledScaleFactor);
+    
+    // Calculate maximum distances considering both top and bottom
+    const maxBottomDistance = Math.max(0, (screenHeight - totalRowHeight - state.topDistance * ledScaleFactor) / ledScaleFactor);
+    const maxTopDistance = Math.max(0, (screenHeight - totalRowHeight - state.bottomDistance * ledScaleFactor) / ledScaleFactor);
+    
     const boxesInFirstRow = Math.min(boxCount, maxBoxesPerRow);
     let maxBoxGap = state.boxGap;
     
@@ -140,9 +146,11 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     
     return {
       maxBottomDistance,
+      maxTopDistance,
       maxLeftDistance,
       maxBoxGap,
       isAtMaxBottomDistance: state.bottomDistance >= maxBottomDistance - 0.1,
+      isAtMaxTopDistance: state.topDistance >= maxTopDistance - 0.1,
       isAtMaxLeftDistance: state.leftDistance >= maxLeftDistance - 0.1,
       isAtMaxBoxGap: state.boxGap >= maxBoxGap - 0.1
     };
@@ -157,6 +165,18 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       ...state, 
       bottomDistance: limitedValue,
       isAtMaxBottomDistance: limitedValue >= maxBottomDistance
+    };
+  }),
+
+  // Set top distance with limit check
+  setTopDistance: (val) => set(state => {
+    const newVal = Math.max(0, Number(parseFloat(val).toFixed(1)) || 0);
+    const { maxTopDistance } = state.calculateMaxValues();
+    const limitedValue = Math.min(newVal, maxTopDistance);
+    return { 
+      ...state, 
+      topDistance: limitedValue,
+      isAtMaxTopDistance: limitedValue >= maxTopDistance
     };
   }),
   
@@ -223,11 +243,12 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     };
     
     // After updating boundary, adjust box parameters if needed
-    const { maxBottomDistance, maxLeftDistance, maxBoxGap } = updatedState.calculateMaxValues();
+    const { maxBottomDistance, maxTopDistance, maxLeftDistance, maxBoxGap } = updatedState.calculateMaxValues();
     
     return {
       ...updatedState,
       bottomDistance: Math.min(updatedState.bottomDistance, maxBottomDistance),
+      topDistance: Math.min(updatedState.topDistance, maxTopDistance),
       leftDistance: Math.min(updatedState.leftDistance, maxLeftDistance),
       boxGap: Math.min(updatedState.boxGap, maxBoxGap)
     };
@@ -279,6 +300,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       BOX_HEIGHT,
       leftDistance,
       bottomDistance,
+      topDistance,
       boxGap,
       boxCount,
       isColumnLayout,
@@ -290,11 +312,12 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
     const boxHeightPx = BOX_HEIGHT * ledScaleFactor;
     const leftDistancePx = leftDistance * ledScaleFactor;
     const bottomDistancePx = bottomDistance * ledScaleFactor;
+    const topDistancePx = topDistance * ledScaleFactor;
     const boxGapPx = boxGap * ledScaleFactor;
 
     // Calculate usable dimensions
     const usableWidth = BOUNDARY.width - leftDistancePx;
-    const usableHeight = BOUNDARY.height - bottomDistancePx;
+    const usableHeight = BOUNDARY.height - bottomDistancePx - topDistancePx;
 
     // Calculate how many boxes can fit per row with current gap
     const boxesPerRow = Math.max(1, Math.floor(
@@ -319,7 +342,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
         const boxesInThisColumn = Math.min(boxCount - (col * maxRows), maxRows);
         for (let row = 0; row < boxesInThisColumn; row++) {
           const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
-          const y = BOUNDARY.y + row * (boxHeightPx + boxGapPx);
+          const y = BOUNDARY.y + topDistancePx + row * (boxHeightPx + boxGapPx);
           
           positions.push({
             x: x,
@@ -330,13 +353,13 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
         }
       }
     } else {
-      // Original layout: fill right across rows
+      // Original layout: fill right across rows from bottom
       const rowsNeeded = Math.ceil(boxCount / boxesPerRow);
       for (let row = 0; row < rowsNeeded; row++) {
         const boxesInThisRow = Math.min(boxCount - (row * boxesPerRow), boxesPerRow);
         for (let col = 0; col < boxesInThisRow; col++) {
           const x = BOUNDARY.x + leftDistancePx + col * (boxWidthPx + boxGapPx);
-          const y = (BOUNDARY.y + BOUNDARY.height) - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
+          const y = BOUNDARY.y + BOUNDARY.height - bottomDistancePx - boxHeightPx - row * (boxHeightPx + boxGapPx);
           
           positions.push({
             x: x,
@@ -407,6 +430,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       BOX_HEIGHT,
       leftDistance,
       bottomDistance,
+      topDistance,
       boxGap,
       ledScaleFactor
     } = state;
@@ -432,6 +456,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
       // Calculate maximum viable settings
       const adjustedGap = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - (leftDistance * ledScaleFactor)) / Math.max(1, idealCols - 1) / ledScaleFactor);
       const adjustedBottomDistance = Math.max(0, (screenHeight - (idealRows * boxHeightPx) - ((idealRows - 1) * boxGap * ledScaleFactor)) / ledScaleFactor);
+      const adjustedTopDistance = Math.max(0, (screenHeight - (idealRows * boxHeightPx) - ((idealRows - 1) * boxGap * ledScaleFactor)) / ledScaleFactor);
       const adjustedLeftDistance = Math.max(0, (screenWidth - (idealCols * boxWidthPx) - ((idealCols - 1) * boxGap * ledScaleFactor)) / ledScaleFactor);
       
       // Update settings with adjusted values to maintain box count
@@ -440,6 +465,7 @@ setIsEditMode: (val) => set(old => ({ ...old, isEditMode: val })),
         ...state,
         boxGap: Math.min(boxGap, adjustedGap),
         bottomDistance: Math.min(bottomDistance, adjustedBottomDistance),
+        topDistance: Math.min(topDistance, adjustedTopDistance),
         leftDistance: Math.min(leftDistance, adjustedLeftDistance)
       };
     }
