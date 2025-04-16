@@ -396,7 +396,7 @@ padding-right: 0.2rem;
           </head>
           <body>
             <div class="btn-container">
-              <button class="btn" id="printBtn">Print Document</button>
+            
               <button class="btn" id="saveAsPdfBtn">Save as PDF</button>
             </div>
             <div class="preview-container">
@@ -406,9 +406,9 @@ padding-right: 0.2rem;
             </div>
             
             <script>
-              document.getElementById('printBtn').addEventListener('click', function() {
-                window.print();
-              });
+            //   document.getElementById('printBtn').addEventListener('click', function() {
+            //     window.print();
+            //   });
               
               document.getElementById('saveAsPdfBtn').addEventListener('click', function() {
                 document.querySelector('.btn-container').style.display = 'none';

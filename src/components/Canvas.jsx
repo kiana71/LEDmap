@@ -104,15 +104,11 @@ const Canvas = ({containerRef}) => {
   // Get all state and methods from the store
   const {
     isHorizontal,
-    boxCount,
-    activeBoxId,
     setStartDragInfo,
     updateBoxPosition,
     endDrag,
     receptacleBoxes,
     isNiche,
-    BOX_WIDTH,
-    BOX_HEIGHT,
     floorDistance,
     selectedScreen,
     selectedMediaPlayer,
@@ -186,7 +182,7 @@ const Canvas = ({containerRef}) => {
   const height = isHorizontal ? rawHeight : rawWidth;
 
   // Calculate niche dimensions with proper margins
-  const nicheWidthExtra = width < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
+  const nicheWidthExtra = width < 55 ? 1.5 : 1.5; // Add 1.5 or 2 inches on each side
   const nicheHeightExtra = height < 55 ? 1.5 : 2; // Add 1.5 or 2 inches on each side
   const nicheWidth = rawWidth + nicheWidthExtra;
   const nicheHeight = rawHeight + nicheHeightExtra;
@@ -348,8 +344,8 @@ const Canvas = ({containerRef}) => {
   const heightLabel = isHorizontal ? "Height" : "Width";
 
   // Get raw dimension values for labels
-  const rawWidthValue = rawWidth.toFixed(1);
-  const rawHeightValue = rawHeight.toFixed(1);
+  const rawWidthValue = rawWidth.toFixed(2);
+  const rawHeightValue = rawHeight.toFixed(2);
 
   // Calculate the position for the human figure
   const humanX = centerX - 50; // Center the human figure horizontally
@@ -675,11 +671,19 @@ const Canvas = ({containerRef}) => {
 
                           <text
                             x="370"
-                            y={nicheY + nicheHeightPx + 70}
+                            y={nicheY + nicheHeightPx + 52}
                             textAnchor="middle"
                             fontSize="12"
                           >
-                            {DirnicheWidth.toFixed(1)}
+                            {DirnicheWidth.toFixed(2)}
+                          </text>
+                          <text
+                            x="370"
+                            y={nicheY + nicheHeightPx + 65}
+                            textAnchor="middle"
+                            fontSize="12"
+                          >
+                            (Width)
                           </text>
 
                           {/* RIGHT measurement for niche height (NEW POSITION) */}
@@ -702,15 +706,15 @@ const Canvas = ({containerRef}) => {
 
                           {/* Height label on right side */}
                           <text
-                            x={sideViewX - 37}
-                            y={centerY}
+                            x={sideViewX - 40}
+                            y={centerY - 25}
                             textAnchor="middle"
                             fontSize="12"
                             transform="rotate(270, sideViewX - 35, centerY)"
                           >
-                            {DirnicheHeight.toFixed(1)}
-                            <tspan x={sideViewX - 37} dy="14">
-                              (Niche)
+                            {DirnicheHeight.toFixed(2)}
+                            <tspan x={sideViewX - 40} dy="14">
+                              (Height)
                             </tspan>
                           </text>
                         </>
@@ -733,7 +737,7 @@ const Canvas = ({containerRef}) => {
                         textAnchor="middle"
                         fontSize="12"
                       >
-                        (Side View){nicheDepth.toFixed(2)}
+                        (Side View){nicheDepth}
                       </text>
                       {nicheDepth.toFixed(3)}
                       <line
@@ -995,7 +999,7 @@ const Canvas = ({containerRef}) => {
 
                           <text
                             x={centerX - 50}
-                            y={screenY - 60}
+                            y={screenY - 50}
                             textAnchor="middle"
                             fontSize="12"
                           >
@@ -1061,71 +1065,109 @@ const Canvas = ({containerRef}) => {
                       {/* Floor Line Measurement */}
                       {safeVisibility.floorLine && (
                         <>
-                          {/* Top portion of line */}
-                          <line
-                            x1="90"
-                            y1={centerY + 7}
-                            x2="90"
-                            y2={FIXED_FLOOR_LINE_Y - 3}
-                            stroke={COLORS.measurement}
-                            strokeWidth="1.5"
-                            markerStart="url(#arrowReversed)"
-                            markerEnd="url(#arrow)"
-                          />
+                           {/* Measurement line with zigzag break - proper scaling for small screens */}
+                      {/* Top portion of line */}
+                      <line
+                        x1="90"
+                        y1={centerY + 7}
+                        x2="90"
+                        y2={centerY + 50}
+                        stroke={COLORS.measurement}
+                        strokeWidth="1.5"
+                        markerStart="url(#arrowReversed)"
+                      />
 
-                          {/* Floor line label */}
-                          <text
-                            x="40"
-                            y={FIXED_FLOOR_LINE_Y - 5}
-                            textAnchor="middle"
-                            fontSize="12"
-                            fontWeight="bold"
-                            fill={COLORS.floorLine}
-                          >
-                            Floor Line
-                          </text>
+                      {/* Zigzag break in the middle - with dynamic spacing based on total distance */}
+                      <polyline
+                        points={`90,${centerY + 50} 
+                          80,${centerY + 60} 
+                          100,${centerY + 70} 
+                          80,${centerY + 80} 
+                          100,${centerY + 90} 
+                          `}
+                        stroke={COLORS.measurement}
+                        fill="transparent"
+                        strokeWidth="1.5"
+                      />
 
-                          {/* Distance measurement */}
-                          <text
-                            x="69"
-                            y={(centerY + FIXED_FLOOR_LINE_Y) / 2}
-                            textAnchor="middle"
-                            fontSize="10"
-                            fontWeight="bold"
-                            fill={COLORS.measurement}
-                          >
-                            {floorDistance}
-                          </text>
+                      {/* Bottom portion of line - connect directly to floor line */}
+                      <line
+                        x1="90"
+                        y1={centerY + 100}
+                        x2="90"
+                        y2={floorLineY - 3}
+                        stroke={COLORS.measurement}
+                        strokeWidth="1.5"
+                        markerEnd="url(#arrow)"
+                      />
 
-                          {/* Visual indicator markers */}
-                          <circle
-                            cx="90"
-                            cy={centerY}
-                            r="4"
-                            fill={COLORS.measurement}
-                          >
-                            <animate
-                              attributeName="r"
-                              values="3;5;3"
-                              dur="2s"
-                              repeatCount="indefinite"
-                            />
-                          </circle>
-                          <circle
-                            cx="90"
-                            cy={FIXED_FLOOR_LINE_Y}
-                            r="4"
-                            fill={COLORS.measurement}
-                          >
-                            <animate
-                              attributeName="r"
-                              values="3;5;3"
-                              dur="2s"
-                              repeatCount="indefinite"
-                            />
-                          </circle>
-                        </>
-                      )}
+                      {/* Break symbol text - rotated 90 degrees */}
+                      <text
+                        x="-8"
+                        y={centerY + 142}
+                        fontSize="8"
+                        fill={COLORS.measurement}
+                        transform={`rotate(90, 105, ${centerY + 130})`}
+                      >
+                        Not to scale
+                      </text>
+
+                      {/* Distance measurement */}
+                      <g>
+                        {/* Measurement text */}
+                        <text
+                          x="69"
+                          y={(centerY + floorLineY) / 2 + 5}
+                          textAnchor="middle"
+                          fontSize="10"
+                          fontWeight="bold"
+                          fill={COLORS.measurement}
+                        >
+                          {floorDistance}
+                        </text>
+                      </g>
+
+                      {/* Floor line label */}
+                      <text
+                        x="40"
+                        y={floorLineY}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fontWeight="bold"
+                        fill={COLORS.floorLine}
+                      >
+                        Floor Line
+                      </text>
+
+                      {/* Visual indicator markers with animations */}
+                      <circle
+                        cx="90"
+                        cy={centerY}
+                        r="4"
+                        fill={COLORS.measurement}
+                      >
+                        <animate
+                          attributeName="r"
+                          values="3;5;3"
+                          dur="2s"
+                          repeatCount="indefinite"
+                        />
+                      </circle>
+                      <circle
+                        cx="90"
+                        cy={floorLineY}
+                        r="4"
+                        fill={COLORS.measurement}
+                      >
+                        <animate
+                          attributeName="r"
+                          values="3;5;3"
+                          dur="2s"
+                          repeatCount="indefinite"
+                        />
+                      </circle>
+                    </>
+                  )}
 
                       {/* Arrow Definitions */}
                       <defs>
