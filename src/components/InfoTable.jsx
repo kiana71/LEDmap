@@ -86,10 +86,10 @@ const InfoTable = () => {
   };
 
   return (
-    <div className="w-full h-full overflow-hidden print:overflow-visible">
-      <div className="border border-gray-300 border-b-1 shadow-sm bg-white h-full print:h-auto print:max-h-36 print:overflow-hidden">
+    <div className="v-info-table-container w-full h-full overflow-hidden print:overflow-visible">
+      <div className="v-info-table-container-inner border border-gray-300 border-b-1 shadow-sm bg-white h-full print:h-auto print:max-h-36 print:overflow-hidden">
         {/* Header with Logo and Address */}
-        <div className="flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
+        <div className=" v-info-table-header text-align-right flex items-start justify-between border-b border-gray-300 h-[57px] px-4 py-2 print:h-12 print:py-1">
           <div className="w-1/3">
             <img className="h-8 print:h-6  v-logo" src={Logo} alt="Signcast Media" />
           </div>
@@ -101,7 +101,7 @@ const InfoTable = () => {
         </div>
 
         {/* Main Table - With explicit print styling */}
-        <table className="w-full  text-[11px] print:text-[9px] print:w-full ">
+        <table className="v-info-table w-full  text-[11px] print:text-[9px] print:w-full ">
           <tbody className="!border-r-red">
             {/* Row 1 - Drawn / Dimensions / Mounting/ Orientation Headers */}
             <tr className="h-[22px] print:h-4 font-bold">
@@ -109,9 +109,9 @@ const InfoTable = () => {
                 Drawn
               </td>
               <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0" rowSpan="2">
-                <div className="flex flex-row items-center justify-center h-full">
-                  <span className="mr-1 border-r border-gray-300  print:text-[8px]">Dimensions<br />In Inches</span>
-                  <img className="w-10 h-auto ml-2 print:w-6" src={mapIcon} alt="mapIcon"/>
+                <div className="v-map-icon-container flex flex-row items-center justify-center h-full">
+                  <span className="v-dimension-info-table mr-1 border-r border-gray-300  print:text-[8px]">Dimensions<br />In Inches</span>
+                  <img className="v-map-icon w-10 h-auto ml-2 print:w-6" src={mapIcon} alt="mapIcon"/>
                 </div>
               </td>
               <td className="border-t-0 border border-gray-300 bg-white w-1/4 text-center p-0 print:p-0 table_input_td">
@@ -229,7 +229,7 @@ const TransparentInput = ({ field, onUpdate }) => {
         type="text"
         value={value}
         onChange={handleChange}
-        className="bg-transparent w-full h-full outline-none border-none text-center text-transparent"
+        className="v-info-table-input bg-transparent w-full h-full outline-none border-none text-center text-transparent"
         style={{ caretColor: "black" }} // Makes cursor visible while text is transparent
       />
     </div>

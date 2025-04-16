@@ -551,7 +551,7 @@ const Canvas = ({containerRef}) => {
         {/* Main Drawing Container */}
         <div
           ref={containerRef}
-          className="w-[1056px] border h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0"
+          className="v-container w-[1056px] border h-[816px] p-4 flex flex-col justify-between gap-4 bg-white print:w-[816px] print:h-[1056px] print:m-0 print:p-0"
           style={{
             transform: `translate(calc(-50% - 120px), -50%) scale(${scale})`,
             position: "absolute",
@@ -562,8 +562,8 @@ const Canvas = ({containerRef}) => {
           {showSections ? (
             <>
               {/* Upper Section */}
-              <div className="flex-1 flex flex-row justify-between print:p-2">
-                <div className="flex justify-center flex-1 items-center">
+              <div className="v-upper-section flex-1 flex flex-row justify-between print:p-2">
+                <div className="v-upper-section-left flex justify-center flex-1 items-center">
                   {/* Main Content Area 111111111111111111111111 */}
                   <div className="flex justify-end relative bg-opacity-30 max-w-[1200px] max-h-[1200px] h-full">
                     {/* LED Video Wall Intended Position */}
@@ -1159,9 +1159,9 @@ const Canvas = ({containerRef}) => {
                 {/* Dimension Boxes Area 22222222222222222222222*/}
                 {/* if (rawNicheDepth) //////////////////////////////////////////*/}
                 {rawNicheDepth && selectedScreen ? (
-                  <div className=" m-0 w-1/6 p-1 max-w-72">
-                    <div className="w-full flex flex-col space-y-4 ">
-                      <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-26">
+                  <div className="v-dimension-boxes-container m-0 w-1/6 p-1 max-w-72">
+                    <div className="v-dimension-boxes w-full flex flex-col space-y-4 ">
+                      <div className="v-dimension-box1 border border-black p-2 bg-white bg-opacity-30 w-full h-26">
                         <div className="font-bold text-sm h-26 pb-2">
                           <DimensionGroup
                             title="Screen Dimensions"
@@ -1188,7 +1188,7 @@ const Canvas = ({containerRef}) => {
 
                       {/* Niche Dimensions Box */}
                       {isNiche && (
-                        <div className="border border-black p-2 bg-white bg-opacity-30 w-full h-26">
+                        <div className="v-dimension-box2 border border-black p-2 bg-white bg-opacity-30 w-full h-26">
                           <div className="font-bold text-sm h-26 pb-2">
                             <DimensionGroup
                               title="Niche Dimensions"
@@ -1244,14 +1244,14 @@ const Canvas = ({containerRef}) => {
 
           {/* Bottom Row - Notes and Table -----------------------------------------------------*/}
           <div
-            className="flex space-x-6  print:h-44 print:mx-2 print:mb-2"
+            className=" v-bottom-row flex space-x-6  print:h-44 print:mx-2 print:mb-2"
             id="bottom_container"
           >
             {/* Notes Section - REPLACED with NotesEditor component */}
-            <div className="flex-1 border border-gray-400 bg-opacity-30 p-2">
+            <div className="v-notes-section flex-1 border border-gray-400 bg-opacity-30 p-2">
               <NotesEditor componentId={notesComponentId}/>
             </div>
-            <div className="flex-1 bg-opacity-30">
+            <div className="v-info-table flex-1 bg-opacity-30">
               <InfoTable/>
             </div>
           </div>

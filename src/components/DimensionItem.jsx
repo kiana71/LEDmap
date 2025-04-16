@@ -6,15 +6,15 @@ const DimensionItem = ({ label, className, hasBorder = false, value, ...rest }) 
   : "";
 
   return (
-    <div className={`flex items-center text-center  ${className}`}>
-      <div className="flex justify-center  text-center w-1/2 items-center h-full ">
+    <div className={`v-dimension-item flex items-center text-center  ${className}`}>
+      <div className="v-dimension-item-label flex justify-center  text-center w-1/2 items-center h-full ">
         <span className=" text-black  text-sm p_print">{label}</span>
       </div>
       <input
         type="text"
         readOnly
         value={value}
-        className={`text-center h-7 w-1/2 focus:outline-none focus:ring-2 ${borderStyle}  focus:ring-blue-400 `}
+        className={`v-dimension-item-input text-center h-7 w-1/2 focus:outline-none  ${borderStyle}  `}
         {...rest}
       />
     </div>

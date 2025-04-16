@@ -77,10 +77,10 @@ const NotesEditor = ({ componentId }) => {
 
   return (
     <div className="h-[140px] p-4 flex-col relative mb-3">
-      <p className="absolute left-3 top-3 text-md font-light underline mb-2">NOTES:</p>
+      <p className="v-notes-section-title absolute left-3 top-3 text-md font-light underline mb-2">NOTES:</p>
       <div
         ref={editorRef}
-        className="absolute top-10 left-3 right-3 bottom-3 overflow-auto notes-editor"
+        className="v-notes-editor absolute top-10 left-3 right-3 bottom-3 overflow-auto notes-editor"
         contentEditable="true"
         suppressContentEditableWarning={true}
         style={{
