@@ -675,7 +675,7 @@ const Canvas = ({ containerRef }) => {
                             stroke="black"
                             strokeWidth=".5"
                           />
-                          
+
                           <text
                             x="370"
                             y={nicheY + nicheHeightPx + 52}
@@ -1303,7 +1303,7 @@ const Canvas = ({ containerRef }) => {
             id="bottom_container"
           >
             {/* Notes Section - REPLACED with NotesEditor component */}
-            <div className="v-notes-section flex-1 border border-gray-400 bg-opacity-30 p-2">
+            <div className="v-notes-section flex-1 border border-gray-300 bg-opacity-30 p-2">
               <NotesEditor componentId={notesComponentId} />
             </div>
             <div className="v-info-table flex-1 bg-opacity-30">

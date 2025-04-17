@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useApiStore from '../../store/apiStore';
 import useExcelData from '../../hook/formData';
 import { format } from 'date-fns';
@@ -9,6 +9,7 @@ const DataLoadSaveBtn = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const dropdownRef = useRef(null);
 
   const apiStore = useApiStore();
   const { sheetData, loading: sheetLoading } = useExcelData(
@@ -18,6 +19,19 @@ const DataLoadSaveBtn = () => {
   useEffect(() => {
     // Fetch drawings when component mounts
     apiStore.fetchSavedDrawings();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowList(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleLoad = async (drawingNumber) => {
@@ -121,7 +135,7 @@ const DataLoadSaveBtn = () => {
     <div className="px-4 py-3 border-b">
       <div className="text-sm mb-2 font-semibold">Search Drawing Number</div>
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2 relative">
+        <div className="flex gap-2 relative" ref={dropdownRef}>
           <input
        // fahmidam, vafgti dlete mikone , bayad fetchdrawing store dobare seda zade beshge
             value={searchDrawingNo}

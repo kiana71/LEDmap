@@ -20,8 +20,8 @@ const PrintPreviewButton = ({ containerRef, toggleClassOnTableInputs }) => {
         throw new Error("Container element not found");
       }
 
-      // Create a new window for preview
-      const previewWindow = window.open("", "_blank");
+      // Create a temporary print window
+      const printWindow = window.open("", "_blank");
 
       // Add key stylesheets directly
       const cssLinks = [
@@ -29,8 +29,8 @@ const PrintPreviewButton = ({ containerRef, toggleClassOnTableInputs }) => {
         "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
       ];
 
-      // Create basic HTML structure for the preview
-      previewWindow.document.write(`
+      // Create basic HTML structure for printing
+      printWindow.document.write(`
         <!DOCTYPE html>
         <html>
           <head>
@@ -50,10 +50,6 @@ const PrintPreviewButton = ({ containerRef, toggleClassOnTableInputs }) => {
                 width: 120px;
                 height: auto;
               }
-            //   td, th {
-            //     border: 0px solid #ddd;
-            //     padding: 8px;
-            //   }
               
               @media print {
                 body {
@@ -62,16 +58,12 @@ const PrintPreviewButton = ({ containerRef, toggleClassOnTableInputs }) => {
                 }
                 
                 .v-container {
-                width: 1648;
-                height: 1276;
-               
+                  width: 1648;
+                  height: 1276;
                   box-shadow: none;
                   padding: 10px;
-                
-            
                 }
                 .v-upper-section{
-                 
                   display: flex;
                   flex-direction: row;
                   justify-content: space-between;
@@ -80,354 +72,199 @@ const PrintPreviewButton = ({ containerRef, toggleClassOnTableInputs }) => {
                   display: none;
                 }
                 .v-bottom-row{
-               height: 200px;
+                  height: 200px;
                   display: flex;
                   flex-direction: row;
-                    padding: 1rem;
-  justify-content: space-between;
-  gap: 1rem;
+                  padding: 1rem;
+                  justify-content: space-between;
+                  gap: 1rem;
                 }
                 .v-container * {
                   break-inside: avoid;
                 }
-              
-              
                 .v-map-icon{
-               width:40px;
+                  width:40px;
                 }
                 .v-info-table{
-               
-                margin: 0 !important;
-             /* flex-1 */
-flex: 1 1 0%;
-
-/* bg-opacity-30 */
-background-opacity: 0.3;
-              
-              }
-              .v-upper-section-left{
-                // border: 1px solid orange;
-                width: 60%;
-              }
+                  margin: 0 !important;
+                  flex: 1 1 0%;
+                  background-opacity: 0.3;
+                }
+                .v-upper-section-left{
+                  width: 60%;
+                }
                 .v-dimension-boxes-container{
-                margin-right: 3rem;
-display:flex;
-flex-direction: row;
-
-                /* w-1/6 */
-                width: 16.666667%;
-
-                /* p-1 */
-                padding: 0.25rem;
-padding-top:0;
-                /* max-w-72 */
-                max-width: 18rem;
+                  margin-right: 3rem;
+                  display:flex;
+                  flex-direction: row;
+                  width: 16.666667%;
+                  padding: 0.25rem;
+                  padding-top:0;
+                  max-width: 18rem;
                 }
-
                 .v-dimension-boxes{
-width: 100%;
-display:flex;
-height: 350px;
-justify-content: space-around;
-
-/* flex */
-
-/* flex-col */
-flex-direction: column;
-
-/* space-y-4 */
-margin-top: 0.5rem;
-margin-bottom: 0.5rem;
+                  width: 86%;
+                  display:flex;
+                  height: 350px;
+                  justify-content: space-around;
+                  flex-direction: column;
+                  margin-top: 0.5rem;
+                  margin-bottom: 0.5rem;
                 }
-
-                .v-dimension-box1{
-                padding: 1rem;
-               border-width: 1px;
-border-style: solid;
-
-/* border-black */
-
-
-/* p-2 */
-
-
-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 2px, rgb(51, 51, 51) 0px 0px 0px 1px;
-/* bg-white */
-background-color: #ffffff;
-
-/* bg-opacity-30 */
-background-opacity: 0.3;
-
-/* w-full */
-width: 100%;
-
-/* h-26 */
-height: 7.5rem;
+                .v-dimension-box1, .v-dimension-box2{
+                  padding: 1rem;
+                 
+                 
+                  border: 2px solid #7b7a7a !important;
+                  background-color: #ffffff;
+                  background-opacity: 0.3;
+                  width: 100%;
+                  height: 7.5rem;
                 }
-
-                            .v-dimension-box2{
-                padding: 1rem;
-               border-width: 1px;
-border-style: solid;
-
-/* border-black */
-
-
-/* p-2 */
-
-
-box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 2px, rgb(51, 51, 51) 0px 0px 0px 1px;
-/* bg-white */
-background-color: #ffffff;
-
-/* bg-opacity-30 */
-background-opacity: 0.3;
-
-/* w-full */
-width: 100%;
-
-/* h-26 */
-height: 7.5rem;
-                }
-
+               
                 .v-dimension-group-title{
-
-font-weight: 800;
-
-/* text-gray-700 */
-color: #374151;
-
-/* mb-3 */
-margin-bottom: 0.75rem;
-
-/* mt-1 */
-margin-top: 0.25rem;
-
-/* text-center */
-text-align: center;
-
-/* text-[15px] */
-font-size: 15px;
-
-            }
-
-            .v-dimension-item{
-            /* text-center */
-text-align: center;
-
-/* flex */
-display: flex;
-
-/* flex-row */
-flex-direction: row;
-
-/* items-center */
-align-items: center;
-
-/* justify-between */
-justify-content: space-between;
-            }
-
-            .v-dimension-item-label{
-            display: flex;
-
-/* justify-center */
-justify-content: center;
-
-/* text-center */
-text-align: center;
-
-/* w-1/2 */
-width: 50%;
-
-/* items-center */
-align-items: center;
-
-/* h-full */
-height: 100%;
-            }
-
-            .v-dimension-item-input{
-            text-align: center;
-
-/* h-7 */
-height: 1.75rem;
-
-/* w-1/2 */
-width: 50%;
-border: none;
-            }
-.v-notes-section{
-flex: 1 1 0%;
-
-/* border */
-border-width: 1px;
-border-style: solid;
-
-/* border-gray-400 */
-border-color: #9ca3af;
-
-/* bg-opacity-30 */
-background-opacity: 0.3;
-
-/* p-2 */
-padding-left: 1rem;
-padding-bottom: 0;
-padding-top: 0;
-}
-
-
-              }
-              .v-info-table{
-              width: 100%;
-              
-              user-select: text;
-                    max-width: 500px;
-                    font-size: 11px;
-                    text-indent: 0;
-       
-
-/* border-gray-400 */
-
-                    table-layout: fixed !important;
+                  font-weight: 800;
+                  color: #374151;
+                  margin-bottom: 0.75rem;
+                  margin-top: 0.25rem;
+                  text-align: center;
+                  font-size: 15px;
+                }
+                .v-dimension-item{
+                  text-align: center;
+                  display: flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: space-between;
+                }
+                .v-dimension-item-label{
+                  display: flex;
+                  justify-content: start;
+                  text-align: center;
+                  width: 50%;
+                  align-items: center;
+                  height: 100%;
+                }
+                .v-dimension-item-input{
+                  text-align: end;
+                  height: 1.75rem;
+                  width: 50%;
+                  border: none;
+                }
+                .v-notes-section{
+                background-color: #fefefe;
+                  flex: 1 1 0%;
+                  border-width: 1px;
+                  border-style: solid;
+                  border-color: #ced3db;
+                  background-opacity: 0.3;
+                  padding-left: 1rem;
+                  padding-bottom: 0;
+                  padding-top: 0;
+                }
+                .v-info-table{
+                  width: 100%;
+                  user-select: text;
+                  max-width: 500px;
+                  font-size: 11px;
+                  text-indent: 0;
+                  table-layout: fixed !important;
                 }    
                 .v-info-table-input{
-                display: none;
-              
+                  display: none;
                 }
-              .v-notes-section-title{
-              /* absolute */
-padding-top: 2px!important;
-padding-bottom: 0!important;
-margin-top: 2px!important;
-margin-bottom: 1px!important;
-/* left-3 */
-left: 0.75rem;
-
-/* top-3 */
-top: 0px;
-
-/* text-md */
-font-size: 1.125rem;
-line-height: 1.75rem;
-
-/* font-light */
-font-weight: 300;
-
-/* underline */
-text-decoration: underline;
-
-/* mb-2 */
-margin-bottom: 0!important;
-padding-bottom: 0!important;
-              }
-
-            .v-notes-editor{
-            // top: -10px!important;
-            // bottom: 0px!important;
-            // padding-bottom: 0!important;
-            // padding-top:0!important;
-            }
-              .v-info-table-container{
-              width: 100%;
-              height: 100%;
-              overflow: hidden;
-              print:overflow-visible;
-              }
-
-              .v-info-table-container-inner{
-            
-/* shadow-sm */
-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-
-/* bg-white */
-
-
-/* h-full */
-height: 100%;
-              }
-
-    .v-info-table-header{
-    font-weight: 300;
-    text-align: right;
-    font-size: 14px;
-      display: flex;
-align-items: center !important;
-align-content: center;
-align-items: flex-start;
-justify-content: space-between;
-
-// border: 0.5px 0.5px 0px 0.5px solid #d1d5db !important;
-// border-style: solid !important;
-border: solid 1px #d1d5db;
-border-bottom: none;
-height: 44px;
-padding-left: 1rem;
-padding-right: 1rem;
-
-padding-top: 0.5rem;
-padding-bottom: 0.5rem;
-    }
-.v-info-table td{
-  padding-top: 4px !important;
-padding-bottom: 4px !important;
-  outline: 0.5px solid #d1d5db;
-  margin: 0 !important;
-  gap: 0 !important;
-text-align: center;
-align-items: center;
-justify-content: center;
-}
-.v-map-icon-container{
-display:flex;
-flex-direction: row;
-align-items: center;
-justify-content: space-between;
-gap: 0.25rem;
-padding-left: 0.4rem;
-padding-right: 0.4rem;
-}
-.v-dimension-info-table{
-font-size: 10px;
-padding-right: 0.2rem;
-  border-right: 2px solid #d1d5db;
-}
+                .v-notes-section-title{
+                  padding-top: 2px!important;
+                  padding-bottom: 0!important;
+                  margin-top: 2px!important;
+                  margin-bottom: 1px!important;
+                  left: 0.75rem;
+                  top: 0px;
+                  font-size: 1.125rem;
+                  line-height: 1.75rem;
+                  font-weight: 300;
+                  text-decoration: underline;
+                  margin-bottom: 0!important;
+                  padding-bottom: 0!important;
+                }
+                .v-notes-editor{
+                  top: -10px!important;
+                  bottom: 0px!important;
+                  padding-bottom: 0!important;
+                  padding-top:0!important;
+                }
+                .v-info-table-container{
+                  width: 100%;
+                  height: 100%;
+                  overflow: hidden;
+                  print:overflow-visible;
+                }
+                .v-info-table-container-inner{
+                  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                  height: 100%;
+                }
+                .v-info-table-header{
+                  background-color: #fbfafa;
+                  font-weight: 300;
+                  text-align: right;
+                  font-size: 14px;
+                  display: flex;
+                  align-items: center !important;
+                  align-content: center;
+                  align-items: flex-start;
+                  justify-content: space-between;
+                //   border: solid 1px #d1d5db;
+                //   border-bottom: none;
+                
+                  height: 44px;
+                  padding-left: 1rem;
+                  padding-right: 1rem;
+                  padding-top: 0.5rem;
+                  padding-bottom: 0.5rem;
+                }
+                .v-info-table td{
+                  padding-top: 4px !important;
+                  padding-bottom: 4px !important;
+                  outline: 0.5px solid #d1d5db;
+                  margin: 0 !important;
+                  gap: 0 !important;
+                  text-align: center;
+                  align-items: center;
+                  justify-content: center;
+                }
+                .v-map-icon-container{
+                  display:flex;
+                  flex-direction: row;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 0.25rem;
+                  padding-left: 0.4rem;
+                  padding-right: 0.4rem;
+                }
+                .v-dimension-info-table{
+                  font-size: 10px;
+                  padding-right: 0.2rem;
+                  border-right: 2px solid #d1d5db;
+                }
             </style>
           </head>
           <body>
-            <div class="btn-container">
-            
-              <button class="btn" id="saveAsPdfBtn">Save as PDF</button>
+            <div class="v-container">
+              <!-- Content will be injected here by script -->
             </div>
-            <div class="preview-container">
-              <div class="v-container">
-                <!-- Content will be injected here by script -->
-              </div>
-            </div>
-            
             <script>
-            //   document.getElementById('printBtn').addEventListener('click', function() {
-            //     window.print();
-            //   });
-              
-              document.getElementById('saveAsPdfBtn').addEventListener('click', function() {
-                document.querySelector('.btn-container').style.display = 'none';
-                
-                setTimeout(function() {
-                  window.print();
-                  
-                  setTimeout(function() {
-                    document.querySelector('.btn-container').style.display = 'block';
-                  }, 1000);
-                }, 100);
-              });
+              window.onload = function() {
+                window.print();
+              };
+              window.onafterprint = function() {
+                window.close();
+              };
             </script>
           </body>
         </html>
       `);
 
-      const contentContainer =
-        previewWindow.document.querySelector(".v-container");
+      const contentContainer = printWindow.document.querySelector(".v-container");
       const contentClone = containerRef.current.cloneNode(true);
 
       const svgElements = contentClone.querySelectorAll("svg");
@@ -484,7 +321,7 @@ padding-right: 0.2rem;
       contentClone.style.padding = "0";
 
       contentContainer.appendChild(contentClone);
-      previewWindow.document.close();
+      printWindow.document.close();
     } catch (error) {
       console.error("Error generating preview:", error);
       alert("Error creating preview: " + error.message);
@@ -504,13 +341,13 @@ padding-right: 0.2rem;
   };
 
   return (
-    <div className="fixed top-32 left-4 z-50">
+    <div className="fixed top-32 left-5 z-50">
       <button
         onClick={handlePrintPreview}
         className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors"
       >
         <PreviewIcon />
-        Preview
+        Print
       </button>
     </div>
   );

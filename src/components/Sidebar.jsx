@@ -65,6 +65,10 @@ const Sidebar = ({ toPDF, isOpen, exportToPDF }) => {
     setTopDistance,
     isAtMaxTopDistance,
     calculateMaxValues,
+    BOX_WIDTH,
+    BOX_HEIGHT,
+    ledScaleFactor,
+    BOUNDARY,
   } = useSheetDataStore();
 
   // Description form states
@@ -104,10 +108,14 @@ useEffect(() => {
     bottomDistance,
     leftDistance,
     boxGap,
-    
     updateBoxPositions,
     boxCount,
-    topDistance
+    topDistance,
+    selectedReceptacleBox,
+    BOX_WIDTH,
+    BOX_HEIGHT,
+    ledScaleFactor,
+    BOUNDARY
   ]);
 
   // if (!selectedScreen) return null;
