@@ -10,7 +10,7 @@ import { useToolbar } from "../hook/ToolbarContext";
 import DimensionGroup from "./DimensionGroup";
 import DimensionItem from "./DimensionItem";
 import InfoTable from "./InfoTable";
-import { toggleClassOnTableInputs } from '../utils/printUtils';
+import { toggleClassOnTableInputs } from "../utils/printUtils";
 import NotesEditor from "./NotesEditor"; // Import the new NotesEditor component
 
 import html2canvas from "html2canvas";
@@ -54,7 +54,7 @@ const roundToNearest8th = (num) => {
 
 // Get the rounded nicheDepth
 
-const Canvas = ({containerRef}) => {
+const Canvas = ({ containerRef }) => {
   // Generate a unique component ID for the notes section
   const notesComponentId = "diagram-notes-editor";
 
@@ -118,12 +118,14 @@ const Canvas = ({containerRef}) => {
     variantDepth,
     isEdgeToEdge,
     canDownload,
-    setLedScaleFactor
+    setLedScaleFactor,
   } = useSheetDataStore();
 
   // Add these lines to get the apiStore functionality
   const { setNoteArea, noteArea } = useApiStore();
-  
+  const flatWallDepth = parseFloat(
+    (selectedScreen?.Depth || 0) + (selectedMount?.["Depth (in)"] || 0)
+  );
   // Dimension related
   // Calculate raw nicheDepth
   const rawNicheDepth =
@@ -190,43 +192,46 @@ const Canvas = ({containerRef}) => {
   const DirnicheWidth = isHorizontal ? nicheWidth : nicheHeight;
   const DirnicheHeight = isHorizontal ? nicheHeight : nicheWidth;
 
-   // Base dimensions for the diagram area
-   const BASE_WIDTH = 800;
-   const BASE_HEIGHT = 800;
- 
-   // Maximum dimensions for the screen in the SVG
-   const MAX_SCREEN_WIDTH = 500;
-   const MAX_SCREEN_HEIGHT = 400;
- 
-   // Fixed floor line position from the top of the SVG
-   const FIXED_FLOOR_LINE_Y = 600; // This will be our fixed floor line position
- 
-   // Dynamic scaling factor based on screen size
-   const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
-   const heightScaleFactor = Math.min(10, MAX_SCREEN_HEIGHT / Math.max(height, 1));
-   const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
- 
-   // Update the store's scale factor whenever it changes
-   useEffect(() => {
-     setLedScaleFactor(SCALE_FACTOR);
-   }, [SCALE_FACTOR, setLedScaleFactor]);
- 
-   // Calculate screen dimensions in pixels with adaptive scaling
-   const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
-   const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
- 
-   // Calculate niche dimensions in pixels
-   const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
-   const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
- 
-   // Calculate center positions - ensure we have enough margin on all sides
-   const centerX = BASE_WIDTH / 2;
-   // Adjust centerY to maintain proper distance from floor line
-   const centerY = FIXED_FLOOR_LINE_Y - 300; // Position screen relative to fixed floor line
- 
-   // Calculate screen position (centered)
-   const screenX = centerX - screenWidthPx / 2;
-   const screenY = centerY - screenHeightPx / 2;
+  // Base dimensions for the diagram area
+  const BASE_WIDTH = 800;
+  const BASE_HEIGHT = 800;
+
+  // Maximum dimensions for the screen in the SVG
+  const MAX_SCREEN_WIDTH = 500;
+  const MAX_SCREEN_HEIGHT = 400;
+
+  // Fixed floor line position from the top of the SVG
+  const FIXED_FLOOR_LINE_Y = 600; // This will be our fixed floor line position
+
+  // Dynamic scaling factor based on screen size
+  const widthScaleFactor = Math.min(10, MAX_SCREEN_WIDTH / Math.max(width, 1));
+  const heightScaleFactor = Math.min(
+    10,
+    MAX_SCREEN_HEIGHT / Math.max(height, 1)
+  );
+  const SCALE_FACTOR = Math.min(widthScaleFactor, heightScaleFactor);
+
+  // Update the store's scale factor whenever it changes
+  useEffect(() => {
+    setLedScaleFactor(SCALE_FACTOR);
+  }, [SCALE_FACTOR, setLedScaleFactor]);
+
+  // Calculate screen dimensions in pixels with adaptive scaling
+  const screenWidthPx = Math.max(100, width * SCALE_FACTOR);
+  const screenHeightPx = Math.max(100, height * SCALE_FACTOR);
+
+  // Calculate niche dimensions in pixels
+  const nicheWidthPx = screenWidthPx + nicheWidthExtra * SCALE_FACTOR;
+  const nicheHeightPx = screenHeightPx + nicheHeightExtra * SCALE_FACTOR;
+
+  // Calculate center positions - ensure we have enough margin on all sides
+  const centerX = BASE_WIDTH / 2;
+  // Adjust centerY to maintain proper distance from floor line
+  const centerY = FIXED_FLOOR_LINE_Y - 300; // Position screen relative to fixed floor line
+
+  // Calculate screen position (centered)
+  const screenX = centerX - screenWidthPx / 2;
+  const screenY = centerY - screenHeightPx / 2;
 
   // Calculate niche position (centered around screen)
   const nicheX = centerX - nicheWidthPx / 2;
@@ -250,7 +255,7 @@ const Canvas = ({containerRef}) => {
 
   //sideview
   const viewBoxWidth = Math.max(BASE_WIDTH, sideViewX + sideViewDepth + 60);
-  
+
   // Set viewBoxHeight to be larger than FIXED_FLOOR_LINE_Y to ensure floor line is visible
   const viewBoxHeight = Math.max(FIXED_FLOOR_LINE_Y + 100, 700);
 
@@ -365,7 +370,7 @@ const Canvas = ({containerRef}) => {
   const handleFullScreenPreview = async () => {
     try {
       const bc = document.getElementById("bottom_container");
-      
+
       // Apply print-specific styles
       toggleClassOnTableInputs("table_input", "bottom-3", true);
       toggleClassOnTableInputs("table_input_td", "pb-3", true);
@@ -381,7 +386,7 @@ const Canvas = ({containerRef}) => {
       }
 
       // Create a new window for full-screen preview
-      const previewWindow = window.open('', '_blank');
+      const previewWindow = window.open("", "_blank");
       previewWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -488,16 +493,16 @@ const Canvas = ({containerRef}) => {
                 }
               }
               ${Array.from(document.styleSheets)
-                .map(sheet => {
+                .map((sheet) => {
                   try {
                     return Array.from(sheet.cssRules)
-                      .map(rule => rule.cssText)
-                      .join('\n');
+                      .map((rule) => rule.cssText)
+                      .join("\n");
                   } catch (e) {
-                    return '';
+                    return "";
                   }
                 })
-                .join('\n')}
+                .join("\n")}
             </style>
           </head>
           <body>
@@ -510,7 +515,6 @@ const Canvas = ({containerRef}) => {
         </html>
       `);
       previewWindow.document.close();
-
     } catch (error) {
       console.error("Error generating preview:", error);
     } finally {
@@ -536,7 +540,10 @@ const Canvas = ({containerRef}) => {
         <button onClick={zoomIn} className="px-3 py-1 bg-gray-200 rounded">
           +
         </button>
-        <button onClick={resetZoom} className="px-3 py-1 bg-gray-200 rounded mx-2">
+        <button
+          onClick={resetZoom}
+          className="px-3 py-1 bg-gray-200 rounded mx-2"
+        >
           Reset
         </button>
         <button onClick={zoomOut} className="px-3 py-1 bg-gray-200 rounded">
@@ -668,14 +675,14 @@ const Canvas = ({containerRef}) => {
                             stroke="black"
                             strokeWidth=".5"
                           />
-
+                          
                           <text
                             x="370"
                             y={nicheY + nicheHeightPx + 52}
                             textAnchor="middle"
                             fontSize="12"
                           >
-                            {DirnicheWidth.toFixed(2)}
+                           {(parseFloat(selectedScreen["Width"]) + (selectedScreen["Width"] < 55 ? 1.5 : 2)).toFixed(2)}
                           </text>
                           <text
                             x="370"
@@ -737,7 +744,7 @@ const Canvas = ({containerRef}) => {
                         textAnchor="middle"
                         fontSize="12"
                       >
-                        (Side View){nicheDepth}
+                        (Depth){isNiche ? nicheDepth : flatWallDepth.toFixed(2)}
                       </text>
                       {nicheDepth.toFixed(3)}
                       <line
@@ -876,10 +883,9 @@ const Canvas = ({containerRef}) => {
                           />
                         </>
                       )}
-  {intendedPosition && (
-                          <>
-
-<circle
+                      {intendedPosition && (
+                        <>
+                          <circle
                             cx={centerX}
                             cy={centerY}
                             r="5"
@@ -893,27 +899,27 @@ const Canvas = ({containerRef}) => {
                             fill="yellow"
                             stroke="black"
                           />
-                        <line
-                          x1={centerX}
-                          y1={centerY}
-                          x2="435"
-                          y2="53"
-                          stroke="black"
-                          strokeWidth="1"
-                        />
-                        <line
-                          x1="435"
-                          y1="53"
-                          x2="453"
-                          y2="53"
-                          stroke="black"
-                          strokeWidth="1"
-                        />
-                        <text x="595" y="50" textAnchor="end" fontSize="12">
-                          Intended Screen Position
-                        </text>
+                          <line
+                            x1={centerX}
+                            y1={centerY}
+                            x2="435"
+                            y2="53"
+                            stroke="black"
+                            strokeWidth="1"
+                          />
+                          <line
+                            x1="435"
+                            y1="53"
+                            x2="453"
+                            y2="53"
+                            stroke="black"
+                            strokeWidth="1"
+                          />
+                          <text x="595" y="50" textAnchor="end" fontSize="12">
+                            Intended Screen Position
+                          </text>
                         </>
-                         )}
+                      )}
                       {/* Wood Backing - Inner rectangle (only if visible) */}
                       {safeVisibility.woodBacking && (
                         <rect
@@ -936,7 +942,7 @@ const Canvas = ({containerRef}) => {
                           const boxY = parseFloat(box.y) || 0;
                           const boxWidth = parseFloat(box.width) || 0;
                           const boxHeight = parseFloat(box.height) || 0;
-                          
+
                           return (
                             <g key={box.id}>
                               <rect
@@ -1003,7 +1009,8 @@ const Canvas = ({containerRef}) => {
                             textAnchor="middle"
                             fontSize="12"
                           >
-                            {isHorizontal ? rawWidthValue : rawHeightValue} (Width)
+                            {isHorizontal ? rawWidthValue : rawHeightValue}{" "}
+                            (Width)
                           </text>
 
                           {/* LEFT side measurement for screen height (moved from right) */}
@@ -1017,7 +1024,7 @@ const Canvas = ({containerRef}) => {
                             markerStart="url(#arrowReversed)"
                             markerEnd="url(#arrow)"
                           />
-                          
+
                           <line
                             x1={screenX - 40}
                             y1={screenY}
@@ -1049,7 +1056,6 @@ const Canvas = ({containerRef}) => {
                           </text>
                         </>
                       )}
-                     
 
                       {/* Floor Line */}
                       <line
@@ -1065,109 +1071,109 @@ const Canvas = ({containerRef}) => {
                       {/* Floor Line Measurement */}
                       {safeVisibility.floorLine && (
                         <>
-                           {/* Measurement line with zigzag break - proper scaling for small screens */}
-                      {/* Top portion of line */}
-                      <line
-                        x1="90"
-                        y1={centerY + 7}
-                        x2="90"
-                        y2={centerY + 50}
-                        stroke={COLORS.measurement}
-                        strokeWidth="1.5"
-                        markerStart="url(#arrowReversed)"
-                      />
+                          {/* Measurement line with zigzag break - proper scaling for small screens */}
+                          {/* Top portion of line */}
+                          <line
+                            x1="90"
+                            y1={centerY + 7}
+                            x2="90"
+                            y2={centerY + 50}
+                            stroke={COLORS.measurement}
+                            strokeWidth="1.5"
+                            markerStart="url(#arrowReversed)"
+                          />
 
-                      {/* Zigzag break in the middle - with dynamic spacing based on total distance */}
-                      <polyline
-                        points={`90,${centerY + 50} 
+                          {/* Zigzag break in the middle - with dynamic spacing based on total distance */}
+                          <polyline
+                            points={`90,${centerY + 50} 
                           80,${centerY + 60} 
                           100,${centerY + 70} 
                           80,${centerY + 80} 
                           100,${centerY + 90} 
                           `}
-                        stroke={COLORS.measurement}
-                        fill="transparent"
-                        strokeWidth="1.5"
-                      />
+                            stroke={COLORS.measurement}
+                            fill="transparent"
+                            strokeWidth="1.5"
+                          />
 
-                      {/* Bottom portion of line - connect directly to floor line */}
-                      <line
-                        x1="90"
-                        y1={centerY + 100}
-                        x2="90"
-                        y2={floorLineY - 3}
-                        stroke={COLORS.measurement}
-                        strokeWidth="1.5"
-                        markerEnd="url(#arrow)"
-                      />
+                          {/* Bottom portion of line - connect directly to floor line */}
+                          <line
+                            x1="90"
+                            y1={centerY + 100}
+                            x2="90"
+                            y2={floorLineY - 3}
+                            stroke={COLORS.measurement}
+                            strokeWidth="1.5"
+                            markerEnd="url(#arrow)"
+                          />
 
-                      {/* Break symbol text - rotated 90 degrees */}
-                      <text
-                        x="-8"
-                        y={centerY + 142}
-                        fontSize="8"
-                        fill={COLORS.measurement}
-                        transform={`rotate(90, 105, ${centerY + 130})`}
-                      >
-                        Not to scale
-                      </text>
+                          {/* Break symbol text - rotated 90 degrees */}
+                          <text
+                            x="-8"
+                            y={centerY + 142}
+                            fontSize="8"
+                            fill={COLORS.measurement}
+                            transform={`rotate(90, 105, ${centerY + 130})`}
+                          >
+                            Not to scale
+                          </text>
 
-                      {/* Distance measurement */}
-                      <g>
-                        {/* Measurement text */}
-                        <text
-                          x="69"
-                          y={(centerY + floorLineY) / 2 + 5}
-                          textAnchor="middle"
-                          fontSize="10"
-                          fontWeight="bold"
-                          fill={COLORS.measurement}
-                        >
-                          {floorDistance}
-                        </text>
-                      </g>
+                          {/* Distance measurement */}
+                          <g>
+                            {/* Measurement text */}
+                            <text
+                              x="69"
+                              y={(centerY + floorLineY) / 2 + 5}
+                              textAnchor="middle"
+                              fontSize="10"
+                              fontWeight="bold"
+                              fill={COLORS.measurement}
+                            >
+                              {floorDistance}
+                            </text>
+                          </g>
 
-                      {/* Floor line label */}
-                      <text
-                        x="40"
-                        y={floorLineY}
-                        textAnchor="middle"
-                        fontSize="12"
-                        fontWeight="bold"
-                        fill={COLORS.floorLine}
-                      >
-                        Floor Line
-                      </text>
+                          {/* Floor line label */}
+                          <text
+                            x="40"
+                            y={floorLineY}
+                            textAnchor="middle"
+                            fontSize="12"
+                            fontWeight="bold"
+                            fill={COLORS.floorLine}
+                          >
+                            Floor Line
+                          </text>
 
-                      {/* Visual indicator markers with animations */}
-                      <circle
-                        cx="90"
-                        cy={centerY}
-                        r="4"
-                        fill={COLORS.measurement}
-                      >
-                        <animate
-                          attributeName="r"
-                          values="3;5;3"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
-                      <circle
-                        cx="90"
-                        cy={floorLineY}
-                        r="4"
-                        fill={COLORS.measurement}
-                      >
-                        <animate
-                          attributeName="r"
-                          values="3;5;3"
-                          dur="2s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
-                    </>
-                  )}
+                          {/* Visual indicator markers with animations */}
+                          <circle
+                            cx="90"
+                            cy={centerY}
+                            r="4"
+                            fill={COLORS.measurement}
+                          >
+                            <animate
+                              attributeName="r"
+                              values="3;5;3"
+                              dur="2s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                          <circle
+                            cx="90"
+                            cy={floorLineY}
+                            r="4"
+                            fill={COLORS.measurement}
+                          >
+                            <animate
+                              attributeName="r"
+                              values="3;5;3"
+                              dur="2s"
+                              repeatCount="indefinite"
+                            />
+                          </circle>
+                        </>
+                      )}
 
                       {/* Arrow Definitions */}
                       <defs>
@@ -1242,7 +1248,9 @@ const Canvas = ({containerRef}) => {
                                   selectedScreen?.["Screen Size"]
                                     ? (
                                         parseFloat(selectedScreen["Height"]) +
-                                        (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                        (selectedScreen["Height"] < 55
+                                          ? 1.5
+                                          : 2)
                                       ).toFixed(2)
                                     : 0
                                 }
@@ -1254,7 +1262,7 @@ const Canvas = ({containerRef}) => {
                                   selectedScreen?.["Screen Size"]
                                     ? (
                                         parseFloat(selectedScreen["Width"]) +
-                                        (selectedScreen["Height"] < 55 ? 1.5 : 2)
+                                        (selectedScreen["Width"] < 55 ? 1.5 : 2)
                                       ).toFixed(2)
                                     : 0
                                 }
@@ -1278,8 +1286,13 @@ const Canvas = ({containerRef}) => {
             // Show this when no valid selections are made
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center text-gray-500">
-                <p className="text-2xl font-semibold mb-4">Welcome to LED Technical Map</p>
-                <p className="text-lg">Please select both a Screen and Mount option to view the layout</p>
+                <p className="text-2xl font-semibold mb-4">
+                  Welcome to LED Technical Map
+                </p>
+                <p className="text-lg">
+                  Please select both a Screen and Mount option to view the
+                  layout
+                </p>
               </div>
             </div>
           )}
@@ -1291,10 +1304,10 @@ const Canvas = ({containerRef}) => {
           >
             {/* Notes Section - REPLACED with NotesEditor component */}
             <div className="v-notes-section flex-1 border border-gray-400 bg-opacity-30 p-2">
-              <NotesEditor componentId={notesComponentId}/>
+              <NotesEditor componentId={notesComponentId} />
             </div>
             <div className="v-info-table flex-1 bg-opacity-30">
-              <InfoTable/>
+              <InfoTable />
             </div>
           </div>
         </div>
